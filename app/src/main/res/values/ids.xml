@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="login" type="id" />
+    <item name="email_sign_in_button" type="id" />
+    <item name="login_form" type="id" />
+    <item name="email" type="id" />
+    <item name="password" type="id" />
+    <item name="pager" type="id">1</item>
+</resources>
