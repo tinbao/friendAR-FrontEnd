@@ -85,6 +85,7 @@ freeline_project_description.json
 
 
 *.iml
+.idea
 .gradle
 /local.properties
 /.idea/workspace.xml

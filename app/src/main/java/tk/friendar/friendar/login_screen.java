@@ -19,4 +19,10 @@ public class login_screen extends AppCompatActivity{
         setContentView(R.layout.login_screen);
     }
 
+    public void submitLogin(View view){
+        Intent intent_submit = new Intent(this,screen1.class);
+        startActivity(intent_submit);
+
+    }
+
 }
