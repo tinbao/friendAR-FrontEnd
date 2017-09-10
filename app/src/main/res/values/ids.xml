@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="login" type="id" />
+    <item name="email_sign_in_button" type="id" />
+    <item name="login_form" type="id" />
+    <item name="email" type="id" />
+    <item name="password" type="id" />
+    <item name="pager" type="id">1</item>
+    <item name="toolbar" type="id">2</item>
+    <item name="box" type="id">3</item>
+    <item name="tabs" type="id">4</item>
+    <item name="drawer_layout" type="id">5</item>
+    <item name="nav_view" type="id">7</item>
+</resources>
