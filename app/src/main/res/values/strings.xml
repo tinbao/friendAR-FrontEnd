@@ -76,4 +76,5 @@
         <item>1991</item>
         <item>1990</item>
     </string-array>
+    <string name="title_activity_maps">Map</string>
 </resources>
