@@ -4,7 +4,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.content.Intent;
 import android.support.v4.view.GestureDetectorCompat;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 
@@ -38,7 +37,6 @@ public class screen2 extends AppCompatActivity {
 
             if (event2.getX() > event1.getX()) {
                 //swipe left to right
-				Log.d("Screen2", "Swiped!");
 
                 Intent intent = new Intent(
                         screen2.this, screen1.class);
