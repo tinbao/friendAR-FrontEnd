@@ -28,13 +28,5 @@ public class friendSearch extends AppCompatActivity {
 
     }
 
-    @Override
-    public boolean OnCreateOptionMenu(Menu menu){
-        MenuInflater inflater  = getMenuInflater();
-        inflater.inflate(R.menu.menu_search, menu);
-        MenuItem item  = menu.findItem(R.id.menuSearch);
 
-
-        return super.OnCreateOptionMenu(menu);
-    }
 }
