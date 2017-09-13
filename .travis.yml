@@ -1,32 +1,37 @@
 android:
   components:
-    # Update Android SDK Tools
-    - tools
-    - build-tools-23.0.1
-    - android-19
-
-    # Support library
-    - extra-android-support
-    - extra-android-m2repository
+  - tools
+  - build-tools-23.0.1
+  - android-19
+  - extra-android-support
+  - extra-android-m2repository
 
 before_cache:
- - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
- - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+  - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 
 cache:
- directories:
- - $HOME/.gradle/caches/
- - $HOME/.gradle/wrapper/
+  directories:
+  - "$HOME/.gradle"
+  - "$HOME/.gradle/caches/"
+  - "$HOME/.gradle/wrapper/"
 
 script:
-- chmod +x ./gradlew
+  - chmod +x ./gradlew
 
-after_failure: "cat $TRAVIS_BUILD_DIR/app/build/outputs/lint-results-debug.xml"
+after_success:
+  - sh set_tags.sh
+
+after_failure:
+  - cat $TRAVIS_BUILD_DIR/app/build/outputs/lint-results-debug.xml
 
 deploy:
-  provider: releases
-  api_key: "GITHUB OAUTH TOKEN"
-  file: "FILE TO UPLOAD"
   skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: HYxb9SvX/ji+QmCc7KxinJCj/Ij944RfVtgURY4T3AVmsFpD4qQmlPr9H3/cyXKR0npEFyBTVosdKgehzSV/m5ochWOAdaTmqNqacSJZxaoCibJBEX3nf9DUWr07KX5dsF4AnOJH8kp4bZ40KK/ayiATL/4lSoXTHd3L8CBa/BK/TQx0gCatqC/VSii0fSf4kzbnlklAPkDXxJl0edUKchvsIT4zsx+GMWfY7kNoTJFQc/fKoieGhRcoLf4jqdBkrfIugfugP0cgMDi6s5geCMMg3h+hpjdmgi1gu1GaFEFqizfRfCvutA9jRXF2I0iOzG7/zXuV+Bl+zBWxPb8qZmccMp9AnJePYdZ7Ig/C17b9LkxBy0V2YDvCMSZjt3s1lmfAfQUzg3k58+vAaSo23FrC/+PKy1wO9BRipysepC/OQUcH8jIcdut/B4n3xbn9HY1kFtwJal9kP+ClCTFH8s+WsGzrkcJqstHkVcxkI5E0YrzOJIfFXy5ee3DOvuTICxKjzOQWPY8aYrw91hFztFDPD/2PFaXQ82aIz258fXqRWoq20AlXXRHam8Y0xDrRzFF0dogGC5b3tcZ6jpoZA5bPtMNd5/9Bl+fjL7ElPHRZpIBwMQ9cjwfNIbTY5JPInMh12iwpGLAf+yiCrU4NfR8qcnMdVoGjnI4BO8g5MSc=
+  file: Nitrogen-Frontend/build/outputs/apk/Friendarapp*release*.apk
+  file_glob: "true"
   on:
-    tags: true
+    repo: COMP30022/Nitrogen-FrontEnd
+    branch: master
