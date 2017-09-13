@@ -17,8 +17,6 @@ import java.util.Calendar;
 
 import java.util.GregorianCalendar;
 
-
-
 /**
  * Created by Simon on 8/22/2017.
  */
@@ -29,8 +27,8 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.signup);
-    }
 
+    }
 
     public void datePicker(View view){
 
