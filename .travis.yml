@@ -2,9 +2,8 @@ android:
   components:
     # Update Android SDK Tools
     - tools
-
     - build-tools-23.0.1
-    - android-23
+    - android-19
 
     # Support library
     - extra-android-support
@@ -19,8 +18,15 @@ cache:
  - $HOME/.gradle/caches/
  - $HOME/.gradle/wrapper/
 
-
 script:
 - chmod +x ./gradlew
 
 after_failure: "cat $TRAVIS_BUILD_DIR/app/build/outputs/lint-results-debug.xml"
+
+deploy:
+  provider: releases
+  api_key: "GITHUB OAUTH TOKEN"
+  file: "FILE TO UPLOAD"
+  skip_cleanup: true
+  on:
+    tags: true
