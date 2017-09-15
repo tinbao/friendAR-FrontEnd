@@ -3,10 +3,14 @@
 
 BRANCH="travis-cd"
 
-if [ "$TRAVIS_BRANCH" = "$BRANCH" ]; then
-  if [ "$TRAVIS_PULL_REQUEST" = false ]; then
-  	if [ -z "$TRAVIS_TAG" ]; then
-	    echo -e "Starting to tag commit.\n"
+if [ "$TRAVIS_BRANCH" = "$BRANCH" ]
+then
+  echo "Current Travis $TRAVIS_BRANCH"
+  if [ "$TRAVIS_PULL_REQUEST" = false ]
+  then
+  	if [ -z "$TRAVIS_TAG" ]
+    then
+	    echo "Starting to tag commit.\n"
 
 	    git config --global user.email "travis@travis-ci.org"
 	    git config --global user.name "Travis"
@@ -16,7 +20,7 @@ if [ "$TRAVIS_BRANCH" = "$BRANCH" ]; then
 	    git push origin --tags
 	    git fetch origin
 
-	    echo -e "Done magic with tags.\n"
+	    echo "Done magic with tags.\n"
 	  fi
   fi
 fi
