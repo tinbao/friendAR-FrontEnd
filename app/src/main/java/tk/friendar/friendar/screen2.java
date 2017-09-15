@@ -7,6 +7,8 @@ import android.support.v4.view.GestureDetectorCompat;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 
+import tk.friendar.friendar.arscreen.VRActivity;
+
 public class screen2 extends AppCompatActivity {
     private GestureDetectorCompat gestureObject;
     @Override
@@ -41,10 +43,11 @@ public class screen2 extends AppCompatActivity {
                 finish();
                 startActivity(intent);
             } else if (event2.getX() < event1.getX()) {
-                //swipe right to left
+                //swipe right to left, open ar screen
 
-
-
+				Intent intent = new Intent(screen2.this, VRActivity.class);
+				finish();
+				startActivity(intent);
             }
             return true;
 
