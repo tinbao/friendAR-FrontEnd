@@ -76,4 +76,14 @@
         <item>1991</item>
         <item>1990</item>
     </string-array>
+    <string-array name="friend_array">
+        <item>Simon</item>
+        <item>James</item>
+        <item>Matt</item>
+        <item>Tin</item>
+        <item>Luca</item>
+        <item>Bob</item>
+
+    </string-array>
+    <string name="title_activity_maps">Map</string>
 </resources>
