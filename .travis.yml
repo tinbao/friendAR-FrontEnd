@@ -12,6 +12,7 @@ script:
 after_success:
   - echo "Deploying build $TRAVIS_BUILD_NUMBER"
   - sh set_tags.sh
+  - ls Nitrogen-FrontEnd/build/outputs/apk
 
 after_failure:
   - cat $TRAVIS_BUILD_DIR/app/build/outputs/lint-results-debug.xml
@@ -22,7 +23,7 @@ deploy:
   api_key:
     secure: HYxb9SvX/ji+QmCc7KxinJCj/Ij944RfVtgURY4T3AVmsFpD4qQmlPr9H3/cyXKR0npEFyBTVosdKgehzSV/m5ochWOAdaTmqNqacSJZxaoCibJBEX3nf9DUWr07KX5dsF4AnOJH8kp4bZ40KK/ayiATL/4lSoXTHd3L8CBa/BK/TQx0gCatqC/VSii0fSf4kzbnlklAPkDXxJl0edUKchvsIT4zsx+GMWfY7kNoTJFQc/fKoieGhRcoLf4jqdBkrfIugfugP0cgMDi6s5geCMMg3h+hpjdmgi1gu1GaFEFqizfRfCvutA9jRXF2I0iOzG7/zXuV+Bl+zBWxPb8qZmccMp9AnJePYdZ7Ig/C17b9LkxBy0V2YDvCMSZjt3s1lmfAfQUzg3k58+vAaSo23FrC/+PKy1wO9BRipysepC/OQUcH8jIcdut/B4n3xbn9HY1kFtwJal9kP+ClCTFH8s+WsGzrkcJqstHkVcxkI5E0YrzOJIfFXy5ee3DOvuTICxKjzOQWPY8aYrw91hFztFDPD/2PFaXQ82aIz258fXqRWoq20AlXXRHam8Y0xDrRzFF0dogGC5b3tcZ6jpoZA5bPtMNd5/9Bl+fjL7ElPHRZpIBwMQ9cjwfNIbTY5JPInMh12iwpGLAf+yiCrU4NfR8qcnMdVoGjnI4BO8g5MSc=
   file: Nitrogen-FrontEnd/build/outputs/apk/Friendarapp*release*.apk
-  file_glob: true
+  file_glob: "true"
   on:
     repo: COMP30022/Nitrogen-FrontEnd
     branch: front-cd
