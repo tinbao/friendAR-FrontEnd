@@ -2,12 +2,12 @@
 #set -eox
 
 BRANCH="travis-cd"
-echo "success"
 echo "Current Travis $TRAVIS_BRANCH"
 
-if [ "$TRAVIS_BRANCH" -eq "$BRANCH" ];
+if [ "$TRAVIS_BRANCH"="$BRANCH" ];
 then
-  if [ "$TRAVIS_PULL_REQUEST" = false ];
+  echo "success"
+  if [ "$TRAVIS_PULL_REQUEST"=false ];
   then
   	if [ -z "$TRAVIS_TAG" ];
     then
