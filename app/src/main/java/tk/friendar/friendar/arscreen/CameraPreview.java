@@ -47,6 +47,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 		// Otherwise try to start
 		try {
 			camera.setPreviewDisplay(mHolder);
+			camera.setDisplayOrientation(90);
 			camera.startPreview();
 		} catch (IOException e) {
 			throw new RuntimeException("ERROR starting camera preview");
@@ -65,6 +66,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     public void surfaceDestroyed(SurfaceHolder holder) {
+		Log.d(TAG,"surface destroyed");
 		surfaceCreated = false;
 		// release the Camera in activity
     }
@@ -78,10 +80,6 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 
         // Stop preview before making changes
 		camera.stopPreview();
-
-		// Rotate
-		// FIXME fix camera rotating again after closing/opening app
-		camera.setDisplayOrientation(90);
 
 		// Paramater changes
 		Camera.Parameters params = camera.getParameters();
