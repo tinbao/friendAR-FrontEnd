@@ -24,7 +24,6 @@ deploy:
   file: Nitrogen-FrontEnd/build/outputs/apk/Friendarapp*release*.apk
   file_glob: true
   on:
-    tags: true
     repo: COMP30022/Nitrogen-FrontEnd
     branch: front-cd
 
