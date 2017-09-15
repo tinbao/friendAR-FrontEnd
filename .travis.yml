@@ -10,7 +10,7 @@ script:
   - chmod +x ./gradlew
 
 after_success:
-  - echo "Deploying build $TRAVIS_BUILD_NUMBER
+  - echo "Deploying build $TRAVIS_BUILD_NUMBER"
   - sh set_tags.sh
 
 after_failure:
