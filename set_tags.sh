@@ -5,7 +5,7 @@ BRANCH="travis-cd"
 echo "success"
 echo "Current Travis $TRAVIS_BRANCH"
 
-if [ "$TRAVIS_BRANCH" = "$BRANCH" ];
+if [ "$TRAVIS_BRANCH" -eq "$BRANCH" ];
 then
   if [ "$TRAVIS_PULL_REQUEST" = false ];
   then
