@@ -1,4 +1,7 @@
-BRANCH="master"
+#!/bin/bash
+#set -eox
+
+BRANCH="travis-cd"
 
 if [ "$TRAVIS_BRANCH" = "$BRANCH" ]; then
   if [ "$TRAVIS_PULL_REQUEST" = false ]; then
@@ -14,6 +17,6 @@ if [ "$TRAVIS_BRANCH" = "$BRANCH" ]; then
 	    git fetch origin
 
 	    echo -e "Done magic with tags.\n"
-	fi
+	  fi
   fi
 fi

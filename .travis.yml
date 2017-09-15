@@ -6,16 +6,6 @@ android:
   - extra-android-support
   - extra-android-m2repository
 
-before_cache:
-  - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
-  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
-
-cache:
-  directories:
-  - "$HOME/.gradle"
-  - "$HOME/.gradle/caches/"
-  - "$HOME/.gradle/wrapper/"
-
 script:
   - chmod +x ./gradlew
 
@@ -33,5 +23,16 @@ deploy:
   file: Nitrogen-FrontEnd/app/build/outputs/apk/Friendarapp*release*.apk
   file_glob: true
   on:
+    tags: true
     repo: COMP30022/Nitrogen-FrontEnd
     branch: front-cd
+
+before_cache:
+  - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
+cache:
+  directories:
+  - "$HOME/.gradle"
+  - "$HOME/.gradle/caches/"
+  - "$HOME/.gradle/wrapper/"
