@@ -1,7 +1,7 @@
 #!/bin/bash
 #set -eox
 
-BRANCH = "travis-cd"
+BRANCH="travis-cd"
 echo "success"
 
 if [ "$TRAVIS_BRANCH" = "$BRANCH" ];
