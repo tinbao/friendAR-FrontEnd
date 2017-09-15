@@ -38,7 +38,8 @@
         </activity>
         <activity android:name=".screen2">
         </activity>
-        <activity android:name=".AR" />
+        <activity android:name=".arscreen.VRActivity">
+        </activity>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
