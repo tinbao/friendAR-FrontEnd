@@ -1,29 +1,23 @@
 #!/bin/bash
 #set -eox
 
-BRANCH = "travis-cd"
-echo "success"
+export SEMVER_LAST_TAG=$(git describe --abbrev=0 --tags 2>/dev/null)
+export SEMVER_RELEASE_LEVEL=$(git log --oneline -1 --pretty=%B | cat | tr -d '\n' | cut -d "[" -f2 | cut -d "]" -f1)
 
-if [ "$TRAVIS_BRANCH" = "$BRANCH" ]
-then
-  echo "Current Travis $TRAVIS_BRANCH"
-  if [ "$TRAVIS_PULL_REQUEST" = false ]
-  then
-  	if [ -z "$TRAVIS_TAG" ]
-    then
-	    echo "Starting to tag commit.\n"
+if [ -z $SEMVER_LAST_TAG ]; then
+    echo "No tags defined"
+fi
 
-	    git config --global user.email "travis@travis-ci.org"
-	    git config --global user.name "Travis"
-
-	    # Add tag and push to master.
-	    git tag -a v${TRAVIS_BUILD_NUMBER} -m "Travis build $TRAVIS_BUILD_NUMBER pushed a tag."
-	    git push origin --tags
-	    git fetch origin
-
-	    echo "Done magic with tags.\n"
-	  fi
-  fi
+if [ -n $SEMVER_RELEASE_LEVEL ]; then
+    git clone https://github.com/fsaintjacques/semver-tool /tmp/semver
+    $(cd /tmp/semver; git checkout tags/1.2.1)
+    export PATH=$PATH:/tmp/semver/src
+    semver init $SEMVER_LAST_TAG &>/dev/null
+    semver bump $SEMVER_RELEASE_LEVEL &>/dev/null
+    git tag $(semver)
+    git push origin --tags
+else
+    echo "No release level defined"
 fi
 
 exit 0
