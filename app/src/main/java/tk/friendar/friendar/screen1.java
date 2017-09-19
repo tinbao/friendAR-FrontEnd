@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.view.View;
 
 public class screen1 extends AppCompatActivity {
     private GestureDetectorCompat gestureObject;
@@ -23,6 +24,11 @@ public class screen1 extends AppCompatActivity {
     public boolean onTouchEvent(MotionEvent event) {
         this.gestureObject.onTouchEvent(event);
         return super.onTouchEvent(event);
+    }
+
+    public void Maps(View view) {
+        Intent intent_map = new Intent(this, MapsActivity.class);
+        startActivity(intent_map);
     }
     //Gesture Class
 
