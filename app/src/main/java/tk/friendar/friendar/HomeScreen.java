@@ -9,13 +9,13 @@ import android.view.MotionEvent;
 
 import tk.friendar.friendar.arscreen.VRActivity;
 
-public class screen2 extends AppCompatActivity {
+public class HomeScreen extends AppCompatActivity {
     private GestureDetectorCompat gestureObject;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_screen2);
-        gestureObject = new GestureDetectorCompat(this, new screen2.LearnGesture());
+        setContentView(R.layout.home_screen);
+        gestureObject = new GestureDetectorCompat(this, new HomeScreen.LearnGesture());
         //LearnGesture is a class
     }
 
@@ -39,13 +39,13 @@ public class screen2 extends AppCompatActivity {
                 //swipe left to right
 
                 Intent intent = new Intent(
-                        screen2.this, screen1.class);
+                        HomeScreen.this, screen1.class);
                 finish();
                 startActivity(intent);
             } else if (event2.getX() < event1.getX()) {
                 //swipe right to left, open ar screen
 
-				Intent intent = new Intent(screen2.this, VRActivity.class);
+				Intent intent = new Intent(HomeScreen.this, VRActivity.class);
 				finish();
 				startActivity(intent);
             }

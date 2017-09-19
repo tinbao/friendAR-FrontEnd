@@ -41,7 +41,7 @@ public class screen1 extends AppCompatActivity {
             } else if (event2.getX() < event1.getX()) {
                 //swipe right to left
                 Intent intent = new Intent(
-                    screen1.this, screen2.class);
+                    screen1.this, HomeScreen.class);
                     finish();
                     startActivity(intent);
 
