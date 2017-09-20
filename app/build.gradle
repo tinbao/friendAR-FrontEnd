@@ -29,11 +29,10 @@ dependencies {
     compile 'com.android.support:design:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.google.android.gms:play-services-maps:11.0.4'
-
     // For the REST Client side communication
     compile 'com.mcxiaoke.volley:library:1.0.19'
-
     // Unit testing dependencies
     testCompile 'junit:junit:4.12'
-    // testCompile 'org.mockito:mockito-core:'
+    androidTestCompile 'org.mockito:mockito-core:2.10.0'
+    testCompile files('libs-test/json-20140107.jar')
 }
