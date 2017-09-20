@@ -17,7 +17,7 @@ cache:
   - "$HOME/.gradle/wrapper/"
 
 script:
-  bash gradlew test jacocoTestReport
+  - chmod -x ./gradlew test jacocoTestReport
 
 after_success:
   - sh set_tags.sh
