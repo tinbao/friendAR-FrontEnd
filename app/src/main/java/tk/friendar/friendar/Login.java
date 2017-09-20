@@ -22,14 +22,15 @@ public class Login extends AppCompatActivity {
         Intent intent_signup = new Intent(this,signUp.class);
         startActivity(intent_signup);
 
-
-
     }
+
     public void login(View view){
         Intent intent_login = new Intent(this,login_screen.class);
         startActivity(intent_login);
 
     }
+
+
 
 
 }
