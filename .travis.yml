@@ -18,7 +18,7 @@ cache:
 
 script:
   - chmod +x ./gradlew
-  - ./gradlew test
+  - chmod +x ./gradlew test
 
 after_success:
   - sh set_tags.sh
