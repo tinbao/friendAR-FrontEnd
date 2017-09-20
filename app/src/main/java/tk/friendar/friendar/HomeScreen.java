@@ -6,17 +6,31 @@ import android.content.Intent;
 import android.support.v4.view.GestureDetectorCompat;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
+import java.util.ArrayList;
 
 import tk.friendar.friendar.arscreen.VRActivity;
+import tk.friendar.friendar.testing.DummyData;
 
 public class HomeScreen extends AppCompatActivity {
     private GestureDetectorCompat gestureObject;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home_screen);
+
+		// Meeting List
+		ArrayList<Meeting> meetings = DummyData.getMeetings();
+		ArrayAdapter<Meeting> listAdapter = new ArrayAdapter<Meeting>(this,
+				R.layout.home_screen_list_elem, meetings);
+		ListView listView = (ListView) findViewById(R.id.meeting_list);
+		listView.setAdapter(listAdapter);
+
+        // Gesture
         gestureObject = new GestureDetectorCompat(this, new HomeScreen.LearnGesture());
-        //LearnGesture is a class
     }
 
     @Override

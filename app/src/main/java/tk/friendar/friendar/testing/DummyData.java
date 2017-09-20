@@ -4,6 +4,7 @@ import android.location.Location;
 
 import java.util.ArrayList;
 
+import tk.friendar.friendar.Meeting;
 import tk.friendar.friendar.User;
 import tk.friendar.friendar.arscreen.LocationHelper;
 
@@ -36,5 +37,36 @@ public class DummyData {
 
 	public static Location getDeviceLocation() {
 		return LocationHelper.fromLatLon(-37.78277, 144.99436);
+	}
+
+	public static ArrayList<Meeting> getMeetings() {
+		ArrayList<Meeting> meetings = new ArrayList<>();
+		Meeting m;
+
+		m = new Meeting("IT Project Devs");
+		meetings.add(m);
+
+		m = new Meeting("Cool Guys Club");
+		meetings.add(m);
+
+		// Test long group names
+		m = new Meeting("Extremely Verbose Title Naming Appreciation Group Meeting");
+		meetings.add(m);
+
+		m = new Meeting("Super Dooper Overly Long Titles Why Would Anyone Do This What Am I Doing With My Life");
+		meetings.add(m);
+
+		return meetings;
+	}
+
+	public static ArrayList<Meeting> getManyMeetings() {
+		ArrayList<Meeting> meetings = new ArrayList<>();
+
+		for (int i = 0; i < 20; i++) {
+			Meeting m = new Meeting("Meeting " + (i+1));
+			meetings.add(m);
+		}
+
+		return meetings;
 	}
 }
