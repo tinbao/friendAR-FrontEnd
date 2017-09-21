@@ -9,8 +9,6 @@ env:
 
 android:
   components:
-  - tools
-  - tools
   - build-tools-$ANDROID_BUILD_TOOLS_VERSION
   - android-$ANDROID_API_LEVEL
   - extra-android-support
@@ -27,13 +25,14 @@ cache:
   - "$HOME/.gradle/caches/"
   - "$HOME/.gradle/wrapper/"
 
+install:
+  - travis_wait mvn install
+
 before_script:
   - echo no | android create avd --force -n test -t "android-19" --abi $ANDROID_ABI --tag $ANDROID_TAG
   - emulator -avd test -no-skin -no-audio -no-window &
   - android-wait-for-emulator
   - adb shell input keyevent 82 &
-
-before_install:
   - chmod 711 gradlew
 
 script:
