@@ -10,13 +10,13 @@ env:
 
 android:
   components:
-    - tools
-    - build-tools-${ANDROID_BUILD_TOOLS_VERSION}
-    - platform-tools
-    - tools
-    - android-${ANDROID_API_LEVEL}
-    - extra-android-support
-    - extra-android-m2repository
+    - tools > /dev/null 2>&1
+    - build-tools-${ANDROID_BUILD_TOOLS_VERSION} > /dev/null 2>&1
+    - platform-tools > /dev/null 2>&1
+    - tools > /dev/null 2>&1
+    - android-${ANDROID_API_LEVEL} > /dev/null 2>&1
+    - extra-android-support > /dev/null 2>&1
+    - extra-android-m2repository > /dev/null 2>&1
     - sys-img-${ANDROID_ABI}-${ANDROID_TAG}-${ANDROID_API_LEVEL}
 
 licenses:
@@ -50,9 +50,9 @@ install:
   - echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout;1.0.2" > /dev/null 2>&1
   - echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout-solver;1.0.2" > /dev/null 2>&1
   # Show version and download Gradle Wrapper if it's not already cached
-  - cd ${TRAVIS_BUILD_DIR}/${HOME} && ./gradlew --version
+  - ./gradlew --version
   # Clean project and download missing dependencies and components
-  - cd ${TRAVIS_BUILD_DIR}/${HOME} && ./gradlew clean build
+  - ./gradlew clean build
   # Check components status
   - sdkmanager --list || true
 
@@ -61,7 +61,7 @@ before_script:
   #- emulator -avd test -no-skin -no-audio -no-window &
   #- android-wait-for-emulator
   #- adb shell input keyevent 82 &
-  - chmod 771 gradlew
+  #- chmod 771 gradlew
 
 script:
   - ./gradlew connectedCheck
