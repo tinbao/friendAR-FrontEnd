@@ -1,4 +1,5 @@
 language: android
+sudo: required
 
 env:
   global:
@@ -9,13 +10,14 @@ env:
 
 android:
   components:
+    - tools
+    - build-tools-${ANDROID_BUILD_TOOLS_VERSION}
     - platform-tools
     - tools
-    - build-tools-$ANDROID_BUILD_TOOLS_VERSION
-    - android-$ANDROID_API_LEVEL
+    - android-${ANDROID_API_LEVEL}
     - extra-android-support
     - extra-android-m2repository
-    - sys-img-$ANDROID_ABI-$ANDROID_TAG-$ANDROID_API_LEVEL
+    - sys-img-${ANDROID_ABI}-${ANDROID_TAG}-${ANDROID_API_LEVEL}
 
 licenses:
   - 'android-sdk-preview-license-.+'
@@ -25,12 +27,43 @@ licenses:
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+  - rm -f $HOME/gradle/caches/3.3/classAnalysis/classAnalysis.lock
+  - rm -f $HOME/gradle/caches/3.3/jarSnapshots/jarSnapshots.lock
 
 cache:
   directories:
   - "$HOME/.gradle"
   - "$HOME/.gradle/caches/"
   - "$HOME/.gradle/wrapper/"
+
+install:
+  # List and delete unnecessary components to free space
+  - sdkmanager --list || true
+  - sdkmanager --uninstall "system-images;android-15;default;armeabi-v7a"
+  - sdkmanager --uninstall "system-images;android-16;default;armeabi-v7a"
+  - sdkmanager --uninstall "system-images;android-17;default;armeabi-v7a"
+  - sdkmanager --uninstall "extras;google;google_play_services"
+  - sdkmanager --uninstall "extras;android;support"
+  - sdkmanager --uninstall "platforms;android-10"
+  - sdkmanager --uninstall "platforms;android-15"
+  - sdkmanager --uninstall "platforms;android-16"
+  - sdkmanager --uninstall "platforms;android-17"
+  - sdkmanager --uninstall "platforms;android-18"
+  - sdkmanager --uninstall "build-tools;21.1.2"
+  # Update sdk tools to latest version and install/update components
+  - echo yes | sdkmanager "tools"
+  - echo yes | sdkmanager "platforms;android-25" # Latest platform required by SDK tools
+  - echo yes | sdkmanager "platforms;android-${ANDROID_API_LEVEL}" # Android platform required by emulator
+  - echo yes | sdkmanager "extras;android;m2repository"
+  - echo yes | sdkmanager "extras;google;m2repository"
+  - echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout;1.0.2"
+  - echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout-solver;1.0.2"
+  # Show version and download Gradle Wrapper if it's not already cached
+  - cd ${TRAVIS_BUILD_DIR}/${HOME} && ./gradlew --version
+  # Clean project and download missing dependencies and components
+  - cd ${TRAVIS_BUILD_DIR}/${HOME} && ./gradlew clean build
+  # Check components status
+  - sdkmanager --list || true
 
 before_script:
   #- echo no | android create avd --force -n test -t "android-19" --abi $ANDROID_ABI --tag $ANDROID_TAG
@@ -40,7 +73,7 @@ before_script:
   - chmod 771 gradlew
 
 script:
-  - ./gradlew test
+  - ./gradlew connectedCheck
 
 after_success:
   - sh set_tags.sh
