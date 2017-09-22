@@ -4,8 +4,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.content.Intent;
 import android.support.v4.view.GestureDetectorCompat;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -17,6 +20,8 @@ import tk.friendar.friendar.testing.DummyData;
 public class HomeScreen extends AppCompatActivity {
     private GestureDetectorCompat gestureObject;
 
+	private static final String TAG = "HomeScreen";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,20 +31,29 @@ public class HomeScreen extends AppCompatActivity {
 		ArrayList<Meeting> meetings = DummyData.getMeetings();
 		ArrayAdapter<Meeting> listAdapter = new ArrayAdapter<Meeting>(this,
 				R.layout.home_screen_list_elem, meetings);
-		ListView listView = (ListView) findViewById(R.id.meeting_list);
+		ListView listView = (ListView) findViewById(R.id.home_screen_meeting_list);
 		listView.setAdapter(listAdapter);
 
-        // Gesture
+        // Swipe Gestures
         gestureObject = new GestureDetectorCompat(this, new HomeScreen.LearnGesture());
-    }
+		listView.setOnTouchListener(new View.OnTouchListener() {
+			@Override
+			public boolean onTouch(View view, MotionEvent motionEvent) {
+				return gestureObject.onTouchEvent(motionEvent);
+			}
+		});
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        this.gestureObject.onTouchEvent(event);
-        return super.onTouchEvent(event);
-    }
+		// Item Click
+		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				Meeting m = (Meeting)((ListView)view).getAdapter().getItem(position);
+				Log.d(TAG, "Clicked: " + m.getName());
+			}
+		});
+	}
+
     //Gesture Class
-
     class LearnGesture extends GestureDetector.SimpleOnGestureListener {
         //creating a listener
 
