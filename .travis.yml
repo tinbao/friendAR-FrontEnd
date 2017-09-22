@@ -64,7 +64,7 @@ before_script:
   #- chmod 771 gradlew
 
 script:
-  - ./gradlew connectedCheck
+  - chmod +x ./gradlew connectedCheck
 
 after_success:
   - sh set_tags.sh
