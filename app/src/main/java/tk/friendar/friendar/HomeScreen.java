@@ -44,13 +44,7 @@ public class HomeScreen extends AppCompatActivity {
 		});
 
 		// Item Click
-		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				Meeting m = (Meeting)((ListView)view).getAdapter().getItem(position);
-				Log.d(TAG, "Clicked: " + m.getName());
-			}
-		});
+		listView.setOnItemClickListener(new ItemClickListener());
 	}
 
     //Gesture Class
@@ -64,15 +58,10 @@ public class HomeScreen extends AppCompatActivity {
                                float velocityX, float velocityY) {
 
             if (event2.getX() > event1.getX()) {
-                //swipe left to right
-
-                Intent intent = new Intent(
-                        HomeScreen.this, screen1.class);
-                finish();
-                startActivity(intent);
+				// swipe right to left
+				// TODO maybe support swiping on items
             } else if (event2.getX() < event1.getX()) {
-                //swipe right to left, open ar screen
-
+                //swipe left to right open ar screen
 				Intent intent = new Intent(HomeScreen.this, VRActivity.class);
 				finish();
 				startActivity(intent);
@@ -81,4 +70,17 @@ public class HomeScreen extends AppCompatActivity {
 
         }
     }
+
+    // List item click listener
+	class ItemClickListener implements AdapterView.OnItemClickListener {
+		@Override
+		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+			Meeting m = (Meeting)parent.getItemAtPosition(position);
+			Log.d(TAG, "Clicked: " + m.getName());
+
+			Intent intent = new Intent(HomeScreen.this, screen1.class);
+			finish();
+			startActivity(intent);
+		}
+	};
 }
