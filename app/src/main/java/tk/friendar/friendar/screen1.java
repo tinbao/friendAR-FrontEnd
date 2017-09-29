@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.widget.TextView;
 
 public class screen1 extends AppCompatActivity {
     private GestureDetectorCompat gestureObject;
@@ -14,9 +15,11 @@ public class screen1 extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_screen1);
-
         gestureObject = new GestureDetectorCompat(this, new LearnGesture());
         //LearnGesture is a class
+
+		int id = getIntent().getIntExtra(HomeScreen.EXTRA_MEETING_ID, -1);
+		((TextView)findViewById(R.id.textView4)).setText("meeting id = " + id);
     }
 
     @Override

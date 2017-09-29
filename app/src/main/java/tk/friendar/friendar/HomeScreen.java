@@ -21,6 +21,7 @@ public class HomeScreen extends AppCompatActivity {
     private GestureDetectorCompat gestureObject;
 
 	private static final String TAG = "HomeScreen";
+	public static final String EXTRA_MEETING_ID = "EXTRA_MEETING_ID";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +80,7 @@ public class HomeScreen extends AppCompatActivity {
 			Log.d(TAG, "Clicked: " + m.getName());
 
 			Intent intent = new Intent(HomeScreen.this, screen1.class);
+			intent.putExtra(EXTRA_MEETING_ID, m.getId());
 			finish();
 			startActivity(intent);
 		}

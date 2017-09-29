@@ -43,17 +43,17 @@ public class DummyData {
 		ArrayList<Meeting> meetings = new ArrayList<>();
 		Meeting m;
 
-		m = new Meeting("IT Project Devs");
+		m = new Meeting("IT Project Devs", 0);
 		meetings.add(m);
 
-		m = new Meeting("Cool Guys Club");
+		m = new Meeting("Cool Guys Club", 1);
 		meetings.add(m);
 
 		// Test long group names
-		m = new Meeting("Extremely Verbose Title Naming Appreciation Group Meeting");
+		m = new Meeting("Extremely Verbose Title Naming Appreciation Group Meeting", 2);
 		meetings.add(m);
 
-		m = new Meeting("Super Dooper Overly Long Titles Why Would Anyone Do This What Am I Doing With My Life");
+		m = new Meeting("Super Dooper Overly Long Titles Why Would Anyone Do This What Am I Doing With My Life", 3);
 		meetings.add(m);
 
 		return meetings;
@@ -63,7 +63,7 @@ public class DummyData {
 		ArrayList<Meeting> meetings = new ArrayList<>();
 
 		for (int i = 0; i < 20; i++) {
-			Meeting m = new Meeting("Meeting " + (i+1));
+			Meeting m = new Meeting("Meeting " + (i+1), i);
 			meetings.add(m);
 		}
 
