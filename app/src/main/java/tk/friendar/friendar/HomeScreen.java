@@ -62,7 +62,8 @@ public class HomeScreen extends AppCompatActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.action_new_meeting:
-				Log.d(TAG, "Creating new meeting");
+				Intent intent = new Intent(this, NewMeetingActivity.class);
+				startActivity(intent);
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
