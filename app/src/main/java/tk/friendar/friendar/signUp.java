@@ -8,7 +8,9 @@ import android.view.View;
 import android.widget.DatePicker;
 import android.app.Dialog;
 
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.AutoCompleteTextView;
 import android.app.DatePickerDialog;
 
 import android.support.v4.app.DialogFragment;
@@ -23,11 +25,22 @@ import java.util.GregorianCalendar;
 
 public class signUp extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
+    /* UI Objects and References */
+    private View mLoginFormView;
+    private EditText mPasswordView;
+    private EditText mNameView;
+    private AutoCompleteTextView mEmailView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.signup);
 
+        // Set up the login form.
+        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
+        //System.out.println();
+
+        mPasswordView = (EditText) findViewById(R.id.password);
     }
 
     public void datePicker(View view){
