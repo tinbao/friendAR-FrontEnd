@@ -6,6 +6,9 @@ import android.content.Intent;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -48,7 +51,25 @@ public class HomeScreen extends AppCompatActivity {
 		listView.setOnItemClickListener(new ItemClickListener());
 	}
 
-    //Gesture Class
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.home_screen_menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.action_new_meeting:
+				Log.d(TAG, "Creating new meeting");
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
+	}
+
+	//Gesture Class
     class LearnGesture extends GestureDetector.SimpleOnGestureListener {
         //creating a listener
 
