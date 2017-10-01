@@ -34,6 +34,6 @@ dependencies {
     compile 'com.mcxiaoke.volley:library:1.0.19'
 
     // Unit testing dependencies
-    testCompile 'junit:junit:4.12' + rootProject.junitVersion
-    testCompile 'org.mockito:mockito-core:' + rootProject.mockitoVersion;
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.mockito:mockito-core:'
 }
