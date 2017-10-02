@@ -10,7 +10,7 @@ import android.app.Dialog;
 
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.app.DatePickerDialog;
 
 import android.support.v4.app.DialogFragment;
@@ -28,8 +28,9 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
     /* UI Objects and References */
     private View mLoginFormView;
     private EditText mPasswordView;
-    private EditText mNameView;
-    private AutoCompleteTextView mEmailView;
+    private EditText mPassword2View;
+    private EditText mEmailView;
+    private Button mComplete;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,10 +38,13 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
         setContentView(R.layout.signup);
 
         // Set up the login form.
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
-        //System.out.println();
+        mEmailView = (EditText) findViewById(R.id.email);
 
+        /* Checks if the password is input the same twice */
         mPasswordView = (EditText) findViewById(R.id.password);
+        mPassword2View = (EditText) findViewById(R.id.password2);
+
+        mComplete = (Button) findViewById(R.id.complete_signup);
     }
 
     public void datePicker(View view){
