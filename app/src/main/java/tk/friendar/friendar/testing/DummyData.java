@@ -35,6 +35,18 @@ public class DummyData {
 		return friends;
 	}
 
+	public static ArrayList<User> getManyFriends() {
+		ArrayList<User> friends = new ArrayList<>();
+
+		for (int i = 0; i < 20; i++) {
+			User friend = new User("Friend " + (i + 1), "fr3nd" + i, "friend" + i + "@gmail.com");
+			friend.setLocation(LocationHelper.fromLatLon(-37.7, 144.9));
+			friends.add(friend);
+		}
+
+		return friends;
+	}
+
 	public static Location getDeviceLocation() {
 		return LocationHelper.fromLatLon(-37.78277, 144.99436);
 	}
