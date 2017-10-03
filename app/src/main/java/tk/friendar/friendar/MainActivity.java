@@ -38,11 +38,11 @@ public class MainActivity extends AppCompatActivity {
         complete = (Button) findViewById(R.id.complete_signup);
 
         //if the user is already logged in we will directly start the profile activity
-        if (SharedPrefManager.getInstance(this).isLoggedIn()) {
+        /*if (SharedPrefManager.getInstance(this).isLoggedIn()) {
             finish();
             startActivity(new Intent(this, ProfileActivity.class));
             return;
-        }
+        }*/
 
         userEmail = (EditText) findViewById(R.id.email);
         userPassword = (EditText) findViewById(R.id.password);
@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, URLs.URL_REGISTER, new Response.Listener<String>() {
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, URLs.URL_SIGNUP, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 progressBar.setVisibility(View.GONE);
@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
                         );
 
                         //storing the user in shared preferences
-                        SharedPrefManager.getInstance(getApplicationContext()).userLogin(user);
+                        //SharedPrefManager.getInstance(getApplicationContext()).userLogin(user);
 
                         //starting the profile activity
                         finish();
