@@ -7,10 +7,16 @@ Front End build of the FRIENDAR mobile application developed in native android a
 
 * Augmented Reality Friend Finding
 * Group Communications
-* ​
+* "*I'm Feeling Lucky*" Notable Location Search
+
+
 
 ### Install Instructions
 
+* Prerequisite Installs
+  * Java JDK 8.0
+  * JUnit 4.12
+  * Android 19 (4.4 Lollipop)
 * ​
 
 
