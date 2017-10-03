@@ -2,8 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_new_meeting"
-        android:icon="@drawable/ic_add_box_white_24dp"
-        android:title="New Meeting"
+        android:id="@+id/action_add_friend"
+        android:icon="@drawable/ic_person_add_white_24dp"
+        android:title="Add Friend"
         app:showAsAction="always"/>
 </menu>

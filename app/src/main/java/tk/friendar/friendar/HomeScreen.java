@@ -1,5 +1,6 @@
 package tk.friendar.friendar;
 
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.content.Intent;
@@ -49,6 +50,16 @@ public class HomeScreen extends AppCompatActivity {
 
 		// Item Click
 		listView.setOnItemClickListener(new ItemClickListener());
+
+		// New Group floating button
+		FloatingActionButton fab = (FloatingActionButton)findViewById(R.id.home_screen_add_meeting_floating_button);
+		fab.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				Intent intent = new Intent(HomeScreen.this, NewMeetingActivity.class);
+				startActivity(intent);
+			}
+		});
 	}
 
 	@Override
@@ -61,9 +72,9 @@ public class HomeScreen extends AppCompatActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case R.id.action_new_meeting:
-				Intent intent = new Intent(this, NewMeetingActivity.class);
-				startActivity(intent);
+			case R.id.action_add_friend:
+				//Intent intent = new Intent(this, AddFriendActivity.class);
+				//startActivity(intent);
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
