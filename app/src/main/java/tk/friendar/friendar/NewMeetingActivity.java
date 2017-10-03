@@ -36,7 +36,7 @@ public class NewMeetingActivity extends AppCompatActivity {
 		ab.setDisplayHomeAsUpEnabled(true);
 
 		// Friend list
-		ArrayList<User> friends = DummyData.getManyFriends();
+		ArrayList<User> friends = DummyData.getFriends();
 		listAdapter = new UserListAdapter(friends);
 		ListView listView = (ListView) findViewById(R.id.new_meeting_user_list);
 		listView.setAdapter(listAdapter);

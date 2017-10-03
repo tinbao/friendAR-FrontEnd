@@ -5,14 +5,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/new_meeting_user_item"
     android:layout_width="match_parent"
-    android:layout_height="80dp">
+    android:layout_height="70dp">
 
     <TextView
         android:id="@+id/new_meeting_user_item_name"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginLeft="0dp"
-        android:layout_marginRight="0dp"
         android:gravity="center_vertical"
         android:paddingLeft="10dp"
         android:text="TextView"
@@ -28,8 +26,7 @@
     <CheckBox
         android:id="@+id/new_meeting_user_item_checkbox"
         android:layout_width="50dp"
-        android:layout_height="match_parent"
-        android:layout_marginRight="0dp"
+        android:layout_height="0dp"
         android:gravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
