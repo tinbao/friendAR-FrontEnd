@@ -71,9 +71,15 @@ public class HomeScreen extends AppCompatActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		Intent intent;
+
 		switch (item.getItemId()) {
 			case R.id.action_add_friend:
-				Intent intent = new Intent(this, AddFriendActivity.class);
+				intent = new Intent(this, AddFriendActivity.class);
+				startActivity(intent);
+				return true;
+			case R.id.action_open_ar:
+				intent = new Intent(this, VRActivity.class);
 				startActivity(intent);
 				return true;
 			default:
@@ -97,7 +103,6 @@ public class HomeScreen extends AppCompatActivity {
             } else if (event2.getX() < event1.getX()) {
                 //swipe left to right open ar screen
 				Intent intent = new Intent(HomeScreen.this, VRActivity.class);
-				finish();
 				startActivity(intent);
             }
             return true;

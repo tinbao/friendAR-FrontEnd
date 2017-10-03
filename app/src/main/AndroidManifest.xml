@@ -47,7 +47,10 @@
             android:parentActivityName=".HomeScreen"
             android:windowSoftInputMode="adjustResize">
         </activity>
-        <activity android:name=".arscreen.VRActivity">
+        <activity
+            android:name=".arscreen.VRActivity"
+            android:parentActivityName=".HomeScreen"
+            android:theme="@style/ARScreenTheme">
         </activity>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.

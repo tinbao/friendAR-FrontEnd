@@ -9,6 +9,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.ViewGroup;
@@ -48,8 +49,9 @@ public class VRActivity extends AppCompatActivity implements SensorEventListener
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		// Hide action bar
-		getSupportActionBar().hide();
+		// actionbar
+		ActionBar ab = getSupportActionBar();
+		ab.setTitle("");
 
 		// Camera
 		vrOverlay = new OverlayRenderer(this);

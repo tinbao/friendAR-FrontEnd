@@ -6,4 +6,9 @@
         android:icon="@drawable/ic_person_add_white_24dp"
         android:title="Add Friend"
         app:showAsAction="always"/>
+    <item
+        android:id="@+id/action_open_ar"
+        android:icon="@drawable/ic_camera_white_24dp"
+        android:title="Open AR"
+        app:showAsAction="always"/>
 </menu>
