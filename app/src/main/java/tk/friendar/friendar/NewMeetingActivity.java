@@ -4,10 +4,13 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -32,7 +35,7 @@ public class NewMeetingActivity extends AppCompatActivity {
 
 		// Action bar
 		ActionBar ab = getSupportActionBar();
-		ab.setTitle("Create Meeting");
+		ab.setTitle("New Meeting");
 		ab.setDisplayHomeAsUpEnabled(true);
 
 		// Friend list
@@ -40,16 +43,29 @@ public class NewMeetingActivity extends AppCompatActivity {
 		listAdapter = new UserListAdapter(friends);
 		ListView listView = (ListView) findViewById(R.id.new_meeting_user_list);
 		listView.setAdapter(listAdapter);
+
+		// Meeting name EditText listener + validator
+		final Button submitButton = (Button)findViewById(R.id.new_meeting_submit);
+		submitButton.setEnabled(false);
+
+		((EditText)findViewById(R.id.new_meeting_name)).addTextChangedListener(new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence s, int i, int i1, int i2) { return; }
+			@Override
+			public void afterTextChanged(Editable editable)  { return; }
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				submitButton.setEnabled(isValidMeetingName(s.toString()));
+			}
+		});
 	}
 
 	public void submitRequest(View view) {
 		String name = ((EditText)findViewById(R.id.new_meeting_name)).getText().toString();
 		ArrayList<User> users = getSelectedUsers();
 
-		if (!isValidMeetingName(name)) {
-			errorPopup("Invalid meeting name");
-		}
-		else if (users.size() == 0) {
+		if (users.size() == 0) {
 			errorPopup("No friends selected");
 		}
 		else {

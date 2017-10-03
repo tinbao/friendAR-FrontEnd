@@ -73,8 +73,8 @@ public class HomeScreen extends AppCompatActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.action_add_friend:
-				//Intent intent = new Intent(this, AddFriendActivity.class);
-				//startActivity(intent);
+				Intent intent = new Intent(this, AddFriendActivity.class);
+				startActivity(intent);
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);

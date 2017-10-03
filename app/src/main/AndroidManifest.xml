@@ -42,6 +42,11 @@
             android:name=".NewMeetingActivity"
             android:parentActivityName=".HomeScreen">
         </activity>
+        <activity
+            android:name=".AddFriendActivity"
+            android:parentActivityName=".HomeScreen"
+            android:windowSoftInputMode="adjustResize">
+        </activity>
         <activity android:name=".arscreen.VRActivity">
         </activity>
         <!--
