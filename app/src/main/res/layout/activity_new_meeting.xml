@@ -6,6 +6,8 @@
     android:id="@+id/new_meeting_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:focusableInTouchMode="true"
+    android:focusable="true"
     tools:context="tk.friendar.friendar.NewMeetingActivity">
 
     <EditText
