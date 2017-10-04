@@ -9,13 +9,17 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
+import tk.friendar.friendar.HomeScreen;
 import tk.friendar.friendar.User;
 import tk.friendar.friendar.testing.DummyData;
 
@@ -43,6 +47,9 @@ public class VRActivity extends AppCompatActivity implements SensorEventListener
 	// Nearby friends
 	ArrayList<User> nearbyFriends;
 
+	// Swipe listener
+	private GestureDetectorCompat gestureObject;
+
 	private static final String TAG = "VRActivity";
 
 	@Override
@@ -64,6 +71,9 @@ public class VRActivity extends AppCompatActivity implements SensorEventListener
 		// Sensors
 		sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 		rotationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+
+		// Swipe gesture
+		gestureObject = new GestureDetectorCompat(this, new LearnGesture());
 	}
 
 	@Override
@@ -144,5 +154,25 @@ public class VRActivity extends AppCompatActivity implements SensorEventListener
 
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int i) {
+	}
+
+	// Gestures
+	class LearnGesture extends GestureDetector.SimpleOnGestureListener {
+		@Override
+		public boolean onFling(MotionEvent event1, MotionEvent event2,
+							   float velocityX, float velocityY) {
+			if (event1.getX() < event2.getX()) {
+				//swipe right to left to return to home screen
+				finish();
+				return true;
+			}
+			return false;
+		}
+	}
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		this.gestureObject.onTouchEvent(event);
+		return super.onTouchEvent(event);
 	}
 }
