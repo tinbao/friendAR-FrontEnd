@@ -71,6 +71,21 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void signUp(View view){
+
+        Intent intent_signup = new Intent(this,signUp.class);
+        startActivity(intent_signup);
+
+
+
+    }
+    public void login(View view){
+        Intent intent_login = new Intent(this,login_screen.class);
+        startActivity(intent_login);
+
+    }
+
+
     private void registerUser() {
         final String email = userEmail.getText().toString().trim();
         final String password = userPassword.getText().toString().trim();

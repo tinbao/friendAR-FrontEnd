@@ -70,8 +70,8 @@
             android:name=".LoginActivity"
             android:label="@string/title_activity_login"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".MainActivity" />
-        <activity android:name=".ProfileActivity"></activity>
+        <!--<activity android:name=".MainActivity" /> -->
+        <!--<activity android:name=".ProfileActivity"></activity>-->
     </application>
 
 </manifest>
