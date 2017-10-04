@@ -26,7 +26,6 @@ public class NewMeetingActivity extends AppCompatActivity {
 	UserListAdapter listAdapter;
 
 	private static final String TAG = "NewMeetingActivity";
-	private static final int MAX_MEETING_NAME_LENGTH = 80;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +55,7 @@ public class NewMeetingActivity extends AppCompatActivity {
 
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				submitButton.setEnabled(isValidMeetingName(s.toString()));
+				submitButton.setEnabled(FormValidator.isValidMeetingName(s.toString()));
 			}
 		});
 	}
@@ -75,12 +74,6 @@ public class NewMeetingActivity extends AppCompatActivity {
 			}
 			finish();
 		}
-	}
-
-	public static boolean isValidMeetingName(String name) {
-		if (name.length() <= 0 || name.length() > MAX_MEETING_NAME_LENGTH) return false;
-		if (name.trim().length() == 0) return false;
-		return true;
 	}
 
 	ArrayList<User> getSelectedUsers() {

@@ -6,6 +6,7 @@ package tk.friendar.friendar;
 
 public class FormValidator {
 	public static final int MAX_USERNAME_LENGTH = 80;
+	private static final int MAX_MEETING_NAME_LENGTH = 80;
 
 	public static boolean isValidUsername(String s) {
 		if (s.isEmpty() || s.length() > MAX_USERNAME_LENGTH || justWhitespace(s)) {
@@ -14,6 +15,12 @@ public class FormValidator {
 		for (char c : s.toCharArray()) {
 			if (!legalUsernameChar(c)) return false;
 		}
+		return true;
+	}
+
+	public static boolean isValidMeetingName(String name) {
+		if (name.length() <= 0 || name.length() > MAX_MEETING_NAME_LENGTH) return false;
+		if (name.trim().length() == 0) return false;
 		return true;
 	}
 

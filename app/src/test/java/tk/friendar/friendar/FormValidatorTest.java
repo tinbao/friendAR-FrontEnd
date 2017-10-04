@@ -23,4 +23,21 @@ public class FormValidatorTest {
 		assertFalse(FormValidator.isValidUsername("				"));
 		assertFalse(FormValidator.isValidUsername("woah!?"));
 	}
+
+	@Test
+	public void meetingNameValidator() {
+		// Valid
+		assertTrue(FormValidator.isValidMeetingName("Party"));
+		assertTrue(FormValidator.isValidMeetingName("Massive Rad Day"));
+		assertTrue(FormValidator.isValidMeetingName("96124612496"));
+		assertTrue(FormValidator.isValidMeetingName("m's!? O_O';;,.//\\"));
+		assertTrue(FormValidator.isValidMeetingName("L"));
+
+		// Invalid
+		assertFalse(FormValidator.isValidMeetingName(""));  // empty
+		assertFalse(FormValidator.isValidMeetingName("     "));  // spaces
+		assertFalse(FormValidator.isValidMeetingName("			"));  // tabs
+		assertFalse(FormValidator.isValidMeetingName(" 	   	 		  	"));  // mix
+		assertFalse(FormValidator.isValidMeetingName("asrhbghasgrasbrgkjsarbgkasrgikarjsbgkasjrbgkajsbrgkjsarbgkajsbgrkjsarbgkjasrngkjsarngkjasrgnkasjrgnkjasnrgkjasrngkjaksjgnrajrgnkasrngkasnrgkjasnrg"));
+	}
 }
