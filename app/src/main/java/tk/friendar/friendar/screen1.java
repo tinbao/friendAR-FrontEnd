@@ -18,8 +18,9 @@ public class screen1 extends AppCompatActivity {
         gestureObject = new GestureDetectorCompat(this, new LearnGesture());
         //LearnGesture is a class
 
+		// Visual feedback for meeting ID. Temporary so remove later
 		int id = getIntent().getIntExtra(HomeScreen.EXTRA_MEETING_ID, -1);
-		((TextView)findViewById(R.id.textView4)).setText("meeting id = " + id);
+		((TextView)findViewById(R.id.textView4)).setText("Chat for meeting id = " + id);
     }
 
     @Override

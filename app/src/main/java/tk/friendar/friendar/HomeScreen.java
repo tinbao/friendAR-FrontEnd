@@ -87,12 +87,8 @@ public class HomeScreen extends AppCompatActivity {
 		}
 	}
 
-	//Gesture Class
+	// Gesture Class
     class LearnGesture extends GestureDetector.SimpleOnGestureListener {
-        //creating a listener
-
-        //code to swipe
-
         @Override
         public boolean onFling(MotionEvent event1, MotionEvent event2,
                                float velocityX, float velocityY) {
