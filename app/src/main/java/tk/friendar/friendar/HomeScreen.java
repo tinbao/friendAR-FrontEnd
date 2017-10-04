@@ -96,17 +96,13 @@ public class HomeScreen extends AppCompatActivity {
         @Override
         public boolean onFling(MotionEvent event1, MotionEvent event2,
                                float velocityX, float velocityY) {
-
-            if (event2.getX() > event1.getX()) {
-				// swipe right to left
-				// TODO maybe support swiping on items
-            } else if (event2.getX() < event1.getX()) {
+            if (event2.getX() < event1.getX()) {
                 //swipe left to right open ar screen
 				Intent intent = new Intent(HomeScreen.this, VRActivity.class);
 				startActivity(intent);
+				return true;
             }
-            return true;
-
+            return false;
         }
     }
 
@@ -119,7 +115,6 @@ public class HomeScreen extends AppCompatActivity {
 
 			Intent intent = new Intent(HomeScreen.this, screen1.class);
 			intent.putExtra(EXTRA_MEETING_ID, m.getId());
-			finish();
 			startActivity(intent);
 		}
 	};
