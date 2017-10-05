@@ -49,7 +49,7 @@ install:
   - echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout;1.0.2" > /dev/null 2>&1
   - echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout-solver;1.0.2" > /dev/null 2>&1
   # Show version and download Gradle Wrapper if it's not already cached
-  - ./gradlew --version
+  - ./gradlew --version > /dev/null 2>&1
   # Clean project and download missing dependencies and components
   #- ./gradlew clean build
   # Check components status
@@ -57,7 +57,7 @@ install:
 
 before_script:
   - android list target
-  - echo no | android create avd -f -n test -t android-$ANDROID_API_LEVEL --abi $ANDROID_ABI > /dev/null 2>&1
+  - echo no | android create avd -f -n test -t android-19 --abi $ANDROID_ABI
   - emulator -avd test -no-skin -no-audio -no-window &
   - chmod 771 gradlew
 
