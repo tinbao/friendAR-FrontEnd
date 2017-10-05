@@ -56,7 +56,7 @@ install:
   - sdkmanager --list || true
 
 before_script:
-  - echo no | android create avd --force --name test --target android-$ANDROID_API_LEVEL --abi $ANDROID_ABI
+  - echo no | android create avd --force -n test -t android-$ANDROID_API_LEVEL --abi $ANDROID_ABI
   - emulator -avd test -no-skin -no-audio -no-window &
   - chmod 771 gradlew
 
