@@ -59,6 +59,9 @@ public class VRActivity extends AppCompatActivity implements SensorEventListener
 		cameraPreview = new CameraPreview(this);
 		addContentView(cameraPreview, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
+		// Ensure overlay is on top of camera
+		vrOverlay.bringToFront();
+
 		// Sensors
 		sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 		rotationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
