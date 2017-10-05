@@ -63,7 +63,7 @@ before_script:
   - chmod 771 gradlew
 
 script:
-  - ./gradlew test
+  - ./gradlew connectedAndroidTest -PdisablePreDex --stacktrace
 
 after_success:
   - sh set_tags.sh
