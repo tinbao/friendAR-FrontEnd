@@ -76,7 +76,7 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 
 		// Locations
 		nearbyFriends = new ArrayList<>();
-		deviceLocation = DummyData.getDeviceLocation();  // TODO real location
+		deviceLocation = LocationHelper.fromLatLon(90.0f, 0.0f);  // initial placeholder
 	}
 
 	@Override
@@ -142,6 +142,12 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 	@Override
 	public void onPause() {
 		super.onPause();
+	}
+
+
+	// Device location update
+	public void onDeviceLocationUpdate(Location location) {
+		deviceLocation = location;
 	}
 
 
