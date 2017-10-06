@@ -1,6 +1,7 @@
 package tk.friendar.friendar;
 
 import android.app.DatePickerDialog;
+import android.content.Entity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -15,7 +16,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import android.support.v4.app.DialogFragment;
-import android.widget.Toast;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
@@ -61,12 +61,15 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
         userPassword = (EditText) findViewById(R.id.password);
         confirmPassword = (EditText) findViewById(R.id.password2);
 
+        final RequestQueue requestQueue = Volley.newRequestQueue(this);
+
         /* For sign up button */
         complete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 /* Creates JSON Object (String) and POSTs to server for new users */
-                register();
+                register(requestQueue);
+                requestQueue.start();
             }
         });
 
@@ -119,11 +122,11 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
      * Registers a new user to the database using volley's POST method through a REST API
      * Will also confirm that the user enters in correctly formatted inputs.
      */
-    private void register() {
+    private void register(RequestQueue requestQueue) {
         final String email = userEmail.getText().toString().trim();
         final String password = userPassword.getText().toString().trim();
         final String password_confirm = confirmPassword.getText().toString().trim();
-        /* Temporary Username taking the string before the @ in the email */
+        /* Temporary Username: taking the string before the @ in the email */
         final String userName = email.split("@")[0];
 
         if (TextUtils.isEmpty(email)) {
@@ -158,20 +161,19 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
             return;
         }
 
-        final RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
-
         JSONObject params = new JSONObject();
+
         try {
+            params.put("latitude", 123);
             params.put("fullName", userName);
             params.put("email", email);
             /* Temporary username, user can change it afterwards */
             params.put("username", email);
+            params.put("longitude", 123);
             params.put("usersPassword", password);
         } catch (JSONException e){
             e.printStackTrace();
         }
-
-        System.out.println(params.toString());
 
         JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, URLs.URL_SIGNUP, params,
             new Response.Listener<JSONObject>() {
@@ -183,6 +185,7 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+                    System.out.println(response.toString());
                 }
             },
             new Response.ErrorListener() {
@@ -206,8 +209,9 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
                     }
                 }
             }){
-
         };
+
+        req.setShouldCache(false);
         requestQueue.add(req);
 
 //        StringRequest stringRequest = new StringRequest(Request.Method.POST, URLs.URL_SIGNUP,
