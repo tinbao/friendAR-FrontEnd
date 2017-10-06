@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.widget.TextView;
 
 public class screen1 extends AppCompatActivity {
     private GestureDetectorCompat gestureObject;
@@ -14,9 +15,12 @@ public class screen1 extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_screen1);
-
         gestureObject = new GestureDetectorCompat(this, new LearnGesture());
         //LearnGesture is a class
+
+		// Visual feedback for meeting ID. Temporary so remove later
+		int id = getIntent().getIntExtra(HomeScreen.EXTRA_MEETING_ID, -1);
+		((TextView)findViewById(R.id.textView4)).setText("Chat for meeting id = " + id);
     }
 
     @Override
@@ -41,7 +45,7 @@ public class screen1 extends AppCompatActivity {
             } else if (event2.getX() < event1.getX()) {
                 //swipe right to left
                 Intent intent = new Intent(
-                    screen1.this, screen2.class);
+                    screen1.this, HomeScreen.class);
                     finish();
                     startActivity(intent);
 
