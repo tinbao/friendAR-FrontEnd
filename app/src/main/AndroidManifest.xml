@@ -50,7 +50,8 @@
         <activity
             android:name=".arscreen.VRActivity"
             android:parentActivityName=".HomeScreen"
-            android:theme="@style/ARScreenTheme">
+            android:theme="@style/ARScreenTheme"
+            android:screenOrientation="portrait">
         </activity>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.

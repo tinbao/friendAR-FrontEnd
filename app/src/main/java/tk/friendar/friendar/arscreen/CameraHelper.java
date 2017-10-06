@@ -17,20 +17,9 @@ import android.util.Log;
 public class CameraHelper {
 	private Camera mCamera = null;
 	private static final String TAG = "CameraHelper";
-	public static final int PERMISSION_REQUEST_CAMERA = 20;
 
 	public Camera getCamera() {
 		return mCamera;
-	}
-
-	public static boolean havePermissions(Activity a) {
-		return (ContextCompat.checkSelfPermission(a, Manifest.permission.CAMERA) ==
-				PackageManager.PERMISSION_GRANTED);
-	}
-
-	public static void requestPermissions(Activity a) {
-		ActivityCompat.requestPermissions(a, new String[]{Manifest.permission.CAMERA},
-				PERMISSION_REQUEST_CAMERA);
 	}
 
 	public boolean open() {
