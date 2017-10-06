@@ -56,17 +56,18 @@ install:
   - sdkmanager --list || true
 
 before_script:
-  - android list target
-  - echo no | android create avd -f -n test -t android-19 --abi $ANDROID_ABI
-  - emulator -avd test -no-skin -no-audio -no-window &
+  #- android list target
+  #- echo no | android create avd -f -n test -t android-19 --abi $ANDROID_ABI
+  #- emulator -avd test -no-skin -no-audio -no-window &
   - chmod 771 gradlew
 
 script:
-  - android-wait-for-emulator
+  #- android-wait-for-emulator
   # Display list of devices
-  - adb devices
-  - adb shell input keyevent 82 &
-  - ./gradlew connectedAndroidTest -PdisablePreDex --stacktrace
+  #- adb devices
+  #- adb shell input keyevent 82 &
+  #- ./gradlew connectedAndroidTest -PdisablePreDex --stacktrace
+  - ./gradlew test
 
 after_success:
   - sh set_tags.sh
