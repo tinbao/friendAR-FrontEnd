@@ -30,7 +30,7 @@ public class DummyData {
 
 		User simon = new User("Simon DiCicco", "kamonstone", "simonce@gmail.com");
 		//simon.setLocation(LocationHelper.fromLatLon(-37.7846, 145.0043)); // heidelberb road bridge
-		simon.setLocation(LocationHelper.fromLatLon(-37.79852, 145.95938)); // baillieu library
+		simon.setLocation(LocationHelper.fromLatLon(-37.79852, 144.95938)); // baillieu library
 		//simon.setPicture(BitmapFactory.decodeResource(getResources(), R.drawable.simon));
 		friends.add(simon);
 
