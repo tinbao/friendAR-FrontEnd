@@ -1,14 +1,33 @@
+language: android
+sudo: required
+
+env:
+  global:
+    - ANDROID_API_LEVEL=19
+    - ANDROID_BUILD_TOOLS_VERSION=23.0.1
+    - ANDROID_ABI=armeabi-v7a
+    - ANDROID_TAG=google_apis
+
 android:
   components:
-  - tools
-  - build-tools-23.0.1
-  - android-19
-  - extra-android-support
-  - extra-android-m2repository
+    - tools > /dev/null 2>&1
+    - build-tools-${ANDROID_BUILD_TOOLS_VERSION} > /dev/null 2>&1
+    - platform-tools > /dev/null 2>&1
+    - tools > /dev/null 2>&1
+    - android-${ANDROID_API_LEVEL} > /dev/null 2>&1
+    - extra-android-support > /dev/null 2>&1
+    - extra-android-m2repository > /dev/null 2>&1
+    - sys-img-${ANDROID_ABI}-${ANDROID_TAG}-${ANDROID_API_LEVEL}
+  licenses:
+    - 'android-sdk-preview-license-.+'
+    - 'android-sdk-license-.+'
+    - 'google-gdk-license-.+'
 
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+  - rm -f $HOME/gradle/caches/3.3/classAnalysis/classAnalysis.lock
+  - rm -f $HOME/gradle/caches/3.3/jarSnapshots/jarSnapshots.lock
 
 cache:
   directories:
@@ -16,11 +35,43 @@ cache:
   - "$HOME/.gradle/caches/"
   - "$HOME/.gradle/wrapper/"
 
+before_install:
+  - echo 'count=0' > /home/travis/.android/repositories.cfg # silence sdkmanager warning
+
+install:
+  # Update sdk tools to latest version and install/update components
+  - echo yes | sdkmanager "tools" > /dev/null 2>&1
+  - echo yes | sdkmanager "platforms;android-25" > /dev/null 2>&1 # Latest platform required by SDK tools
+  - echo yes | sdkmanager "platforms;android-${ANDROID_API_LEVEL}" > /dev/null 2>&1
+  # Android platform required by emulator
+  - echo yes | sdkmanager "extras;android;m2repository" > /dev/null 2>&1
+  - echo yes | sdkmanager "extras;google;m2repository" > /dev/null 2>&1
+  - echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout;1.0.2" > /dev/null 2>&1
+  - echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout-solver;1.0.2" > /dev/null 2>&1
+  # Show version and download Gradle Wrapper if it's not already cached
+  - ./gradlew --version > /dev/null 2>&1
+  # Clean project and download missing dependencies and components
+  #- ./gradlew clean build
+  # Check components status
+  - sdkmanager --list || true
+
+before_script:
+  #- android list target
+  #- echo no | android create avd -f -n test -t android-19 --abi $ANDROID_ABI
+  #- emulator -avd test -no-skin -no-audio -no-window &
+  - chmod 771 gradlew
+
 script:
-  - chmod +x ./gradlew
+  #- android-wait-for-emulator
+  # Display list of devices
+  #- adb devices
+  #- adb shell input keyevent 82 &
+  #- ./gradlew connectedAndroidTest -PdisablePreDex --stacktrace
+  - ./gradlew test
 
 after_success:
   - sh set_tags.sh
+  - bash <(curl -s https://codecov.io/bash)
 
 after_failure:
   - cat $TRAVIS_BUILD_DIR/app/build/outputs/lint-results-debug.xml
