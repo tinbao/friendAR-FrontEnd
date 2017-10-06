@@ -57,6 +57,10 @@ This repo uses [git flow](http://nvie.com/posts/a-successful-git-branching-model
 This means, all new features are done on a new branch and then when ready pull requested into `master`. Note: for a branch to be successfully merged into master. It has to pass a code review and the tests on Travis.
 
 
+## Sources and Thanks
+
+https://bitbucket.org/apacha/sensor-fusion-demo/ by Alexander Pacha and the Human Technology Laboratory New Zealand, MIT licence.
+
 
 ## License
 

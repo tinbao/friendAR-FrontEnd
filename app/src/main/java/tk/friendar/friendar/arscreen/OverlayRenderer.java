@@ -10,6 +10,9 @@ import android.opengl.Matrix;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
+import org.hitlabnz.sensor_fusion_demo.orientationProvider.OrientationProvider;
+import org.hitlabnz.sensor_fusion_demo.representation.MatrixF4x4;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -38,6 +41,9 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 
 	// Shaders
 	private Shader markerShader = new Shader();
+
+	// Orientation sensor
+	private OrientationProvider orientationProvider = null;
 
 	private final String vsCode =
 			"attribute vec3 vPosition;" +
@@ -126,6 +132,7 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 			float distance = deviceLocation.distanceTo(marker.user.getLocation());
 			float bearing = deviceLocation.bearingTo(marker.user.getLocation());
 
+			calculateViewMatrix();
 			calculateModelMatrix(bearing, distance);
 			calculateMVP();
 			markerShader.uniformMat4("uMVPMatrix", mvpMatrix);
@@ -192,10 +199,12 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 
 	// Recalculate transformations on device rotation change.
 	// Only need to update view matrix (our perspective changed).
-	public void onRotationMatrixChange(float[] rotationMatrix) {
+	public void calculateViewMatrix() {
 		// Rotation
 		// rotate the rotation matrix forward to match intuitive rotation
-		Matrix.rotateM(viewMatrix, 0, rotationMatrix, 0, 90.0f, 1.0f, 0.0f, 0.0f);
+		MatrixF4x4 matrix = new MatrixF4x4();
+		orientationProvider.getRotationMatrix(matrix);
+		Matrix.rotateM(viewMatrix, 0, matrix.getMatrix(), 0, 90.0f, 1.0f, 0.0f, 0.0f);
 
 		// treat camera as 0,0,0 so no translation needed
 		// Matrix.translateM(viewMatrix, x, y, z);
@@ -211,5 +220,9 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 	private void calculateMVP() {
 		Matrix.multiplyMM(objectToWorld, 0, viewMatrix, 0, modelMatrix, 0);
 		Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, objectToWorld, 0);
+	}
+
+	public void setOrientationProvider(OrientationProvider orientationProvider) {
+		this.orientationProvider = orientationProvider;
 	}
 }

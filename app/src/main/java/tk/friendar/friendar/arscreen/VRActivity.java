@@ -4,8 +4,6 @@ package tk.friendar.friendar.arscreen;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
@@ -29,6 +27,9 @@ import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import org.hitlabnz.sensor_fusion_demo.orientationProvider.ImprovedOrientationSensor1Provider;
+import org.hitlabnz.sensor_fusion_demo.orientationProvider.OrientationProvider;
+
 import java.util.ArrayList;
 
 import tk.friendar.friendar.User;
@@ -41,7 +42,7 @@ import tk.friendar.friendar.User;
  * FIXME Sync position sensor to magnetic north properly
  */
 
-public class VRActivity extends AppCompatActivity implements SensorEventListener {
+public class VRActivity extends AppCompatActivity {
 	// OpenGL renderer overlay
 	private OverlayRenderer vrOverlay;
 
@@ -51,8 +52,7 @@ public class VRActivity extends AppCompatActivity implements SensorEventListener
 	boolean cameraStarted = false;
 
 	// Sensors
-	private SensorManager sensorManager;
-	private Sensor rotationSensor;
+	private OrientationProvider orientationProvider;
 	private final float[] rotationMatrix = new float[16];
 
 	// Location service
@@ -102,8 +102,9 @@ public class VRActivity extends AppCompatActivity implements SensorEventListener
 		vrOverlay.bringToFront();
 
 		// Sensors
-		sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-		rotationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+		SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+		orientationProvider = new ImprovedOrientationSensor1Provider(sensorManager);
+		vrOverlay.setOrientationProvider(orientationProvider);
 
 		// Location
 		locationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -157,8 +158,8 @@ public class VRActivity extends AppCompatActivity implements SensorEventListener
 			ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST_ALL_PERMISSIONS);
 		}
 
-		// Listen to rotation sensor
-		sensorManager.registerListener(this, rotationSensor, SensorManager.SENSOR_DELAY_FASTEST);
+		// Start rotation sensor
+		orientationProvider.start();
 	}
 
 	@Override
@@ -174,8 +175,8 @@ public class VRActivity extends AppCompatActivity implements SensorEventListener
 		deviceLocationPost.removeCallbacks(deviceLocationPostRunnable);
 		friendLocationGet.removeCallbacks(friendLocationGetRunnable);
 
-		// Unlisten to sensors
-		sensorManager.unregisterListener(this);
+		// Stop rotation sensore
+		orientationProvider.stop();
 	}
 
 	@Override
@@ -237,20 +238,6 @@ public class VRActivity extends AppCompatActivity implements SensorEventListener
 		cameraStarted = false;
 	}
 
-	// Sensors
-	@Override
-	public void onSensorChanged(SensorEvent event) {
-		if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
-			// Convert rotation vector to a rotation matrix and copy into mRotationMatrix
-			SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values);
-			// Update camera transformations in overlay
-			vrOverlay.onRotationMatrixChange(rotationMatrix);
-		}
-	}
-
-	@Override
-	public void onAccuracyChanged(Sensor sensor, int i) {
-	}
 
 	// Device location updates
 	@SuppressWarnings({"MissingPermission"})
