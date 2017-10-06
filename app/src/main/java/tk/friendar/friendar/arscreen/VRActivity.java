@@ -10,6 +10,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -61,6 +62,14 @@ public class VRActivity extends AppCompatActivity implements SensorEventListener
 	private static final long DEVICE_LOCATION_UPDATE_INTERVAl = 5000;
 	private static final long DEVICE_LOCATION_UPDATE_FASTEST_INTERVAl = 1000;
 
+	// Server requests
+	private static final long DEVICE_LOCATION_POST_INTERVAL = 6000;
+	private static final long FRIEND_LOCATION_GET_INTERVAL = 10000;
+	Handler deviceLocationPost;
+	Handler friendLocationGet;
+	Runnable deviceLocationPostRunnable;
+	Runnable friendLocationGetRunnable;
+
 	// Permissions
 	private static final String[] PERMISSIONS = {
 			Manifest.permission.CAMERA,
@@ -98,6 +107,29 @@ public class VRActivity extends AppCompatActivity implements SensorEventListener
 
 		// Location
 		locationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
+		// Server requests
+		deviceLocationPost = new Handler();
+		deviceLocationPostRunnable = new Runnable() {
+			@Override
+			public void run() {
+				Log.d(TAG, "Sending device location to server");
+				// TODO send location to server here
+
+				deviceLocationPost.postDelayed(this, DEVICE_LOCATION_POST_INTERVAL);  // loop
+			}
+		};
+
+		friendLocationGet = new Handler();
+		friendLocationGetRunnable = new Runnable() {
+			@Override
+			public void run() {
+				Log.d(TAG, "Requesting friend locations from server");
+				// TODO request locations here
+
+				friendLocationGet.postDelayed(this, FRIEND_LOCATION_GET_INTERVAL);  // loop
+			}
+		};
 	}
 
 	@Override
@@ -115,6 +147,10 @@ public class VRActivity extends AppCompatActivity implements SensorEventListener
 			Log.d(TAG, "Resuming, have all permissions.");
 			startCamera();
 			startDeviceLocationUpdates();
+
+			// Start server post/get loop
+			deviceLocationPost.postDelayed(deviceLocationPostRunnable, DEVICE_LOCATION_POST_INTERVAL);
+			friendLocationGet.postDelayed(friendLocationGetRunnable, FRIEND_LOCATION_GET_INTERVAL);
 		}
 		else {
 			Log.d(TAG, "Resuming, requesting permissions.");
@@ -133,6 +169,10 @@ public class VRActivity extends AppCompatActivity implements SensorEventListener
 		// Stop camera and location services
 		if (cameraStarted) stopCamera();
 		if (locationUpdatesStarted) stopDeviceLocationUpdates();
+
+		// Stop server post/get loops
+		deviceLocationPost.removeCallbacks(deviceLocationPostRunnable);
+		friendLocationGet.removeCallbacks(friendLocationGetRunnable);
 
 		// Unlisten to sensors
 		sensorManager.unregisterListener(this);
