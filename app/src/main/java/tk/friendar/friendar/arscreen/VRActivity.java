@@ -11,8 +11,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.view.GestureDetectorCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
@@ -32,6 +36,7 @@ import org.hitlabnz.sensor_fusion_demo.orientationProvider.OrientationProvider;
 
 import java.util.ArrayList;
 
+import tk.friendar.friendar.HomeScreen;
 import tk.friendar.friendar.User;
 
 /**
@@ -80,6 +85,9 @@ public class VRActivity extends AppCompatActivity {
 	// Nearby friends
 	ArrayList<User> nearbyFriends;
 
+	// Swipe listener
+	private GestureDetectorCompat gestureObject;
+
 	private static final String TAG = "VRActivity";
 
 
@@ -87,8 +95,9 @@ public class VRActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		// Hide action bar
-		getSupportActionBar().hide();
+		// actionbar
+		ActionBar ab = getSupportActionBar();
+		ab.setTitle("");
 
 		// Camera
 		vrOverlay = new OverlayRenderer(this);
@@ -131,6 +140,9 @@ public class VRActivity extends AppCompatActivity {
 				friendLocationGet.postDelayed(this, FRIEND_LOCATION_GET_INTERVAL);  // loop
 			}
 		};
+
+		// Swipe gesture
+		gestureObject = new GestureDetectorCompat(this, new LearnGesture());
 	}
 
 	@Override
@@ -287,5 +299,25 @@ public class VRActivity extends AppCompatActivity {
 			locationProviderClient.removeLocationUpdates(locationCallback);
 			locationUpdatesStarted = false;
 		}
+	}
+
+	// Gestures
+	class LearnGesture extends GestureDetector.SimpleOnGestureListener {
+		@Override
+		public boolean onFling(MotionEvent event1, MotionEvent event2,
+							   float velocityX, float velocityY) {
+			if (event1.getX() < event2.getX()) {
+				//swipe right to left to return to home screen
+				finish();
+				return true;
+			}
+			return false;
+		}
+	}
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		this.gestureObject.onTouchEvent(event);
+		return super.onTouchEvent(event);
 	}
 }
