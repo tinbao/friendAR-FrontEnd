@@ -45,11 +45,29 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".signUp" />
-        <activity android:name=".login_screen" />
-        <activity android:name=".screen1" />
-        <activity android:name=".screen2" />
-        <activity android:name=".arscreen.VRActivity" />
+        <activity android:name=".signUp">
+        </activity>
+        <activity android:name=".login_screen">
+        </activity>
+        <activity android:name=".screen1">
+        </activity>
+        <activity android:name=".HomeScreen">
+        </activity>
+        <activity
+            android:name=".NewMeetingActivity"
+            android:parentActivityName=".HomeScreen">
+        </activity>
+        <activity
+            android:name=".AddFriendActivity"
+            android:parentActivityName=".HomeScreen"
+            android:windowSoftInputMode="adjustResize">
+        </activity>
+        <activity
+            android:name=".arscreen.VRActivity"
+            android:parentActivityName=".HomeScreen"
+            android:theme="@style/ARScreenTheme"
+            android:screenOrientation="portrait">
+        </activity>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").

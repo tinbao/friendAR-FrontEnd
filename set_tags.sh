@@ -1,7 +1,7 @@
-BRANCH="master"
+BRANCH="rest-client"
 
-if [ "$TRAVIS_BRANCH" = "$BRANCH" ]; then
-  if [ "$TRAVIS_PULL_REQUEST" = false ]; then
+if [ "$TRAVIS_BRANCH"="$BRANCH" ]; then
+  if [ "$TRAVIS_PULL_REQUEST"=false ]; then
   	if [ -z "$TRAVIS_TAG" ]; then
 	    echo -e "Starting to tag commit.\n"
 
@@ -14,6 +14,6 @@ if [ "$TRAVIS_BRANCH" = "$BRANCH" ]; then
 	    git fetch origin
 
 	    echo -e "Done magic with tags.\n"
-	fi
+	   fi
   fi
 fi

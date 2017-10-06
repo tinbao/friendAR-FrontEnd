@@ -37,6 +37,7 @@ dependencies {
     // For the REST Client side communication
     compile 'com.mcxiaoke.volley:library:1.0.19'
     // Unit testing dependencies
+    compile 'com.google.android.gms:play-services-location:11.0.4'
     testCompile 'junit:junit:4.12'
     androidTestCompile 'org.mockito:mockito-core:2.10.0'
     testCompile files('libs-test/json-20140107.jar')

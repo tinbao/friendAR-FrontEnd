@@ -8,6 +8,7 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+<<<<<<< HEAD
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
@@ -16,5 +17,20 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+=======
+    <!-- AR Screen Theme (need for overlayed action bar) -->
+    <style name="ARScreenTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:actionBarStyle">@style/ARScreenActionbar</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <!--compatibility-->
+        <item name="actionBarStyle">@style/ARScreenActionbar</item>
+        <item name="windowActionBarOverlay">true</item>
+    </style>
+    <style name="ARScreenActionbar" parent="Widget.AppCompat.ActionBar.Solid">
+        <item name="android:background">@color/transparentBlack</item>
+        <!--compatibility-->
+        <item name="background">@color/transparentBlack</item>
+    </style>
+>>>>>>> origin/master
 
 </resources>

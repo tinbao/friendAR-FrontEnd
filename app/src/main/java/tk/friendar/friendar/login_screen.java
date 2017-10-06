@@ -20,7 +20,7 @@ public class login_screen extends AppCompatActivity{
     }
 
     public void submitLogin(View view){
-        Intent intent_submit = new Intent(this,screen1.class);
+        Intent intent_submit = new Intent(this, HomeScreen.class);
         startActivity(intent_submit);
 
     }
