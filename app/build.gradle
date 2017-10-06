@@ -41,14 +41,3 @@ dependencies {
     androidTestCompile 'org.mockito:mockito-core:2.10.0'
     testCompile files('libs-test/json-20140107.jar')
 }
-
-task createPom << {
-    pom {
-        project {
-            groupId 'tk.friendar.friendar'
-            artifactId 'Simple-test'
-            version '1.0.0'
-
-            inceptionYear '2008'
-        }
-    }.writeTo("pom.xml")
