@@ -67,7 +67,7 @@ script:
   #- adb devices
   #- adb shell input keyevent 82 &
   #- ./gradlew connectedAndroidTest -PdisablePreDex --stacktrace
-  - ./gradlew test
+  - ./gradlew test build
 
 after_success:
   - sh set_tags.sh
