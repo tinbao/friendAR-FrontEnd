@@ -114,4 +114,10 @@ public class HomeScreen extends AppCompatActivity {
 			startActivity(intent);
 		}
 	};
+
+	public void newMeeting(View view){
+		Intent new_meeting = new Intent(this,NewMeetingActivity.class);
+		startActivity(new_meeting);
+
+	}
 }
