@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import android.support.v4.app.DialogFragment;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -26,6 +27,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONException;
@@ -68,11 +70,14 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
             @Override
             public void onClick(View view) {
                 /* Creates JSON Object (String) and POSTs to server for new users */
-                register(requestQueue);
-                requestQueue.start();
+                StringRequest strReq = register(requestQueue);
+                if(strReq != null){
+                    requestQueue.add(strReq);
+                    requestQueue.start();
+                }
+
             }
         });
-
     }
 
     public void datePicker(View view){
@@ -122,7 +127,7 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
      * Registers a new user to the database using volley's POST method through a REST API
      * Will also confirm that the user enters in correctly formatted inputs.
      */
-    private void register(RequestQueue requestQueue) {
+    private StringRequest register(RequestQueue requestQueue) {
         final String email = userEmail.getText().toString().trim();
         final String password = userPassword.getText().toString().trim();
         final String password_confirm = confirmPassword.getText().toString().trim();
@@ -132,36 +137,36 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
         if (TextUtils.isEmpty(email)) {
             userEmail.setError("Please enter your email");
             userEmail.requestFocus();
-            return;
+            return null;
         }
 
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             userEmail.setError("Enter a valid email");
             userEmail.requestFocus();
-            return;
+            return null;
         }
 
         if (TextUtils.isEmpty(password)) {
             userPassword.setError("Enter a password");
             userPassword.requestFocus();
-            return;
+            return null;
         }
 
         if (TextUtils.isEmpty(password_confirm)) {
             confirmPassword.setError("Confirm a password");
             confirmPassword.requestFocus();
-            return;
+            return null;
         }
 
-        if (!password.equals(password_confirm)){
+        if (!password.equals(password_confirm)) {
             userPassword.setError("Passwords do not match");
             userPassword.requestFocus();
             confirmPassword.setError("Passwords do not match");
             confirmPassword.requestFocus();
-            return;
+            return null;
         }
 
-        JSONObject params = new JSONObject();
+        final JSONObject params = new JSONObject();
 
         try {
             params.put("latitude", 123);
@@ -171,67 +176,28 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
             params.put("username", email);
             params.put("longitude", 123);
             params.put("usersPassword", password);
-        } catch (JSONException e){
+        } catch (JSONException e) {
             e.printStackTrace();
         }
+        System.out.println(params.toString());
 
-        JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, URLs.URL_SIGNUP, params,
-            new Response.Listener<JSONObject>() {
-
-                @Override
-                public void onResponse(JSONObject response) {
-                    try {
-                        VolleyLog.v("Response:%n %s", response.toString(4));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    System.out.println(response.toString());
-                }
-            },
-            new Response.ErrorListener() {
-
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    NetworkResponse response = error.networkResponse;
-                    if (error instanceof ServerError && response != null) {
-                        try {
-                            String res = new String(response.data,
-                                    HttpHeaderParser.parseCharset(response.headers, "utf-8"));
-                            // Now you can use any deserializer to make sense of data
-                            JSONObject obj = new JSONObject(res);
-                        } catch (UnsupportedEncodingException e1) {
-                            // Couldn't properly decode data to string
-                            e1.printStackTrace();
-                        } catch (JSONException e2) {
-                            // returned data is not JSONObject?
-                            e2.printStackTrace();
-                        }
-                    }
-                }
-            }){
-        };
-
-        req.setShouldCache(false);
-        requestQueue.add(req);
-
-//        StringRequest stringRequest = new StringRequest(Request.Method.POST, URLs.URL_SIGNUP,
-//            new Response.Listener<String>() {
+//        JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, URLs.URL_SIGNUP, params,
+//            new Response.Listener<JSONObject>() {
+//
 //                @Override
-//                public void onResponse(String response) {
-//
-//                    Context context = getApplicationContext();
-//                    CharSequence text = response;
-//                    int duration = Toast.LENGTH_SHORT;
-//
-//                    Toast toast = Toast.makeText(context, text, duration);
-//                    toast.show();
+//                public void onResponse(JSONObject response) {
+//                    try {
+//                        VolleyLog.v("Response:%n %s", response.toString(4));
+//                    } catch (JSONException e) {
+//                        e.printStackTrace();
+//                    }
+//                    System.out.println(response.toString());
 //                }
 //            },
-//
 //            new Response.ErrorListener() {
+//
 //                @Override
 //                public void onErrorResponse(VolleyError error) {
-//
 //                    NetworkResponse response = error.networkResponse;
 //                    if (error instanceof ServerError && response != null) {
 //                        try {
@@ -247,42 +213,49 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
 //                            e2.printStackTrace();
 //                        }
 //                    }
-//
-//                    error.printStackTrace();
-//                    requestQueue.stop();
 //                }
-//        }){
-//
-//            @Override
-//            public Map<String, String> getHeaders() throws AuthFailureError {
-//                Map<String,String> params = new HashMap<String, String>();
-//                params.put("Content-Type","application/x-www-form-urlencoded");
-//                return params;
-//            }
-//
-//            @Override
-//            public byte[] getBody(){
-//                HashMap<String, String> params = new HashMap<String, String>();
-//                params.put("fullName", userName);
-//                params.put("email", email);
-//                /* Temporary username, user can change it afterwards */
-//                params.put("username", email);
-//                params.put("usersPassword", password);
-//
-//                System.out.println("FROM BODY");
-//                System.out.println(new JSONObject(params).toString());
-//
-//                return new JSONObject(params).toString().getBytes();
-//            }
-//
-//            @Override
-//            public String getBodyContentType() {
-//                return "application/json";
-//            }
+//            }){
 //        };
 //
-//        stringRequest.setShouldCache(false);
-//        requestQueue.add(stringRequest);
+//        req.setShouldCache(false);
+//        requestQueue.add(req);
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, URLs.URL_SIGNUP,
+            new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    System.out.println("Response from server: " + response);
+                }
+            },
+
+            new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    NetworkResponse response = error.networkResponse;
+                    if (response != null) {
+                        System.out.println("error code: " + response.statusCode);
+                    }
+                }
+            }) {
+                @Override
+                public byte[] getBody() throws AuthFailureError {
+                    return params.toString().getBytes();
+                }
+
+                @Override
+                public String getBodyContentType() {
+                    return "application/json";
+                }
+
+                @Override
+                public Map getHeaders() throws AuthFailureError {
+                    Map headers = new HashMap();
+                    headers.put("friendarApp", "FRIENDAR_ID");
+                    return headers;
+                }
+
+            };
+        return stringRequest;
     }
 
 }
