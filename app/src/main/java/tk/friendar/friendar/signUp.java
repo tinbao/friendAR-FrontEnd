@@ -108,7 +108,7 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
         startActivity(intent_login);
     }
 
-    /*
+    /**
      * Registers a new user to the database using volley's POST method through a REST API
      * Will also confirm that the user enters in correctly formatted inputs.
      */
@@ -164,11 +164,12 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
             e.printStackTrace();
         }
 
+        /* Makes the request that will be processed by the server */
         JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, URLs.URL_SIGNUP, params,
             new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
-                    System.out.println("Response from server: " + response.toString());
+                    System.out.println("Response: " + response.toString());
                 }
             },
 
@@ -194,12 +195,14 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
                 }
             }) {
 
+                /** Defines the body type of the data being posted */
                 @Override
                 public String getBodyContentType() {
                     return "application/json; charset=utf-8";
                 }
             };
 
+        /* Requests are posted and executed in a queue */
         req.setShouldCache(false);
         Volley.newRequestQueue(signUp.this).add(req);
 

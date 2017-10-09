@@ -85,4 +85,4 @@ deploy:
   file_glob: "true"
   on:
     repo: COMP30022/Nitrogen-FrontEnd
-    branch: rest-client
+    branch: master
