@@ -86,3 +86,7 @@ deploy:
   on:
     repo: COMP30022/Nitrogen-FrontEnd
     branch: client-login
+    tags: true
+
+notifications:
+  email: false

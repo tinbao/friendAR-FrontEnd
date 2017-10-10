@@ -45,6 +45,7 @@ public class login_screen extends AppCompatActivity{
         userName = (EditText) findViewById(R.id.login_username);
         userPass = (EditText) findViewById(R.id.login_password);
         login = (Button) findViewById(R.id.login_button);
+
         pd = new ProgressDialog(login_screen.this);
 
         /* For sign up button */
