@@ -69,6 +69,7 @@ script:
   #- ./gradlew connectedAndroidTest -PdisablePreDex --stacktrace
   # test and build the project
   - ./gradlew test build
+  - ls app/build/outputs/apk
 
 after_success:
   - sh set_tags.sh

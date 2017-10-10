@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import android.support.v4.app.DialogFragment;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -116,6 +117,16 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
     }
 
     /**
+     * Switches the view to the home screen once the user's login is successful
+     * @param view the current view of the application
+     */
+    public void submitLogin(View view){
+        Intent intent_submit = new Intent(this, HomeScreen.class);
+        startActivity(intent_submit);
+
+    }
+
+    /**
      * Registers a new user to the database using volley's POST method through a REST API
      * Will also confirm that the user enters in correctly formatted inputs.
      */
@@ -178,6 +189,7 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
                 public void onResponse(JSONObject response) {
                     pd.hide();
                     Log.d("Response", response.toString());
+                    submitLogin(getCurrentFocus());
                 }
             },
 
@@ -212,6 +224,7 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
             };
 
         /* Requests are posted and executed in a queue */
+        req.setRetryPolicy(new DefaultRetryPolicy(50000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         req.setShouldCache(false);
         Volley.newRequestQueue(signUp.this).add(req);
 
