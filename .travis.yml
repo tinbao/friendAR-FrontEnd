@@ -36,27 +36,27 @@ cache:
   - "$HOME/.gradle/wrapper/"
 
 before_install:
-  - echo 'count=0' > /home/travis/.android/repositories.cfg # silence sdkmanager warning
+  # silence sdkmanager warning
+  - echo 'count=0' > /home/travis/.android/repositories.cfg
 
 install:
-  # Update sdk tools to latest version and install/update components
+  # Update sdk tools to required version and install/update components
   - echo yes | sdkmanager "tools" > /dev/null 2>&1
-  - echo yes | sdkmanager "platforms;android-25" > /dev/null 2>&1 # Latest platform required by SDK tools
+  - echo yes | sdkmanager "platforms;android-25" > /dev/null 2>&1
   - echo yes | sdkmanager "platforms;android-${ANDROID_API_LEVEL}" > /dev/null 2>&1
   # Android platform required by emulator
   - echo yes | sdkmanager "extras;android;m2repository" > /dev/null 2>&1
   - echo yes | sdkmanager "extras;google;m2repository" > /dev/null 2>&1
+  # Accepting the license
   - echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout;1.0.2" > /dev/null 2>&1
   - echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout-solver;1.0.2" > /dev/null 2>&1
   # Show version and download Gradle Wrapper if it's not already cached
   - ./gradlew --version > /dev/null 2>&1
-  # Clean project and download missing dependencies and components
-  #- ./gradlew clean build
   # Check components status
   - sdkmanager --list || true
 
 before_script:
-  #- android list target
+  - android list target
   #- echo no | android create avd -f -n test -t android-19 --abi $ANDROID_ABI
   #- emulator -avd test -no-skin -no-audio -no-window &
   - chmod 771 gradlew
@@ -67,6 +67,7 @@ script:
   #- adb devices
   #- adb shell input keyevent 82 &
   #- ./gradlew connectedAndroidTest -PdisablePreDex --stacktrace
+  # test and build the project
   - ./gradlew test build
 
 after_success:
@@ -81,12 +82,11 @@ deploy:
   provider: releases
   api_key:
     secure: HYxb9SvX/ji+QmCc7KxinJCj/Ij944RfVtgURY4T3AVmsFpD4qQmlPr9H3/cyXKR0npEFyBTVosdKgehzSV/m5ochWOAdaTmqNqacSJZxaoCibJBEX3nf9DUWr07KX5dsF4AnOJH8kp4bZ40KK/ayiATL/4lSoXTHd3L8CBa/BK/TQx0gCatqC/VSii0fSf4kzbnlklAPkDXxJl0edUKchvsIT4zsx+GMWfY7kNoTJFQc/fKoieGhRcoLf4jqdBkrfIugfugP0cgMDi6s5geCMMg3h+hpjdmgi1gu1GaFEFqizfRfCvutA9jRXF2I0iOzG7/zXuV+Bl+zBWxPb8qZmccMp9AnJePYdZ7Ig/C17b9LkxBy0V2YDvCMSZjt3s1lmfAfQUzg3k58+vAaSo23FrC/+PKy1wO9BRipysepC/OQUcH8jIcdut/B4n3xbn9HY1kFtwJal9kP+ClCTFH8s+WsGzrkcJqstHkVcxkI5E0YrzOJIfFXy5ee3DOvuTICxKjzOQWPY8aYrw91hFztFDPD/2PFaXQ82aIz258fXqRWoq20AlXXRHam8Y0xDrRzFF0dogGC5b3tcZ6jpoZA5bPtMNd5/9Bl+fjL7ElPHRZpIBwMQ9cjwfNIbTY5JPInMh12iwpGLAf+yiCrU4NfR8qcnMdVoGjnI4BO8g5MSc=
-  file: app/build/outputs/apk/app*release*.apk
+  file: app/build/outputs/apk/app-debug.apk
   file_glob: true
   on:
     repo: COMP30022/Nitrogen-FrontEnd
     branch: client-login
-    tags: true
 
 notifications:
   email: false
