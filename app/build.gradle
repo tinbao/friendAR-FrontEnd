@@ -1,8 +1,9 @@
 apply plugin: 'com.android.application'
+apply plugin: 'maven'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "26.0.1"
+    buildToolsVersion '25.0.2'
     defaultConfig {
         applicationId "tk.friendar.friendar"
         minSdkVersion 19
@@ -17,17 +18,30 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    productFlavors {
+    }
+    lintOptions {
+      abortOnError false
+    }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    // For all included jar files
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+    // For the REST Client side communication
+    // Unit testing dependencies
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support:design:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.google.android.gms:play-services-maps:11.0.4'
+    // For the REST Client side communication
+    compile 'com.mcxiaoke.volley:library:1.0.19'
+    // Unit testing dependencies
     compile 'com.google.android.gms:play-services-location:11.0.4'
     testCompile 'junit:junit:4.12'
+    androidTestCompile 'org.mockito:mockito-core:2.10.0'
+    testCompile files('libs-test/json-20140107.jar')
 }

@@ -5,7 +5,9 @@ Front End build of the FRIENDAR mobile application developed in native android a
 
 * Augmented Reality Friend Finding
 * Group Communications
-* "*I'm Feeling Lucky*" Notable Location Search
+* Graphical User Interfaces for each requirement including home, maps, login, registration, friend search and chat.
+* The REST client that communicates with the server and Back End using Volley.
+* Continuous Integration and Deployment releasing an `apk` file for each merge and commit that is being done.
 
 
 
@@ -13,9 +15,18 @@ Front End build of the FRIENDAR mobile application developed in native android a
 
 * Prerequisite Installs
   * Java JDK 8.0
-  * Android Studio (will install Android 25, we are running 19)
+
+  * Android Studio (will install Android 25, we are running target 19)
+
   * JUnit 4.12 (Android Studio will install this)
+
   * Volley 1.0 (Android Studio will install this)
+
+  * Ruby 2.1.9 (ONLY for Continuous Deployment)
+
+  * Travis 5.2.1 (ONLY for Continuous Integration)
+
+    **Note** that Ruby and Travis are required if the continuous deployment and integration files and tags want to be changed or edited.
 
 ##### WARNING
 
@@ -31,6 +42,8 @@ Friendar 1.0 is developed in native Android, we take no responsibility in execut
 * Download the source code from the Releases tab (specified below)
 * Import into Android Device, running on at least Android 4.4 Kit-Kat
 * Unpack the folder and open in applications manager
+
+
 
 
 
@@ -57,11 +70,15 @@ This repo uses [git flow](http://nvie.com/posts/a-successful-git-branching-model
 This means, all new features are done on a new branch and then when ready pull requested into `master`. Note: for a branch to be successfully merged into master. It has to pass a code review and the tests on Travis.
 
 
+
+
 ## Sources and Thanks
 
 https://bitbucket.org/apacha/sensor-fusion-demo/ by Alexander Pacha and the Human Technology Laboratory New Zealand, MIT licence.
 
 
+
+
 ## License
 
-All rights reserved.
+FriendAR - All rights reserved.
