@@ -1,6 +1,7 @@
 package tk.friendar.friendar;
 
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -42,6 +43,7 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
     EditText userEmail, userPassword, confirmPassword;
     ProgressBar progressBar;
     Button complete;
+    private ProgressDialog pd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,10 +57,14 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
         userPassword = (EditText) findViewById(R.id.password);
         confirmPassword = (EditText) findViewById(R.id.password2);
 
+        pd = new ProgressDialog(signUp.this);
+
         /* For sign up button */
         complete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                pd.setMessage("Signing Up . . .");
+                pd.show();
                 /* Creates JSON Object (String) and POSTs to server via HTTP for new users */
                 register();
             }
@@ -169,6 +175,7 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
             new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
+                    pd.hide();
                     System.out.println("Response: " + response.toString());
                 }
             },
@@ -176,6 +183,7 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
             new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
+                    pd.hide();
                     NetworkResponse response = error.networkResponse;
                     if (response != null && response.data != null) {
                         try {
