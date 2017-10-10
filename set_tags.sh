@@ -1,4 +1,4 @@
-BRANCH="master"
+BRANCH="client-login"
 
 if [ "$TRAVIS_BRANCH"="$BRANCH" ]; then
   if [ "$TRAVIS_PULL_REQUEST"=false ]; then
