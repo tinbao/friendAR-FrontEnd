@@ -53,6 +53,8 @@ public class login_screen extends AppCompatActivity{
             public void onClick(View view) {
                 pd.setMessage("Logging In . . .");
                 pd.show();
+                pd.setCancelable(false);
+                pd.setCanceledOnTouchOutside(false);
 
                 /* Attempt login */
                 login();
@@ -93,12 +95,15 @@ public class login_screen extends AppCompatActivity{
                     pd.hide();
                     String msg = error.toString();
                     Log.d("ErrorResponse", msg);
+                    Context context = getApplicationContext();
 
                     if(msg.equals("com.android.volley.AuthFailureError")) {
                         /* Incorrect credentials case */
-                        Context context = getApplicationContext();
                         CharSequence text = "Incorrect Username or Password";
 
+                        Toast toast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
+                        toast.show();
+                    } else {
                         Toast toast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
                         toast.show();
                     }
