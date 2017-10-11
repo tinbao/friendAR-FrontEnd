@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -12,6 +13,14 @@ import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 /**
  * Manages starting location services and enforcing permissions for activities.
@@ -27,12 +36,13 @@ public class DeviceLocationService {
 			Manifest.permission.ACCESS_FINE_LOCATION
 	};
 	private static final int REQUEST_LOCATION = 26;
-	Activity requestedPermissionsFrom = null;  // activity from which permissions were requested
+	private boolean requestedPermissions = false;
+	//Activity requestedPermissionsFrom = null;  // activity from which permissions were requested
 
 	// Location services
-	FusedLocationProviderClient locationProviderClient;
-	LocationCallback locationCallback = null;
-	boolean locationUpdatesStarted = false;
+	private FusedLocationProviderClient locationProviderClient;
+	private LocationCallback locationCallback = null;
+	private boolean locationUpdatesStarted = false;
 
 	private static final long DEVICE_LOCATION_UPDATE_INTERVAl = 5000;
 	private static final long DEVICE_LOCATION_UPDATE_FASTEST_INTERVAl = 1000;
@@ -54,19 +64,16 @@ public class DeviceLocationService {
 	public void startLocationUpdates(AppCompatActivity activity) {
 		if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)
 				== PackageManager.PERMISSION_GRANTED) {
-			// start updates
+			// Have location permissions
+			requestedPermissions = false;
+
+			// Start updates
 			requestLocationUpdates(activity);
 		}
 		else {
-			if (requestedPermissionsFrom == null) {
-				// don't have location permissions
-				// try to get permissions and then try again
-				requestedPermissionsFrom = activity;
-				ActivityCompat.requestPermissions(activity, PERMISSIONS, REQUEST_LOCATION);
-			}
-			else if (requestedPermissionsFrom == activity) {
+			if (requestedPermissions) {
 				// Already requested permissions, but user denied
-				requestedPermissionsFrom = null;
+				requestedPermissions = false;
 
 				// Minimize app
 				Intent homeIntent = new Intent(Intent.ACTION_MAIN);
@@ -77,12 +84,61 @@ public class DeviceLocationService {
 				// Display error
 				Toast.makeText(activity, "FriendAR requires location permissions.", Toast.LENGTH_LONG).show();
 			}
+			else {
+				// don't have location permissions
+				// try to get permissions and then try again
+				requestedPermissions = true;
+				ActivityCompat.requestPermissions(activity, PERMISSIONS, REQUEST_LOCATION);
+			}
 		}
 	}
 
+	@SuppressWarnings({"MissingPermission"})
 	private void requestLocationUpdates(Activity activity) {
 		Log.d(TAG, "Starting location updates for " + activity.toString());
 		locationUpdatesStarted = true;
+
+		// Get location provider
+		locationProviderClient = LocationServices.getFusedLocationProviderClient(activity);
+
+		// Build request
+		final LocationRequest request = new LocationRequest();
+		request.setInterval(DEVICE_LOCATION_UPDATE_INTERVAl);
+		request.setFastestInterval(DEVICE_LOCATION_UPDATE_FASTEST_INTERVAl);
+		request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+		// Location callback
+		locationCallback = new LocationCallback() {
+			@Override
+			public void onLocationResult(LocationResult locationResult) {
+				lastLocation = locationResult.getLastLocation();
+				// TODO send to server HI TIN!
+				Log.d(TAG, "Location Update: " + lastLocation.toString());
+			}
+		};
+
+		// Put request into settings
+		LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+		builder.addLocationRequest(request);
+
+		SettingsClient settingsClient = LocationServices.getSettingsClient(activity);
+		settingsClient.checkLocationSettings(builder.build())
+				.addOnSuccessListener(activity, new OnSuccessListener<LocationSettingsResponse>() {
+					@Override
+					public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+						Log.d(TAG, "Successfully set location settings.");
+
+						// Start updates
+						locationProviderClient.requestLocationUpdates(request, locationCallback, null);
+						locationUpdatesStarted = true;
+					}
+				})
+				.addOnFailureListener(activity, new OnFailureListener() {
+					@Override
+					public void onFailure(@NonNull Exception e) {
+						Log.e(TAG, "Could not set location settings: " + e.getMessage());
+					}
+				});
 	}
 
 	// Stop location updates for the given activity
@@ -90,8 +146,10 @@ public class DeviceLocationService {
 		if (locationUpdatesStarted) {
 			// stop updates
 			Log.d(TAG, "Stopping location updates for " + activity.toString());
-			requestedPermissionsFrom = null;
 			locationUpdatesStarted = false;
+			requestedPermissions = false;
+
+			locationProviderClient.removeLocationUpdates(locationCallback);
 		}
 	}
 
