@@ -104,7 +104,7 @@ public class login_screen extends AppCompatActivity{
                         Toast toast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
                         toast.show();
                     } else {
-                        Toast toast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
+                        Toast toast = Toast.makeText(context, msg, Toast.LENGTH_SHORT);
                         toast.show();
                     }
                 }
