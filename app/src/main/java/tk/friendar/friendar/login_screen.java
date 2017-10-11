@@ -51,7 +51,6 @@ public class login_screen extends AppCompatActivity{
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /* Does a GET request to authenticate the credentials of the user */
                 pd.setMessage("Logging In . . .");
                 pd.show();
 
@@ -76,14 +75,15 @@ public class login_screen extends AppCompatActivity{
      * Attempts to login using the user's entered credentials
      */
     private void login(){
+        /* Does a GET request to authenticate the credentials of the user */
         JsonObjectRequest req = new JsonObjectRequest(Request.Method.GET, URLs.URL_SIGNUP,
             new Response.Listener<JSONObject>()
             {
                 @Override
                 public void onResponse(JSONObject response) {
                     pd.hide();
-                    Log.d("JsonArray Response",response.toString());
-                    System.out.println("BEGINNING SEARCH");
+                    Log.d("JSON Response",response.toString());
+                    /* Switch to HOME screen */
                     submitLogin(getCurrentFocus());
                 }
             },
@@ -123,45 +123,5 @@ public class login_screen extends AppCompatActivity{
 
         req.setShouldCache(false);
         Volley.newRequestQueue(login_screen.this).add(req);
-    }
-
-    /**
-     * Processes the response from the GET request from the server
-     * We parse through the users to determine if the login credentials are legitimate
-     * @param response is the JSON object that contains the JSON array of users
-     */
-    private boolean processResponse(JSONObject response){
-        try
-        {
-            boolean found = false;
-            JSONArray users_array = response.getJSONArray("users");
-            /* Loop over all users in the database */
-            for(int i = 0; i < users_array.length(); i++){
-                JSONObject user = (JSONObject) users_array.get(i);
-                System.out.printf("USER %d\n", i);
-                String server_username = user.getString("username");
-                System.out.println("USERNAME:" + server_username);
-                String server_password = user.getString("usersPassword");
-                System.out.println("PASSWORD:" + server_password);
-
-                if(userName.equals(server_username) && userPass.equals(server_password)){
-                    submitLogin(getCurrentFocus());
-                    found = true;
-                }
-            }
-
-            /* Found the user's correct credentials */
-            if(found){
-                return true;
-            } else {
-                System.out.println("NO USER FOUND");
-                return false;
-            }
-
-        } catch (JSONException e){
-            Log.d("Web Service Error",e.getMessage());
-            e.printStackTrace();
-            return false;
-        }
     }
 }

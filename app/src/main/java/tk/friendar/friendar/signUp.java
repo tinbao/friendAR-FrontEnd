@@ -59,8 +59,6 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
         userPassword = (EditText) findViewById(R.id.password);
         confirmPassword = (EditText) findViewById(R.id.password2);
 
-
-
         /* For sign up button */
         complete.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -137,13 +135,7 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
         /* Temporary Username: taking the string before the @ in the email */
         final String userName = email.split("@")[0];
 
-        if (TextUtils.isEmpty(email)) {
-            userEmail.setError("Please enter your email");
-            userEmail.requestFocus();
-            return;
-        }
-
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+        if (!EmailValidator.isValidEmail(email)) {
             userEmail.setError("Enter a valid email");
             userEmail.requestFocus();
             return;
@@ -169,6 +161,7 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
             return;
         }
 
+        /* Display signing up dialog once all info is correctly formatted */
         pd.setMessage("Signing Up . . .");
         pd.show();
 
@@ -192,6 +185,7 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
                 public void onResponse(JSONObject response) {
                     pd.hide();
                     Log.d("Response", response.toString());
+                    /* Switch to HOME screen */
                     submitLogin(getCurrentFocus());
                 }
             },
@@ -226,8 +220,9 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
                 }
             };
 
+        /* DEBUG: Tells android to wait 30 seconds and try 5 times */
+        req.setRetryPolicy(new DefaultRetryPolicy(30000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         /* Requests are posted and executed in a queue */
-        req.setRetryPolicy(new DefaultRetryPolicy(50000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         req.setShouldCache(false);
         Volley.newRequestQueue(signUp.this).add(req);
 

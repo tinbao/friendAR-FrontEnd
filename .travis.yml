@@ -87,7 +87,7 @@ deploy:
   file_glob: true
   on:
     repo: COMP30022/Nitrogen-FrontEnd
-    branch: client-login
+    branch: master
 
 notifications:
   email: false
