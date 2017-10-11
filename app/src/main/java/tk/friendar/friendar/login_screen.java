@@ -1,8 +1,10 @@
 package tk.friendar.friendar;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -11,12 +13,9 @@ import android.app.ProgressDialog;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
-import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
@@ -85,26 +84,34 @@ public class login_screen extends AppCompatActivity{
                     pd.hide();
                     Log.d("JsonArray Response",response.toString());
                     System.out.println("BEGINNING SEARCH");
-                    boolean res = processResponse(response);
-                    if(res){
-                        submitLogin(getCurrentFocus());
-                    } else {
-                        // TODO: reject the login
-                    }
+                    submitLogin(getCurrentFocus());
                 }
             },
             new Response.ErrorListener(){
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     pd.hide();
-                    Log.d("ErrorResponse", error.toString());
+                    String msg = error.toString();
+                    Log.d("ErrorResponse", msg);
+
+                    if(msg.equals("com.android.volley.AuthFailureError")) {
+                        /* Incorrect credentials case */
+                        Context context = getApplicationContext();
+                        CharSequence text = "Incorrect Username or Password";
+
+                        Toast toast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
                 }
             }
         ){
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> headers = new HashMap<>();
-                headers.put("authorization", "Basic amFtZXM6c3RvbmU=");
+                headers.put("authorization",
+                        String.format("Basic %s", Base64.encodeToString(
+                                String.format("%s:%s", userName.getText().toString(),
+                                        userPass.getText().toString()).getBytes(), Base64.DEFAULT)));
                 return headers;
             }
 
@@ -114,7 +121,6 @@ public class login_screen extends AppCompatActivity{
             }
         };
 
-        //req.setRetryPolicy(new DefaultRetryPolicy(30000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         req.setShouldCache(false);
         Volley.newRequestQueue(login_screen.this).add(req);
     }

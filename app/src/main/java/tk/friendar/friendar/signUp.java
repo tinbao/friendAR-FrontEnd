@@ -59,14 +59,12 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
         userPassword = (EditText) findViewById(R.id.password);
         confirmPassword = (EditText) findViewById(R.id.password2);
 
-        pd = new ProgressDialog(signUp.this);
+
 
         /* For sign up button */
         complete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pd.setMessage("Signing Up . . .");
-                pd.show();
                 /* Creates JSON Object (String) and POSTs to server via HTTP for new users */
                 register();
             }
@@ -131,6 +129,8 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
      * Will also confirm that the user enters in correctly formatted inputs.
      */
     private void register() {
+        pd = new ProgressDialog(signUp.this);
+
         final String email = userEmail.getText().toString().trim();
         final String password = userPassword.getText().toString().trim();
         final String password_confirm = confirmPassword.getText().toString().trim();
@@ -168,6 +168,9 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
             confirmPassword.requestFocus();
             return;
         }
+
+        pd.setMessage("Signing Up . . .");
+        pd.show();
 
         final JSONObject params = new JSONObject();
         /* Puts the information into the JSON Object */
