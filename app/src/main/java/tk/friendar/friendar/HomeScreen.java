@@ -1,5 +1,6 @@
 package tk.friendar.friendar;
 
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -60,6 +61,27 @@ public class HomeScreen extends AppCompatActivity {
 				startActivity(intent);
 			}
 		});
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+
+		// Device location
+		DeviceLocationService.getInstance().startLocationUpdates(this);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+
+		// Device location
+		DeviceLocationService.getInstance().stopLocationUpdates(this);
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		DeviceLocationService.getInstance().handlePermissionResults(this, requestCode, permissions, grantResults);
 	}
 
 	@Override
