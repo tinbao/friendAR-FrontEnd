@@ -1,11 +1,13 @@
 package tk.friendar.friendar;
 
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -16,6 +18,7 @@ import android.widget.TextView;
 
 import android.support.v4.app.DialogFragment;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -42,6 +45,7 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
     EditText userEmail, userPassword, confirmPassword;
     ProgressBar progressBar;
     Button complete;
+    private ProgressDialog pd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,23 +113,29 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
     }
 
     /**
+     * Switches the view to the home screen once the user's login is successful
+     * @param view the current view of the application
+     */
+    public void submitLogin(View view){
+        Intent intent_submit = new Intent(this, HomeScreen.class);
+        startActivity(intent_submit);
+
+    }
+
+    /**
      * Registers a new user to the database using volley's POST method through a REST API
      * Will also confirm that the user enters in correctly formatted inputs.
      */
     private void register() {
+        pd = new ProgressDialog(signUp.this);
+
         final String email = userEmail.getText().toString().trim();
         final String password = userPassword.getText().toString().trim();
         final String password_confirm = confirmPassword.getText().toString().trim();
         /* Temporary Username: taking the string before the @ in the email */
         final String userName = email.split("@")[0];
 
-        if (TextUtils.isEmpty(email)) {
-            userEmail.setError("Please enter your email");
-            userEmail.requestFocus();
-            return;
-        }
-
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+        if (!EmailValidator.isValidEmail(email)) {
             userEmail.setError("Enter a valid email");
             userEmail.requestFocus();
             return;
@@ -151,6 +161,10 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
             return;
         }
 
+        /* Display signing up dialog once all info is correctly formatted */
+        pd.setMessage("Signing Up . . .");
+        pd.show();
+
         final JSONObject params = new JSONObject();
         /* Puts the information into the JSON Object */
         try {
@@ -169,13 +183,17 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
             new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
-                    System.out.println("Response: " + response.toString());
+                    pd.hide();
+                    Log.d("Response", response.toString());
+                    /* Switch to HOME screen */
+                    submitLogin(getCurrentFocus());
                 }
             },
 
             new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
+                    pd.hide();
                     NetworkResponse response = error.networkResponse;
                     if (response != null && response.data != null) {
                         try {
@@ -202,6 +220,8 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
                 }
             };
 
+        /* DEBUG: Tells android to wait 30 seconds and try 5 times */
+        req.setRetryPolicy(new DefaultRetryPolicy(30000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         /* Requests are posted and executed in a queue */
         req.setShouldCache(false);
         Volley.newRequestQueue(signUp.this).add(req);
