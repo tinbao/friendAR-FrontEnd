@@ -50,6 +50,9 @@ public class DeviceLocationService {
 	// Location cache
 	private Location lastLocation = null;
 
+	// Update listener
+	UpdateListener updateListener = null;
+
 	// Singleton stuff
 	private static final DeviceLocationService instance = new DeviceLocationService();
 	private DeviceLocationService() {}  // disallow instantiation
@@ -112,8 +115,11 @@ public class DeviceLocationService {
 			@Override
 			public void onLocationResult(LocationResult locationResult) {
 				lastLocation = locationResult.getLastLocation();
-				// TODO send to server HI TIN!
+				notifyListeners(lastLocation);
 				Log.d(TAG, "Location Update: " + lastLocation.toString());
+
+				// TODO send lastLocation server here!
+
 			}
 		};
 
@@ -126,7 +132,7 @@ public class DeviceLocationService {
 				.addOnSuccessListener(activity, new OnSuccessListener<LocationSettingsResponse>() {
 					@Override
 					public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-						Log.d(TAG, "Successfully set location settings.");
+						Log.d(TAG, "Successfully set location settings. Starting location updates.");
 
 						// Start updates
 						locationProviderClient.requestLocationUpdates(request, locationCallback, null);
@@ -150,6 +156,7 @@ public class DeviceLocationService {
 			requestedPermissions = false;
 
 			locationProviderClient.removeLocationUpdates(locationCallback);
+			updateListener = null;
 		}
 	}
 
@@ -168,5 +175,26 @@ public class DeviceLocationService {
 
 	public Location getLastLocation() {
 		return lastLocation;
+	}
+
+	// Location update listener
+	// Just store one reference since that will work for our cases
+	public interface UpdateListener {
+		void onLocationUpdate(Location location);
+	}
+
+	public void registerUpdateListener(UpdateListener listener) {
+		updateListener = listener;
+	}
+
+	public void unregisterUpdateListener(UpdateListener listener) {
+		updateListener = null;
+	}
+
+	private void notifyListeners(Location location) {
+		// Consider changing to a thread if needed
+		if (updateListener != null) {
+			updateListener.onLocationUpdate(location);
+		}
 	}
 }

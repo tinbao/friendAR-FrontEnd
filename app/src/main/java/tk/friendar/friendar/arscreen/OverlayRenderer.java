@@ -19,6 +19,7 @@ import java.util.Iterator;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import tk.friendar.friendar.DeviceLocationService;
 import tk.friendar.friendar.User;
 import tk.friendar.friendar.testing.DummyData;
 
@@ -27,7 +28,7 @@ import tk.friendar.friendar.testing.DummyData;
  * OpenGL view and renderer used for the VR screen.
  */
 
-public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Renderer {
+public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Renderer, DeviceLocationService.UpdateListener {
 	// Transformations
 	private float[] modelMatrix = new float[16];
 	private float[] viewMatrix = new float[16];
@@ -153,7 +154,8 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 
 
 	// Device location update
-	public void onDeviceLocationUpdate(Location location) {
+	@Override
+	public void onLocationUpdate(Location location) {
 		deviceLocation = location;
 	}
 
