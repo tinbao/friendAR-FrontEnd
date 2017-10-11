@@ -43,8 +43,6 @@ import tk.friendar.friendar.User;
  * Created by lucah on 30/8/17.
  * Activity used for the VR screen.
  * For renderering of this screen, see OverlayRenderer.
- *
- * FIXME Sync position sensor to magnetic north properly
  */
 
 public class VRActivity extends AppCompatActivity {
@@ -68,11 +66,8 @@ public class VRActivity extends AppCompatActivity {
 	private static final long DEVICE_LOCATION_UPDATE_FASTEST_INTERVAl = 1000;
 
 	// Server requests
-	private static final long DEVICE_LOCATION_POST_INTERVAL = 6000;
 	private static final long FRIEND_LOCATION_GET_INTERVAL = 10000;
-	Handler deviceLocationPost;
 	Handler friendLocationGet;
-	Runnable deviceLocationPostRunnable;
 	Runnable friendLocationGetRunnable;
 
 	// Permissions
@@ -119,17 +114,6 @@ public class VRActivity extends AppCompatActivity {
 		locationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
 		// Server requests
-		deviceLocationPost = new Handler();
-		deviceLocationPostRunnable = new Runnable() {
-			@Override
-			public void run() {
-				Log.d(TAG, "Sending device location to server");
-				// TODO send location to server here
-
-				deviceLocationPost.postDelayed(this, DEVICE_LOCATION_POST_INTERVAL);  // loop
-			}
-		};
-
 		friendLocationGet = new Handler();
 		friendLocationGetRunnable = new Runnable() {
 			@Override
@@ -162,7 +146,6 @@ public class VRActivity extends AppCompatActivity {
 			startDeviceLocationUpdates();
 
 			// Start server post/get loop
-			deviceLocationPost.postDelayed(deviceLocationPostRunnable, DEVICE_LOCATION_POST_INTERVAL);
 			friendLocationGet.postDelayed(friendLocationGetRunnable, FRIEND_LOCATION_GET_INTERVAL);
 		}
 		else {
@@ -184,7 +167,6 @@ public class VRActivity extends AppCompatActivity {
 		if (locationUpdatesStarted) stopDeviceLocationUpdates();
 
 		// Stop server post/get loops
-		deviceLocationPost.removeCallbacks(deviceLocationPostRunnable);
 		friendLocationGet.removeCallbacks(friendLocationGetRunnable);
 
 		// Stop rotation sensore
