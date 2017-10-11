@@ -36,6 +36,7 @@ import org.hitlabnz.sensor_fusion.orientationProvider.OrientationProvider;
 
 import java.util.ArrayList;
 
+import tk.friendar.friendar.DeviceLocationService;
 import tk.friendar.friendar.HomeScreen;
 import tk.friendar.friendar.User;
 
@@ -57,13 +58,6 @@ public class VRActivity extends AppCompatActivity {
 	// Sensors
 	private OrientationProvider orientationProvider;
 	private final float[] rotationMatrix = new float[16];
-
-	// Location service
-	FusedLocationProviderClient locationProviderClient;
-	LocationCallback locationCallback = null;
-	boolean locationUpdatesStarted = false;
-	private static final long DEVICE_LOCATION_UPDATE_INTERVAl = 5000;
-	private static final long DEVICE_LOCATION_UPDATE_FASTEST_INTERVAl = 1000;
 
 	// Server requests
 	private static final long FRIEND_LOCATION_GET_INTERVAL = 10000;
@@ -110,9 +104,6 @@ public class VRActivity extends AppCompatActivity {
 		orientationProvider = new ImprovedOrientationSensor1Provider(sensorManager);
 		vrOverlay.setOrientationProvider(orientationProvider);
 
-		// Location
-		locationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-
 		// Server requests
 		friendLocationGet = new Handler();
 		friendLocationGetRunnable = new Runnable() {
@@ -143,7 +134,8 @@ public class VRActivity extends AppCompatActivity {
 		if (haveAllPermissions()) {
 			Log.d(TAG, "Resuming, have all permissions.");
 			startCamera();
-			startDeviceLocationUpdates();
+			DeviceLocationService.getInstance().startLocationUpdates(this);
+			DeviceLocationService.getInstance().registerUpdateListener(vrOverlay);
 
 			// Start server post/get loop
 			friendLocationGet.postDelayed(friendLocationGetRunnable, FRIEND_LOCATION_GET_INTERVAL);
@@ -164,7 +156,8 @@ public class VRActivity extends AppCompatActivity {
 
 		// Stop camera and location services
 		if (cameraStarted) stopCamera();
-		if (locationUpdatesStarted) stopDeviceLocationUpdates();
+		DeviceLocationService.getInstance().unregisterUpdateListener(vrOverlay);
+		DeviceLocationService.getInstance().stopLocationUpdates(this);
 
 		// Stop server post/get loops
 		friendLocationGet.removeCallbacks(friendLocationGetRunnable);
@@ -232,56 +225,6 @@ public class VRActivity extends AppCompatActivity {
 		cameraStarted = false;
 	}
 
-
-	// Device location updates
-	@SuppressWarnings({"MissingPermission"})
-	private void startDeviceLocationUpdates() {
-		// Build request
-		final LocationRequest request = new LocationRequest();
-		request.setInterval(DEVICE_LOCATION_UPDATE_INTERVAl);
-		request.setFastestInterval(DEVICE_LOCATION_UPDATE_FASTEST_INTERVAl);
-		request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
-		// Location callback
-		locationCallback = new LocationCallback() {
-			@Override
-			public void onLocationResult(LocationResult locationResult) {
-				Location loc = locationResult.getLastLocation();
-				vrOverlay.onDeviceLocationUpdate(loc);
-				Log.d(TAG, "New Loc: " + loc.toString());
-			}
-		};
-
-		// Put request into settings
-		LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
-		builder.addLocationRequest(request);
-
-		SettingsClient settingsClient = LocationServices.getSettingsClient(this);
-		settingsClient.checkLocationSettings(builder.build())
-				.addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
-					@Override
-					public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-						Log.d(TAG, "Successfully set location settings.");
-
-						// Start updates
-						locationProviderClient.requestLocationUpdates(request, locationCallback, null);
-						locationUpdatesStarted = true;
-					}
-				})
-				.addOnFailureListener(this, new OnFailureListener() {
-					@Override
-					public void onFailure(@NonNull Exception e) {
-						Log.e(TAG, "Could not set location settings: " + e.getMessage());
-					}
-				});
-	}
-
-	private void stopDeviceLocationUpdates() {
-		if (locationCallback != null) {
-			locationProviderClient.removeLocationUpdates(locationCallback);
-			locationUpdatesStarted = false;
-		}
-	}
 
 	// Gestures
 	class LearnGesture extends GestureDetector.SimpleOnGestureListener {

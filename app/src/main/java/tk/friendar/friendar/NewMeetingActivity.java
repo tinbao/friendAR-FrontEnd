@@ -1,5 +1,6 @@
 package tk.friendar.friendar;
 
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -58,6 +59,25 @@ public class NewMeetingActivity extends AppCompatActivity {
 				submitButton.setEnabled(FormValidator.isValidMeetingName(s.toString()));
 			}
 		});
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+
+		DeviceLocationService.getInstance().startLocationUpdates(this);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+
+		DeviceLocationService.getInstance().stopLocationUpdates(this);
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		DeviceLocationService.getInstance().handlePermissionResults(this, requestCode, permissions, grantResults);
 	}
 
 	public void submitRequest(View view) {

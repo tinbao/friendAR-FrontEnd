@@ -67,7 +67,6 @@ public class HomeScreen extends AppCompatActivity {
 	protected void onResume() {
 		super.onResume();
 
-		// Device location
 		DeviceLocationService.getInstance().startLocationUpdates(this);
 	}
 
@@ -75,7 +74,6 @@ public class HomeScreen extends AppCompatActivity {
 	protected void onPause() {
 		super.onPause();
 
-		// Device location
 		DeviceLocationService.getInstance().stopLocationUpdates(this);
 	}
 
