@@ -31,8 +31,8 @@ import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
-import org.hitlabnz.sensor_fusion_demo.orientationProvider.ImprovedOrientationSensor1Provider;
-import org.hitlabnz.sensor_fusion_demo.orientationProvider.OrientationProvider;
+import org.hitlabnz.sensor_fusion.orientationProvider.ImprovedOrientationSensor1Provider;
+import org.hitlabnz.sensor_fusion.orientationProvider.OrientationProvider;
 
 import java.util.ArrayList;
 
