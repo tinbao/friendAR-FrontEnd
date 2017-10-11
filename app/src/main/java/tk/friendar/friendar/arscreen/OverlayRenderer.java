@@ -10,8 +10,8 @@ import android.opengl.Matrix;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
-import org.hitlabnz.sensor_fusion_demo.orientationProvider.OrientationProvider;
-import org.hitlabnz.sensor_fusion_demo.representation.MatrixF4x4;
+import org.hitlabnz.sensor_fusion.orientationProvider.OrientationProvider;
+import org.hitlabnz.sensor_fusion.representation.MatrixF4x4;
 
 import java.util.ArrayList;
 import java.util.Iterator;

@@ -1,6 +1,6 @@
-package org.hitlabnz.sensor_fusion_demo.orientationProvider;
+package org.hitlabnz.sensor_fusion.orientationProvider;
 
-import org.hitlabnz.sensor_fusion_demo.representation.Quaternion;
+import org.hitlabnz.sensor_fusion.representation.Quaternion;
 
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;

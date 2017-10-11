@@ -1,6 +1,6 @@
-package org.hitlabnz.sensor_fusion_demo.orientationProvider;
+package org.hitlabnz.sensor_fusion.orientationProvider;
 
-import org.hitlabnz.sensor_fusion_demo.representation.Quaternion;
+import org.hitlabnz.sensor_fusion.representation.Quaternion;
 
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -17,7 +17,7 @@ import android.util.Log;
  * @author Alexander Pacha
  * 
  */
-public class ImprovedOrientationSensor1Provider extends OrientationProvider {
+public class ImprovedOrientationSensor1Provider extends org.hitlabnz.sensor_fusion.orientationProvider.OrientationProvider {
 
     /**
      * Constant specifying the factor between a Nano-second and a second
