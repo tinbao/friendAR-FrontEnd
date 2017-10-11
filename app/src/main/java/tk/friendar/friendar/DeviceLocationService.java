@@ -116,10 +116,9 @@ public class DeviceLocationService {
 			public void onLocationResult(LocationResult locationResult) {
 				lastLocation = locationResult.getLastLocation();
 				notifyListeners(lastLocation);
+				putLocationToServer(lastLocation);
+
 				Log.d(TAG, "Location Update: " + lastLocation.toString());
-
-				// TODO send lastLocation server here!
-
 			}
 		};
 
@@ -196,5 +195,10 @@ public class DeviceLocationService {
 		if (updateListener != null) {
 			updateListener.onLocationUpdate(location);
 		}
+	}
+
+	// Server updates
+	private void putLocationToServer(Location location) {
+		// TODO send location to server here!
 	}
 }
