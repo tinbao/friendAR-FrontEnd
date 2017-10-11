@@ -17,17 +17,19 @@ Front End build of the FRIENDAR mobile application developed in native android a
 
 ##### Prerequisite Installs
 
-* Android Studio 2.3.3 (Android Studio will install all below)
+* Android Studio 2.3.3 (Android Studio will install all below, otherwise please install these)
 
   * JUnit 4.12
   * Volley 1.0.19
   * Java JDK 8.0
 
-* Ruby 2.1.9 (ONLY for Continuous Deployment)
+* Ruby 2.1.9 [OPTIONAL]
 
-* Travis 5.2.1 (ONLY for Continuous Integration)
+* Travis 5.2.1 [OPTIONAL]
 
-  **Note** that Ruby and Travis are required if the continuous deployment and integration files and tags want to be changed or edited. Otherwise, they are not necessary.
+  **Note** that Ruby and Travis are required if the *continuous deployment* and *integration* files and/or tags want to be changed or edited. Otherwise, they are not necessary.
+
+* An Android device running at least Android 4.4 KitKat (19) and optimally Android 25 [OPTIONAL]
 
   ​
 
@@ -37,9 +39,9 @@ Friendar 1.0 is developed in native Android, we take no responsibility in execut
 
 
 
-#### FOR DEVELOPERS (In Android Studio)
+#### TEST INSTRUCTIONS (In Android Studio)
 
-1. From GitHub, clone our repository: https://github.com/COMP30022/Nitrogen-FrontEnd.git
+1. Clone our repository: https://github.com/COMP30022/Nitrogen-FrontEnd.git
 
 2. Open in Android Studio and load the cloned repository
 
@@ -49,20 +51,36 @@ Friendar 1.0 is developed in native Android, we take no responsibility in execut
 
 4. Select "JunitTester" to run all unit tests
 
-5. On successful testing, press `Alt-Shift-F10` again to bring up the run window
+#### BUILD INSTRUCTIONS (In Android Studio)
 
-6. Select "app"
+1. On successful testing, press `Alt-Shift-F10` again to bring up the run window
 
-7. Select suitable device, either emulated device or plugged in USB device
+2. Select "app"
+
+3. Select suitable device, either emulated device or plugged in USB device
 
    ![deploy-as](C:\Users\tinba\Documents\GitHub\Nitrogen-FrontEnd\readme-resources\deploy-as.PNG)
 
    * **NOTE:** For first time setup of virtual device: [Creating Android Emulator](https://www.embarcadero.com/starthere/xe5/mobdevsetup/android/en/creating_an_android_emulator.html)
    * **NOTE:** For connected USB Android device: [Setup Android Hardware Device](https://developer.android.com/studio/run/device.html)
 
-8. FriendAR will automatically install and run on the selected device
+4. FriendAR will automatically install and run on the selected device
 
-9. **BONUS:** Log into [Travis-ci.com](https://travis-ci.com/COMP30022/Nitrogen-FrontEnd) using GitHub credentials to view the build logs and rerun any previous builds. Commits, pushes and requests are automatically queued here.
+#### DEPLOY INSTRUCTIONS
+
+Deployment is *automated* with FriendAR, so to deploy an `apk` file, it **must** go through Travis.
+
+1. Using a shell command line (i.e Git Shell), branch from `master` and commit a change
+
+2. Log into [Travis-ci.com](https://travis-ci.com/COMP30022/Nitrogen-FrontEnd) using GitHub credentials to view the build logs and rerun any previous builds. Commits, pushes and requests are automatically queued here
+
+3. Submit a pull request onto `master` from this branch and get a review
+
+4. Wait until Travis' tests and scripts have finished running
+
+5. Merge the branch and will submit a merge request on Travis' servers
+
+6. `app-debug.apk` will automatically be deployed onto COMP30022/Nitrogen-FrontEnd's releases page
 
    ![travis](C:\Users\tinba\Documents\GitHub\Nitrogen-FrontEnd\readme-resources\travis.PNG)
 
@@ -70,7 +88,7 @@ Friendar 1.0 is developed in native Android, we take no responsibility in execut
 
    ​
 
-#### FOR CONSUMERS (Android 19 Device)
+#### FOR CONSUMERS (>Android 19 Device)
 
 1. Download the latest source code `app-debug.apk` from the [Releases](https://github.com/COMP30022/Nitrogen-FrontEnd/releases) tab
 2. Import into Android Device, running on at least Android 4.4 Kit-Kat
