@@ -1,5 +1,5 @@
 language: android
-sudo: required
+sudo: false
 
 env:
   global:
@@ -68,7 +68,7 @@ script:
   #- adb shell input keyevent 82 &
   #- ./gradlew connectedAndroidTest -PdisablePreDex --stacktrace
   # test and build the project
-  - ./gradlew test build
+  - ./gradlew clean build test
   - ls app/build/outputs/apk
 
 after_success:
@@ -87,7 +87,7 @@ deploy:
   file_glob: true
   on:
     repo: COMP30022/Nitrogen-FrontEnd
-    branch: master
+    branch: client-login
 
 notifications:
   email: false
