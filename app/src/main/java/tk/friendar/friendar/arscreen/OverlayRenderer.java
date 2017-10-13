@@ -39,6 +39,7 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 	// Locations
 	private Location deviceLocation;
 	private ArrayList<LocationMarker> nearbyFriends;
+	private static final int DISPLAY_FRIEND_IN_RADIUS = 1000;  // only show friends this close
 
 	// Shaders
 	private Shader markerShader = new Shader();
@@ -161,17 +162,31 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 
 
 	// Friend connect/disconnect events
-	public void onFriendInRange(User friend) {
+	public void onFriendLocationUpdates(ArrayList<User> allFriends) {
+		for (User friend : allFriends) {
+			boolean alreadyDisplaying = (nearbyFriends.contains(friend));
+			boolean inRange = (friend.getLocation().distanceTo(deviceLocation) < DISPLAY_FRIEND_IN_RADIUS);
+
+			if (alreadyDisplaying && !inRange) {
+				onFriendOutOfRange(friend);
+			}
+			else if (!alreadyDisplaying && inRange) {
+				onFriendInRange(friend);
+			}
+		}
+	}
+
+	private void onFriendInRange(User friend) {
 		LocationMarker marker = new LocationMarker(friend);
 		marker.generateIconTexture();
 		nearbyFriends.add(marker);
 	}
 
-	public void onFriendOutOfRange(User friend) {
+	private void onFriendOutOfRange(User friend) {
 		Iterator<LocationMarker> iter = nearbyFriends.iterator();
 		while (iter.hasNext()) {
 			LocationMarker marker = iter.next();
-			if (marker.user == friend) {
+			if (marker.user.equals(friend)) {
 				iter.remove();
 			}
 		}
