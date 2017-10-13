@@ -87,4 +87,21 @@
     </string-array>
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_login">LoginActivity</string>
+
+
+    <string name="title_activity_friend_ar_chat">FriendAR_chats</string>
+
+    <string name="title_section1">Important</string>
+
+    <string name="title_section2">Chats</string>
+
+    <string name="title_section3">Contacts</string>
+
+    <string name="action_settings">Settings</string>
+
+    <string name="section_format">Hello World from section: %1$d</string>
+
+    <string name="test_message">This is a test message for section: %l$d</string>
+
+    <string name="send">Send Message Button</string>
 </resources>

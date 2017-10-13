@@ -19,6 +19,7 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
+import tk.friendar.friendar.Chat.FriendAR_chat;
 import tk.friendar.friendar.arscreen.VRActivity;
 import tk.friendar.friendar.testing.DummyData;
 
@@ -129,7 +130,7 @@ public class HomeScreen extends AppCompatActivity {
 			Meeting m = (Meeting)parent.getItemAtPosition(position);
 			Log.d(TAG, "Clicked: " + m.getName());
 
-			Intent intent = new Intent(HomeScreen.this, screen1.class);
+			Intent intent = new Intent(HomeScreen.this, FriendAR_chat.class);
 			intent.putExtra(EXTRA_MEETING_ID, m.getId());
 			startActivity(intent);
 		}
