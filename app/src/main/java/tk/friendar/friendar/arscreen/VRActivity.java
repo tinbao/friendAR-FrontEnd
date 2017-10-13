@@ -61,7 +61,7 @@ public class VRActivity extends AppCompatActivity {
 	private static final int REQUEST_ALL_PERMISSIONS = 25;
 
 	// Nearby friends
-	ArrayList<User> nearbyFriends;
+	ArrayList<User> allFriends = new ArrayList<>();
 
 	// Swipe listener
 	private GestureDetectorCompat gestureObject;
@@ -99,7 +99,7 @@ public class VRActivity extends AppCompatActivity {
 			@Override
 			public void run() {
 				Log.d(TAG, "Requesting friend locations from server");
-				// TODO request locations here
+				updateFriendLocations();
 
 				friendLocationGet.postDelayed(this, FRIEND_LOCATION_GET_INTERVAL);  // loop
 			}
@@ -127,7 +127,7 @@ public class VRActivity extends AppCompatActivity {
 			DeviceLocationService.getInstance().registerUpdateListener(vrOverlay);
 
 			// Start server post/get loop
-			friendLocationGet.postDelayed(friendLocationGetRunnable, FRIEND_LOCATION_GET_INTERVAL);
+			friendLocationGet.postDelayed(friendLocationGetRunnable, 100);
 		}
 		else {
 			Log.d(TAG, "Resuming, requesting permissions.");
@@ -233,5 +233,15 @@ public class VRActivity extends AppCompatActivity {
 	public boolean onTouchEvent(MotionEvent event) {
 		this.gestureObject.onTouchEvent(event);
 		return super.onTouchEvent(event);
+	}
+
+	// Location updates
+	// Pull all locations from the server
+	void updateFriendLocations() {
+		allFriends = new ArrayList<>();
+
+		// TODO request all friend locations and fill 'allFriends' with the data
+
+		vrOverlay.onFriendLocationUpdates(allFriends);
 	}
 }
