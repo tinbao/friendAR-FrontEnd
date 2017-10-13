@@ -2,6 +2,7 @@ package tk.friendar.friendar;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -241,10 +242,6 @@ public class DeviceLocationService {
 					NetworkResponse response = error.networkResponse;
 					String msg = error.toString();
 					Log.d("ErrorResponse", msg);
-
-					if (response != null && response.data != null) {
-
-					}
 				}
 			}) {
 
@@ -253,8 +250,8 @@ public class DeviceLocationService {
 				Map<String, String> headers = new HashMap<>();
 				headers.put("authorization",
 						String.format("Basic %s", Base64.encodeToString(
-								String.format("%s:%s", userName.getText().toString(),
-										userPass.getText().toString()).getBytes(), Base64.DEFAULT)));
+								String.format("%s:%s", login_screen.getUser(),
+										login_screen.getPass()).getBytes(), Base64.DEFAULT)));
 				return headers;
 			}
 

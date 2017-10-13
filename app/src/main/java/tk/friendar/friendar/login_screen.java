@@ -36,6 +36,10 @@ public class login_screen extends AppCompatActivity{
     EditText userPass, userName;
     private ProgressDialog pd;
 
+    /* Single instance login username and password for authentication */
+    private static String user;
+    private static String pass;
+
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -85,6 +89,8 @@ public class login_screen extends AppCompatActivity{
                 public void onResponse(JSONObject response) {
                     pd.hide();
                     Log.d("JSON Response",response.toString());
+                    setUsername(userName.toString());
+                    setPassword(userPass.toString());
                     /* Switch to HOME screen */
                     submitLogin(getCurrentFocus());
                 }
@@ -110,6 +116,8 @@ public class login_screen extends AppCompatActivity{
                 }
             }
         ){
+
+
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> headers = new HashMap<>();
@@ -128,5 +136,22 @@ public class login_screen extends AppCompatActivity{
 
         req.setShouldCache(false);
         Volley.newRequestQueue(login_screen.this).add(req);
+    }
+
+    public void setUsername(String username) {
+        this.user = username;
+    }
+
+    public static String getUser() {
+        return user;
+    }
+
+    public static String getPass() {
+        return pass;
+    }
+
+    public void setPassword(String password) {
+        this.pass = password;
+
     }
 }
