@@ -1,6 +1,7 @@
 package tk.friendar.friendar.Chat;
 
 import android.content.DialogInterface;
+import android.os.Handler;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -12,6 +13,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -38,6 +40,9 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
     public static ArrayList<ChatMessage> chatlist;
     public static ChatAdapter chatAdapter;
     ListView msgListView;
+    Handler messageGet;
+    Runnable messageGetRunnable;
+    private int Get_INTERVAL = 10;
 
 
     /* set up chat Adapter and chat list*/
@@ -55,12 +60,32 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
         ImageButton sendButton = (ImageButton) findViewById(R.id.sendMessageButton);
         sendButton.setOnClickListener(this);
 
+        // Server requests
+        messageGet = new Handler();
+        messageGetRunnable = new Runnable() {
+            @Override
+            public void run() {
+
+                // TODO send location to server here
+
+                messageGet.postDelayed(this, Get_INTERVAL);  // loop
+            }
+        };
+
     }
 
 
+    protected void onResume(){
+        super.onResume();
+        messageGet.postDelayed(messageGetRunnable,Get_INTERVAL);
 
+    }
 
-
+    @Override
+    protected void onPause() {
+        super.onPause();
+        messageGet.removeCallbacks(messageGetRunnable);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -83,6 +108,7 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
 
         return super.onOptionsItemSelected(item);
     }
+    
     /*Create current message and add to list and view*/
     public void sendMessage(View v) {
         random = new Random();
@@ -99,7 +125,7 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
         String message = msg_edittext.getEditableText().toString();
         if (!message.equalsIgnoreCase("")) {
             final ChatMessage chatMessage = new ChatMessage(user1, user2,
-                    message, "" + random.nextInt(1000), false);
+                    message, "" + random.nextInt(1000), true);
             chatMessage.setMsgID();
             chatMessage.body = message;
             chatMessage.Date = CommonMethods.getCurrentDate();
