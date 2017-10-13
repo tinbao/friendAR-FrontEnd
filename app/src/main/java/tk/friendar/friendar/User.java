@@ -89,4 +89,14 @@ public class User {
 				return 0;
 		}
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == null || o.getClass() != this.getClass()) return false;
+		if (o == this) return true;
+
+		User user = (User)o;
+		// Consider storing user ID and using for equality testing
+		return (user.username.equals(this.username) || user.email.equals(this.email));
+	}
 }
