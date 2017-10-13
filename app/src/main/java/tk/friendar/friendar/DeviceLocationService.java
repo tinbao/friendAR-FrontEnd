@@ -8,9 +8,18 @@ import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.HttpHeaderParser;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -21,6 +30,13 @@ import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Manages starting location services and enforcing permissions for activities.
@@ -93,11 +109,12 @@ public class DeviceLocationService {
 				requestedPermissions = true;
 				ActivityCompat.requestPermissions(activity, PERMISSIONS, REQUEST_LOCATION);
 			}
+
 		}
 	}
 
 	@SuppressWarnings({"MissingPermission"})
-	private void requestLocationUpdates(Activity activity) {
+	private void requestLocationUpdates(final Activity activity) {
 		Log.d(TAG, "Starting location updates for " + activity.toString());
 		locationUpdatesStarted = true;
 
@@ -116,7 +133,7 @@ public class DeviceLocationService {
 			public void onLocationResult(LocationResult locationResult) {
 				lastLocation = locationResult.getLastLocation();
 				notifyListeners(lastLocation);
-				putLocationToServer(lastLocation);
+				putLocationToServer(lastLocation, activity);
 
 				Log.d(TAG, "Location Update: " + lastLocation.toString());
 			}
@@ -198,7 +215,58 @@ public class DeviceLocationService {
 	}
 
 	// Server updates
-	private void putLocationToServer(Location location) {
+	private void putLocationToServer(Location location, Activity activity) {
 		// TODO send location to server here!
+		final JSONObject params = new JSONObject();
+        /* Puts the information into the JSON Object */
+		try {
+            /* Temporary username, user can change it afterwards */
+			params.put("latitude", location.getLatitude());
+			params.put("logitude", location.getLongitude());
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
+		JsonObjectRequest req = new JsonObjectRequest(Request.Method.PUT, URLs.URL_SIGNUP, params,
+			new Response.Listener<JSONObject>() {
+				@Override
+				public void onResponse(JSONObject response) {
+					Log.d("Response", response.toString());
+				}
+			},
+
+			new Response.ErrorListener() {
+				@Override
+				public void onErrorResponse(VolleyError error) {
+					NetworkResponse response = error.networkResponse;
+					String msg = error.toString();
+					Log.d("ErrorResponse", msg);
+
+					if (response != null && response.data != null) {
+
+					}
+				}
+			}) {
+
+			@Override
+			public Map<String, String> getHeaders() throws AuthFailureError {
+				Map<String, String> headers = new HashMap<>();
+				headers.put("authorization",
+						String.format("Basic %s", Base64.encodeToString(
+								String.format("%s:%s", userName.getText().toString(),
+										userPass.getText().toString()).getBytes(), Base64.DEFAULT)));
+				return headers;
+			}
+
+			/** Defines the body type of the data being posted */
+			@Override
+			public String getBodyContentType() {
+				return "application/json; charset=utf-8";
+			}
+		};
+
+		/* Requests are posted and executed in a queue */
+		req.setShouldCache(false);
+		Volley.newRequestQueue(activity).add(req);
 	}
 }
