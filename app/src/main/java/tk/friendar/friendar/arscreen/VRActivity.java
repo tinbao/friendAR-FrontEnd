@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import tk.friendar.friendar.DeviceLocationService;
 import tk.friendar.friendar.HomeScreen;
 import tk.friendar.friendar.User;
+import tk.friendar.friendar.testing.DummyData;
 
 /**
  * Created by lucah on 30/8/17.
@@ -241,6 +242,7 @@ public class VRActivity extends AppCompatActivity {
 		allFriends = new ArrayList<>();
 
 		// TODO request all friend locations and fill 'allFriends' with the data
+		allFriends = DummyData.getUpdatingFriends();
 
 		vrOverlay.onFriendLocationUpdates(allFriends);
 	}

@@ -1,6 +1,7 @@
 package tk.friendar.friendar.testing;
 
 import android.location.Location;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -48,6 +49,33 @@ public class DummyData {
 		}
 
 		return friends;
+	}
+
+	private static ArrayList<User> updatingFriends = null;
+	private static int updatingFriendsTime = 0;
+	public static ArrayList<User> getUpdatingFriends() {
+		if (updatingFriends == null) {
+			updatingFriends = getFriends();
+			for (User friend : updatingFriends) {
+				friend.setLocation(LocationHelper.fromLatLon(-40, 144.9)); // initially far away
+			}
+		}
+
+		int n = updatingFriends.size();
+		boolean moveInrange = (updatingFriendsTime % (n * 2)) / n == 0;
+		int i = updatingFriendsTime % n;
+
+		User friend = updatingFriends.get(i);
+		if (moveInrange) {
+			friend.setLocation(LocationHelper.fromLatLon(-37.78 + i * 0.001, 144.99));
+		}
+		else {
+			friend.setLocation(LocationHelper.fromLatLon(-40, 144.9));
+		}
+		updatingFriends.set(i, friend);
+
+		updatingFriendsTime++;
+		return updatingFriends;
 	}
 
 	public static Location getDeviceLocation() {
