@@ -127,6 +127,12 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 		// Draw all markers
 		// Calculate the model matrix and then the MVP
 		for (LocationMarker marker : nearbyFriends) {
+			// Upload texture if needed
+			if (marker.shouldUpload) {
+				marker.uploadIconTexture();
+			}
+
+			// Get orientation from user
 			float distance = deviceLocation.distanceTo(marker.user.getLocation());
 			float bearing = deviceLocation.bearingTo(marker.user.getLocation());
 
