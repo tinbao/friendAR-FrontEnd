@@ -206,11 +206,9 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 	}
 
 	private void onFriendOutOfRange(User friend) {
-		Iterator<LocationMarker> iter = nearbyFriends.iterator();
-		while (iter.hasNext()) {
-			LocationMarker marker = iter.next();
+		for (LocationMarker marker : nearbyFriends) {
 			if (marker.user.equals(friend)) {
-				iter.remove();
+				marker.shouldDelete = true;
 				return;
 			}
 		}
