@@ -28,7 +28,6 @@ public class LocationMarker {
 	// Icon texture loading
 	Bitmap iconBitmap = null;
 	public boolean shouldUpload = false;
-	public boolean shouldDelete = false;
 
 	private static final int ICON_TEXTURE_WIDTH = 256;
 	private static final int ICON_TEXTURE_HEIGHT = 256;
@@ -146,13 +145,6 @@ public class LocationMarker {
 		iconBitmap.recycle();
 		iconBitmap = null;
 		shouldUpload = false;
-	}
-
-	public void freeTexture() {
-		int[] textures = new int[1];
-		textures[0] = iconTexture;
-		GLES20.glDeleteTextures(1, textures, 0);
-		iconTexture = 0;
 	}
 
 	// Draw this marker
