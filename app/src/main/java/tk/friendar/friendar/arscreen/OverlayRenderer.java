@@ -79,6 +79,8 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 		setEGLConfigChooser(8, 8, 8, 8, 16, 0);  // 8bits for r,g,b,a and 16 for depth
 		getHolder().setFormat(PixelFormat.TRANSLUCENT);
 
+		setPreserveEGLContextOnPause(true);
+
 		// Finalize renderer
 		setRenderer(this);
 
@@ -143,6 +145,16 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 
 			marker.draw(markerShader, "iconTex");
 		}
+
+		// Delete markers
+		Iterator<LocationMarker> iter = nearbyFriends.iterator();
+		while (iter.hasNext()) {
+			LocationMarker marker = iter.next();
+			if (marker.shouldDelete) {
+				marker.freeTexture();
+				iter.remove();
+			}
+		}
 	}
 
 	@Override
@@ -194,11 +206,9 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 	}
 
 	private void onFriendOutOfRange(User friend) {
-		Iterator<LocationMarker> iter = nearbyFriends.iterator();
-		while (iter.hasNext()) {
-			LocationMarker marker = iter.next();
+		for (LocationMarker marker : nearbyFriends) {
 			if (marker.user.equals(friend)) {
-				iter.remove();
+				marker.shouldDelete = true;
 				return;
 			}
 		}
