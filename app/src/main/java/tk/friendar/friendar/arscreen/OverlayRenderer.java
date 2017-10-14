@@ -189,13 +189,14 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 
 			if (alreadyDisplaying && !inRange) {
 				onFriendOutOfRange(friend);
-				Log.d(TAG, "'" + friend.getName() + "' in range");
+				Log.d(TAG, "'" + friend.getName() + "' out of range");
 			}
 			else if (!alreadyDisplaying && inRange) {
 				onFriendInRange(friend);
-				Log.d(TAG, "'" + friend.getName() + "' out of range");
+				Log.d(TAG, "'" + friend.getName() + "' in range");
 			}
 		}
+		Log.d(TAG, "Now have " + nearbyFriends.size() + " markers");
 	}
 
 	private void onFriendInRange(User friend) {
