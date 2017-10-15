@@ -24,6 +24,11 @@ public class Login extends AppCompatActivity {
         startActivity(intent_chat);
     }
 
+    public void homescreenLink(View view){
+        Intent intent_chat = new Intent(Login.this,HomeScreen.class);
+        startActivity(intent_chat);
+    }
+
     public void signUp(View view){
 
         Intent intent_signup = new Intent(this,signUp.class);
