@@ -214,7 +214,7 @@ public class DeviceLocationService {
 	}
 
 	// Server updates
-	private void putLocationToServer(Location location, Activity activity) {
+	private void putLocationToServer(Location location, final Activity activity) {
 		// TODO send location to server here!
 		final JSONObject params = new JSONObject();
         /* Puts the information into the JSON Object */
@@ -231,7 +231,7 @@ public class DeviceLocationService {
 				@Override
 				public void onResponse(JSONObject response) {
 					Log.d("Response", response.toString());
-
+					Toast.makeText(activity, "Location Sent", Toast.LENGTH_LONG).show();
 				}
 			},
 
@@ -241,6 +241,7 @@ public class DeviceLocationService {
 					NetworkResponse response = error.networkResponse;
 					String msg = error.toString();
 					Log.d("ErrorResponse", msg);
+					Toast.makeText(activity, msg, Toast.LENGTH_LONG).show();
 				}
 			}) {
 
