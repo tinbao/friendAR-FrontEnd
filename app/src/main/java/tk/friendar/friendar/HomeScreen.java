@@ -18,6 +18,7 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
+import tk.friendar.friendar.chat.Chats;
 import tk.friendar.friendar.chat.FriendAR_chat;
 import tk.friendar.friendar.arscreen.VRActivity;
 import tk.friendar.friendar.testing.DummyData;

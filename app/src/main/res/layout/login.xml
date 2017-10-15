@@ -82,8 +82,8 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
             android:layout_marginTop="8dp"
-            android:onClick="chatTest"
-            android:text="ChatLink"
+            android:onClick="homescreenLink"
+            android:text="HomeScreen Link"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 

@@ -72,6 +72,9 @@
         <activity
             android:name=".chat.FriendAR_chat">
         </activity>
+        <activity
+            android:name=".chat.Chats">
+        </activity>
 
 
         <!--
