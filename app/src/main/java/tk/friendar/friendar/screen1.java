@@ -20,7 +20,7 @@ public class screen1 extends AppCompatActivity {
 
 		// Visual feedback for meeting ID. Temporary so remove later
 		int id = getIntent().getIntExtra(HomeScreen.EXTRA_MEETING_ID, -1);
-		((TextView)findViewById(R.id.textView4)).setText("Chat for meeting id = " + id);
+		((TextView)findViewById(R.id.textView4)).setText("chat for meeting id = " + id);
     }
 
     @Override
