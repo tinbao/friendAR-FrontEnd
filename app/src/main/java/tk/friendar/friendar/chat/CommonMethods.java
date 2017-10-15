@@ -1,4 +1,4 @@
-package tk.friendar.friendar.Chat;
+package tk.friendar.friendar.chat;
 
 /**
  * Created by Simon on 10/3/2017.
