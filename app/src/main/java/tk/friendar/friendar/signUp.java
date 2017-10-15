@@ -164,6 +164,8 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
         /* Display signing up dialog once all info is correctly formatted */
         pd.setMessage("Signing Up . . .");
         pd.show();
+        pd.setCancelable(false);
+        pd.setCanceledOnTouchOutside(false);
 
         final JSONObject params = new JSONObject();
         /* Puts the information into the JSON Object */
@@ -185,6 +187,8 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
                 public void onResponse(JSONObject response) {
                     pd.hide();
                     Log.d("Response", response.toString());
+                    VolleyHTTPRequest.setUsername(userName);
+                    VolleyHTTPRequest.setPassword(password);
                     /* Switch to HOME screen */
                     submitLogin(getCurrentFocus());
                 }
@@ -221,7 +225,8 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
             };
 
         /* DEBUG: Tells android to wait 30 seconds and try 5 times */
-        req.setRetryPolicy(new DefaultRetryPolicy(30000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        //req.setRetryPolicy(new DefaultRetryPolicy(30000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        req.setRetryPolicy(new DefaultRetryPolicy(0, 1, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         /* Requests are posted and executed in a queue */
         req.setShouldCache(false);
         Volley.newRequestQueue(signUp.this).add(req);
