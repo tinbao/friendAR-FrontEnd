@@ -30,7 +30,7 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
     ListView msgListView;
     Handler messageGet;
     Runnable messageGetRunnable;
-    private int Get_INTERVAL = 2000;
+    private int Get_INTERVAL = 10000;
     public double chatId;
     Timer timer = new Timer();
     public int id;
@@ -137,6 +137,7 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
     }
 
     public void dummyMessage(){
+        msgListView.setAdapter(chatAdapter);
         final ChatMessage chatMessage = new ChatMessage(user2, user1,
                 "Eyy Simon, howsita goina?", "" + this.id, false);
 
@@ -145,6 +146,9 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
 
         chatAdapter.add(chatMessage);
         chatAdapter.notifyDataSetChanged();
+        // ----Set autoscroll of listview when a new message arrives----//
+        msgListView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+        msgListView.setStackFromBottom(true);
     }
 
 
@@ -167,10 +171,24 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
             final ChatMessage chatMessage = new ChatMessage(user1, user2,
                     message, ""+this.id, true);
             chatMessage.setMsgID();
+            chatMessage.Date = CommonMethods.getCurrentDate();
+            chatMessage.Time = CommonMethods.getCurrentTime();
 
             msg_edittext.setText("");
             chatAdapter.add(chatMessage);
             chatAdapter.notifyDataSetChanged();
+            //TODO Add Server Code to send message to server with meeting Id
+            //message to be sent is contained in object chatMessage
+            //JSON object parameters
+            /*
+            params.put("sender", user1);
+            params.put("receiver", user2);
+            params.put("msgid", this.id);
+            params.put("isMine", true);
+            params.put("body", message);
+            params.put("date", chatMessage.Date);
+            params.put("time", chatMessage.Time);
+           */
         }
 
 
