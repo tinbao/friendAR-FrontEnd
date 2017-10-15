@@ -84,7 +84,8 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
 
                     // TODO get string message and details from server
                     // get messages based on meeting id in variable id
-                    // processUserMessage(chatMessage);
+                    // put code to get json objects here
+                    //Simon will loop through them and display them
 
                     dummyMessage();
 
