@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
-import tk.friendar.friendar.Chat.FriendAR_chat;
+import tk.friendar.friendar.chat.FriendAR_chat;
 
 /**
  * Created by Simon on 8/22/2017.
@@ -20,8 +20,7 @@ public class Login extends AppCompatActivity {
 
     }
     public void chatTest(View view){
-
-        Intent intent_chat = new Intent(Login.this, FriendAR_chat.class);
+        Intent intent_chat = new Intent(Login.this,FriendAR_chat.class);
         startActivity(intent_chat);
     }
 
