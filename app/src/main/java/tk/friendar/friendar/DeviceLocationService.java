@@ -215,7 +215,6 @@ public class DeviceLocationService {
 
 	// Server updates
 	private void putLocationToServer(Location location, final Activity activity) {
-		// TODO send location to server here!
 		final JSONObject params = new JSONObject();
         /* Puts the information into the JSON Object */
 		try {
@@ -248,10 +247,7 @@ public class DeviceLocationService {
 			@Override
 			public Map<String, String> getHeaders() throws AuthFailureError {
 				Map<String, String> headers = new HashMap<>();
-				headers.put("authorization",
-						String.format("Basic %s", Base64.encodeToString(
-								String.format("%s:%s", login_screen.getUser(),
-										login_screen.getPass()).getBytes(), Base64.DEFAULT)));
+				headers.put("authorization", VolleyHTTPRequest.makeAutho());
 				return headers;
 			}
 
