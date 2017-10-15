@@ -1,5 +1,6 @@
 package tk.friendar.friendar.chat;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +13,10 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import tk.friendar.friendar.HomeScreen;
 import tk.friendar.friendar.R;
 
 public class FriendAR_chat extends AppCompatActivity implements OnClickListener {
@@ -25,7 +30,23 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
     ListView msgListView;
     Handler messageGet;
     Runnable messageGetRunnable;
-    private int Get_INTERVAL = 100;
+    private int Get_INTERVAL = 2000;
+    public double chatId;
+    Timer timer = new Timer();
+    public int id;
+
+    private class dummyMessage extends TimerTask {
+        public void run() {
+            final ChatMessage chatMessage = new ChatMessage("Simon", "Mario",
+                    "Eyy Simon, howsita goina?", "" + random.nextInt(1000), false);
+
+            chatMessage.Date = CommonMethods.getCurrentDate();
+            chatMessage.Time = CommonMethods.getCurrentTime();
+
+            chatAdapter.add(chatMessage);
+            chatAdapter.notifyDataSetChanged();
+        }
+    }
 
     /* set up chat Adapter and chat list*/
     @Override
@@ -34,7 +55,7 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
 
         setContentView(R.layout.chat_layout);
 
-        //Chats chat1 = new Chats();
+
 
         user1 = "Simon";
         user2 = "Mario";
@@ -45,34 +66,37 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
         chatAdapter = new ChatAdapter(this, chatlist);
         ImageButton sendButton = (ImageButton) findViewById(R.id.sendMessageButton);
         sendButton.setOnClickListener(this);
+        id = getIntent().getIntExtra(HomeScreen.EXTRA_MEETING_ID, -1);
+        scheduleGetMessage();
 
-        // Server requests
 
-        messageGet = new Handler();
-       messageGetRunnable= new Runnable() {
-            @Override
-            public void run() {
 
-                // TODO get string message and details from server
-
-                // processUserMessage(chatMessage);
-
-                final ChatMessage chatMessage = new ChatMessage(user2, user1,
-                        "Eyy Simon, howsita goina?", "" + random.nextInt(1000), false);
-
-                chatMessage.Date = CommonMethods.getCurrentDate();
-                chatMessage.Time = CommonMethods.getCurrentTime();
-
-                chatAdapter.add(chatMessage);
-                chatAdapter.notifyDataSetChanged();
-
-                messageGet.postDelayed(messageGetRunnable, Get_INTERVAL);  // loop
-                
-            }
        };
 
 
-    }
+        //messageGet.postDelayed(messageGetRunnable, Get_INTERVAL);
+        // Server requests
+        public void scheduleGetMessage(){
+            messageGet = new Handler();
+            messageGet.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+
+                    // TODO get string message and details from server
+                    // get messages based on meeting id in variable id
+                    // processUserMessage(chatMessage);
+
+                    dummyMessage();
+
+                    messageGet.postDelayed(this, Get_INTERVAL);  // loop
+
+                }
+            },Get_INTERVAL);
+        }
+
+
+
+
 
 /*
     protected void onResume(){
@@ -80,7 +104,8 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
         messageGet.postDelayed(messageGetRunnable,Get_INTERVAL);
 
     }
-
+*/
+/*
     @Override
     protected void onPause() {
         super.onPause();
@@ -111,6 +136,17 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
         return super.onOptionsItemSelected(item);
     }
 
+    public void dummyMessage(){
+        final ChatMessage chatMessage = new ChatMessage(user2, user1,
+                "Eyy Simon, howsita goina?", "" + this.id, false);
+
+        chatMessage.Date = CommonMethods.getCurrentDate();
+        chatMessage.Time = CommonMethods.getCurrentTime();
+
+        chatAdapter.add(chatMessage);
+        chatAdapter.notifyDataSetChanged();
+    }
+
 
     /*Create current message and add to list and view from User input in EditText element*/
 
@@ -129,7 +165,7 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
         String message = msg_edittext.getEditableText().toString();
         if (!message.equalsIgnoreCase("")) {
             final ChatMessage chatMessage = new ChatMessage(user1, user2,
-                    message, "" + random.nextInt(1000), true);
+                    message, ""+this.id, true);
             chatMessage.setMsgID();
 
             msg_edittext.setText("");
@@ -146,6 +182,7 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
         switch (v.getId()) {
             case R.id.sendMessageButton:
                 sendMessage(v);
+
         }
     }
 }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
