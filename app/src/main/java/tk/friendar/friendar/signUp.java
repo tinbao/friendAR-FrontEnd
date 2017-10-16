@@ -17,6 +17,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import android.support.v4.app.DialogFragment;
+import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkResponse;
@@ -189,6 +190,16 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
                     Log.d("Response", response.toString());
                     VolleyHTTPRequest.setUsername(userName);
                     VolleyHTTPRequest.setPassword(password);
+
+					// Get user id
+					try {
+						VolleyHTTPRequest.id = response.getInt("userID");
+					} catch (JSONException e) {
+						Log.e("LoginScreen", "Couldn't get user id");
+						Toast.makeText(signUp.this, "Error while logging in", Toast.LENGTH_SHORT).show();
+						throw new RuntimeException();
+					}
+
                     /* Switch to HOME screen */
                     submitLogin(getCurrentFocus());
                 }
