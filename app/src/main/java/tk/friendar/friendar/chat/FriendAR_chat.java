@@ -52,6 +52,7 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
     Runnable messageGetRunnable;
     private static final int GET_INTERVAL = 10000;
     Timer timer = new Timer();
+    /* Current instance meeting id */
     public int id;
 
     private Integer currentUser = VolleyHTTPRequest.getUserID();
@@ -200,9 +201,10 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
              * Message to be sent is contained in object chatMessage */
             final JSONObject params = new JSONObject();
             try {
+                params.put("content", message);
                 params.put("userID", currentUser);
                 params.put("meetingID", id);
-                params.put("content", message);
+
             } catch(JSONException e){
                 e.printStackTrace();
             }
