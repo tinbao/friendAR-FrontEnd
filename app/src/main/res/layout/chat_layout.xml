@@ -40,12 +40,12 @@
 
         <ImageButton
             android:id="@+id/sendMessageButton"
-            android:layout_width="wrap_content"
-            android:layout_height="57dp"
-            android:layout_weight="0.06"
-            android:background="@drawable/send"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
             android:contentDescription="@string/send"
-            android:visibility="visible" />
+            android:src="@drawable/ic_send"
+            android:visibility="visible"/>
     </LinearLayout>
 
 
