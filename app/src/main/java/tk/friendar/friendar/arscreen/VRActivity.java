@@ -255,6 +255,11 @@ public class VRActivity extends AppCompatActivity {
 		// TODO request all friend locations and fill 'allFriends' with the data
 		allFriends = DummyData.getUpdatingFriends();
 
+
 		vrOverlay.onFriendLocationUpdates(allFriends);
 	}
+
+//	public JSONArray getFriends(){
+//
+//	}
 }
