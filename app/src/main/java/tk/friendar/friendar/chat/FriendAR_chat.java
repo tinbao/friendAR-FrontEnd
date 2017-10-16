@@ -204,7 +204,6 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
                 params.put("content", message);
                 params.put("userID", currentUser);
                 params.put("meetingID", id);
-
             } catch(JSONException e){
                 e.printStackTrace();
             }

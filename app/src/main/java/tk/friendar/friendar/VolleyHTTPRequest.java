@@ -68,11 +68,6 @@ public class VolleyHTTPRequest {
         getRequestQueue(context).add(req);
     }
 
-    public static void addRequest(StringRequest req, Context context){
-        VolleyLog.d("Adding request to queue");
-        getRequestQueue(context).add(req);
-    }
-
     /**
      * Adds a JSON Array Request to the request queue
      * @param req
