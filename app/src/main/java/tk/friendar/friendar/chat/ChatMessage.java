@@ -8,19 +8,21 @@ import java.util.Random;
 
 public class ChatMessage {
 
-    public String body, sender, receiver, senderName;
+    public String body;
+    public static String senderName;
     public String Date, Time;
     public String msgid;
+    public Integer sender, receiver;
     public boolean isMine;// Did I send the message.
 
-    public ChatMessage(String Sender, String Receiver, String messageString,
-                       String ID, boolean isMINE) {
+    public ChatMessage(Integer Sender, Integer Receiver, String messageString,
+                       String ID, boolean isMINE, String senderName) {
         body = messageString;
         isMine = isMINE;
         sender = Sender;
         msgid = ID;
         receiver = Receiver;
-        senderName = sender;
+        this.senderName = senderName;
     }
 
     public void setMsgID() {
