@@ -178,25 +178,16 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 	// Friend connect/disconnect events
 	public void onFriendLocationUpdates(ArrayList<User> allFriends) {
 		for (User friend : allFriends) {
-			boolean alreadyDisplaying = false;
-			for (LocationMarker marker : nearbyFriends) {
-				if (marker.user.equals(friend)) {
-					alreadyDisplaying = true;
-					break;
-				}
-			}
+			boolean alreadyDisplaying = (nearbyFriends.contains(friend));
 			boolean inRange = (friend.getLocation().distanceTo(deviceLocation) < DISPLAY_FRIEND_IN_RADIUS);
 
 			if (alreadyDisplaying && !inRange) {
 				onFriendOutOfRange(friend);
-				Log.d(TAG, "'" + friend.getName() + "' out of range");
 			}
 			else if (!alreadyDisplaying && inRange) {
 				onFriendInRange(friend);
-				Log.d(TAG, "'" + friend.getName() + "' in range");
 			}
 		}
-		Log.d(TAG, "Now have " + nearbyFriends.size() + " markers");
 	}
 
 	private void onFriendInRange(User friend) {
@@ -206,10 +197,11 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 	}
 
 	private void onFriendOutOfRange(User friend) {
-		for (LocationMarker marker : nearbyFriends) {
+		Iterator<LocationMarker> iter = nearbyFriends.iterator();
+		while (iter.hasNext()) {
+			LocationMarker marker = iter.next();
 			if (marker.user.equals(friend)) {
-				marker.shouldDelete = true;
-				return;
+				iter.remove();
 			}
 		}
 	}
