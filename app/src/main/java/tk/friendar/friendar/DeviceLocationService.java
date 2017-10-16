@@ -260,6 +260,6 @@ public class DeviceLocationService {
 
 		/* Requests are posted and executed in a queue */
 		req.setShouldCache(false);
-		Volley.newRequestQueue(activity).add(req);
+		VolleyHTTPRequest.getInstance().addRequest(req, activity.getApplicationContext());
 	}
 }

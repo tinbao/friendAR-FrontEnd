@@ -1,4 +1,4 @@
-package tk.friendar.friendar.chat;
+package tk.friendar.friendar.Chat;
 import java.util.ArrayList;
 import java.util.Random;
 import android.os.Bundle;
