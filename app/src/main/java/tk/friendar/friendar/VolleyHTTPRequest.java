@@ -1,10 +1,8 @@
 package tk.friendar.friendar;
 
-import android.app.Application;
 import android.content.Context;
 import android.util.Base64;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
@@ -19,14 +17,14 @@ import org.json.JSONObject;
 /**
  * Singleton class to store user credentials and authorise
  */
-public class VolleyHTTPRequest extends Application {
+public class VolleyHTTPRequest {
 
     /* Single instance login username and password for authentication */
     static String username;
     static String password;
 
     private static VolleyHTTPRequest instance;
-    private RequestQueue reqQueue;
+    private static RequestQueue reqQueue;
 
     public VolleyHTTPRequest(String username, String password) {
         this.username = username;
@@ -48,9 +46,9 @@ public class VolleyHTTPRequest extends Application {
      * Gets the request queue from the instance
      * @return
      */
-    public RequestQueue getRequestQueue(){
+    public static RequestQueue getRequestQueue(Context context){
         if(reqQueue == null){
-            reqQueue = Volley.newRequestQueue(getApplicationContext());
+            reqQueue = Volley.newRequestQueue(context);
         }
 
         return reqQueue;
@@ -60,10 +58,9 @@ public class VolleyHTTPRequest extends Application {
      * Adds a JSON Object Request to the request queue
      * @param req
      */
-    public void addRequest(JsonObjectRequest req){
+    public static void addRequest(JsonObjectRequest req, Context context){
         VolleyLog.d("Adding request to queue");
-
-        getRequestQueue().add(req);
+        getRequestQueue(context).add(req);
     }
 
     /**

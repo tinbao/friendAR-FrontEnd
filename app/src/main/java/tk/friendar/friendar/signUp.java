@@ -230,7 +230,7 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
 
         /* Requests are posted and executed in a queue */
         req.setShouldCache(false);
-        VolleyHTTPRequest.getInstance().addRequest(req);
+        VolleyHTTPRequest.getInstance().addRequest(req, getApplicationContext());
 
     }
 }

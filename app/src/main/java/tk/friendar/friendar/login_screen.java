@@ -116,8 +116,8 @@ public class login_screen extends AppCompatActivity{
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> headers = new HashMap<>();
-                VolleyHTTPRequest.setUsername(userName.getText().toString());
-                VolleyHTTPRequest.setPassword(userPass.getText().toString());
+                VolleyHTTPRequest.getInstance().setUsername(userName.getText().toString());
+                VolleyHTTPRequest.getInstance().setPassword(userPass.getText().toString());
                 headers.put("authorization", VolleyHTTPRequest.makeAutho());
                 return headers;
             }
@@ -129,7 +129,7 @@ public class login_screen extends AppCompatActivity{
         };
 
         req.setShouldCache(false);
-        VolleyHTTPRequest.getInstance().addRequest(req);
+        VolleyHTTPRequest.getInstance().addRequest(req, getApplicationContext());
     }
 
 }
