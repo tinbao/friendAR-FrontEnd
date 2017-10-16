@@ -226,10 +226,11 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
 
         /* DEBUG: Tells android to wait 30 seconds and try 5 times */
         //req.setRetryPolicy(new DefaultRetryPolicy(30000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-        req.setRetryPolicy(new DefaultRetryPolicy(0, 1, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        //req.setRetryPolicy(new DefaultRetryPolicy(0, 1, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
         /* Requests are posted and executed in a queue */
         req.setShouldCache(false);
-        Volley.newRequestQueue(signUp.this).add(req);
+        VolleyHTTPRequest.getInstance().addRequest(req);
 
     }
 }

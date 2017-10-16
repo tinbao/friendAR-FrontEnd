@@ -1,6 +1,16 @@
 package tk.friendar.friendar;
 
+import android.app.Application;
+import android.content.Context;
 import android.util.Base64;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONObject;
 
 /**
  * Created by tinba on 16/10/2017.
@@ -9,15 +19,20 @@ import android.util.Base64;
 /**
  * Singleton class to store user credentials and authorise
  */
-public class VolleyHTTPRequest {
+public class VolleyHTTPRequest extends Application {
 
     /* Single instance login username and password for authentication */
     static String username;
     static String password;
 
+    private static VolleyHTTPRequest instance;
+    private RequestQueue reqQueue;
+
     public VolleyHTTPRequest(String username, String password) {
         this.username = username;
         this.password = password;
+
+        instance = this;
     }
 
     /**
@@ -28,6 +43,39 @@ public class VolleyHTTPRequest {
         return String.format("Basic %s", Base64.encodeToString(
                 String.format("%s:%s", username, password).getBytes(), Base64.DEFAULT));
     }
+
+    /**
+     * Gets the request queue from the instance
+     * @return
+     */
+    public RequestQueue getRequestQueue(){
+        if(reqQueue == null){
+            reqQueue = Volley.newRequestQueue(getApplicationContext());
+        }
+
+        return reqQueue;
+    }
+
+    /**
+     * Adds a JSON Object Request to the request queue
+     * @param req
+     */
+    public void addRequest(JsonObjectRequest req){
+        VolleyLog.d("Adding request to queue");
+
+        getRequestQueue().add(req);
+    }
+
+    /**
+     * Removes all pending requests from the queue
+     * @param obj
+     */
+    public void cancelPendingRequests(JSONObject obj) {
+        if (reqQueue != null) {
+            reqQueue.cancelAll(obj);
+        }
+    }
+
 
     public static String getUsername() {
         return username;
@@ -44,4 +92,9 @@ public class VolleyHTTPRequest {
     public static void setPassword(String password) {
         VolleyHTTPRequest.password = password;
     }
+
+    public static VolleyHTTPRequest getInstance() {
+        return instance;
+    }
+
 }

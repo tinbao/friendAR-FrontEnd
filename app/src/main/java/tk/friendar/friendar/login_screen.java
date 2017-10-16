@@ -129,7 +129,7 @@ public class login_screen extends AppCompatActivity{
         };
 
         req.setShouldCache(false);
-        Volley.newRequestQueue(login_screen.this).add(req);
+        VolleyHTTPRequest.getInstance().addRequest(req);
     }
 
 }
