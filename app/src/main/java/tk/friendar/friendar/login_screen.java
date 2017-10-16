@@ -85,6 +85,7 @@ public class login_screen extends AppCompatActivity{
                 public void onResponse(JSONObject response) {
                     pd.hide();
                     Log.d("JSON Response",response.toString());
+
                     /* Switch to HOME screen */
                     submitLogin(getCurrentFocus());
                 }
@@ -110,13 +111,14 @@ public class login_screen extends AppCompatActivity{
                 }
             }
         ){
+
+
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> headers = new HashMap<>();
-                headers.put("authorization",
-                        String.format("Basic %s", Base64.encodeToString(
-                                String.format("%s:%s", userName.getText().toString(),
-                                        userPass.getText().toString()).getBytes(), Base64.DEFAULT)));
+                VolleyHTTPRequest.setUsername(userName.getText().toString());
+                VolleyHTTPRequest.setPassword(userPass.getText().toString());
+                headers.put("authorization", VolleyHTTPRequest.makeAutho());
                 return headers;
             }
 
@@ -129,4 +131,5 @@ public class login_screen extends AppCompatActivity{
         req.setShouldCache(false);
         Volley.newRequestQueue(login_screen.this).add(req);
     }
+
 }
