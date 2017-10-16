@@ -184,7 +184,7 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
             //JSON object parameters
             /*
             params.put("sender", user1);
-            params.put("receiver", user2);
+            params.put("receiver", userz2);
             params.put("msgid", this.id);
             params.put("isMine", true);
             params.put("body", message);
