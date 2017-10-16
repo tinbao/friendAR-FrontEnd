@@ -6,6 +6,7 @@ import android.util.Base64;
 import com.android.volley.RequestQueue;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONObject;
@@ -61,6 +62,11 @@ public class VolleyHTTPRequest {
      * @param req
      */
     public static void addRequest(JsonObjectRequest req, Context context){
+        VolleyLog.d("Adding request to queue");
+        getRequestQueue(context).add(req);
+    }
+
+    public static void addRequest(StringRequest req, Context context){
         VolleyLog.d("Adding request to queue");
         getRequestQueue(context).add(req);
     }

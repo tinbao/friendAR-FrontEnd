@@ -19,6 +19,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -45,7 +45,6 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
     private EditText msg_edittext;
     private Integer user1;
     private Integer user2;
-    Random random;
     public static ArrayList<ChatMessage> chatlist;
     public static ChatAdapter chatAdapter;
     ListView msgListView;
@@ -166,14 +165,19 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
         msgListView.setStackFromBottom(true);
     }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.sendMessageButton:
+                sendMessage(v);
+        }
+    }
 
     /**
      * Create current message and add to list and view from User input in EditText element
      * @param v is the current view of the device
      */
     public void sendMessage(View v) {
-        random = new Random();
-
         // ----Set autoscroll of listview when a new message arrives----//
         msgListView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         msgListView.setStackFromBottom(true);
@@ -202,13 +206,14 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
             } catch(JSONException e){
                 e.printStackTrace();
             }
+
             /* Does a POST request to send the message to the correct meeting group */
-            JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, URLs.URL_CHAT,
-                new Response.Listener<JSONObject>()
+            StringRequest req = new StringRequest(Request.Method.POST, URLs.URL_CHAT,
+                new Response.Listener<String>()
                 {
                     @Override
-                    public void onResponse(JSONObject response) {
-                        Log.d("JSON Response",response.toString());
+                    public void onResponse(String response) {
+                        Log.d("JSON Response",response);
                         Toast.makeText(context, "Message Sent", Toast.LENGTH_SHORT).show();
                     }
                 },
@@ -222,22 +227,19 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
                 }
             ){
                 @Override
+                public byte[] getBody() throws AuthFailureError {
+                    return params.toString().getBytes();
+                }
+
+                @Override
                 public String getBodyContentType() {
                     return "application/json; charset=utf-8";
                 }
             };
 
             req.setShouldCache(false);
-            VolleyHTTPRequest.addRequest(req, getApplicationContext());
+            VolleyHTTPRequest.addRequest(req, context);
 
-        }
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.sendMessageButton:
-                sendMessage(v);
         }
     }
 
@@ -248,20 +250,22 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
     private void getMessages() {
 
         /* Does a GET request to receive the messages of the meeting group */
-        JsonObjectRequest req = new JsonObjectRequest(Request.Method.GET, URLs.URL_CHAT,
-            new Response.Listener<JSONObject>()
+        StringRequest req = new StringRequest(Request.Method.GET, URLs.URL_CHAT,
+            new Response.Listener<String>()
             {
                 @Override
-                public void onResponse(JSONObject response) {
-                    Log.d("JSON Response",response.toString());
+                public void onResponse(String response) {
+                    Log.d("JSON Response",response);
 
                     try {
+                        JSONObject res = new JSONObject(response);
+
                         /* Parses the JSON Object and gets all the needed info */
-                        Integer meetingId = response.getInt("meetingID");
-                        Integer userId = response.getInt("userID");
-                        String timeSent = response.getString("timeSent");
-                        String msgBody = response.getString("content");
-                        //String senderName = response.getString("senderName");
+                        Integer meetingId = res.getInt("meetingID");
+                        Integer userId = res.getInt("userID");
+                        String timeSent = res.getString("timeSent");
+                        String msgBody = res.getString("content");
+                        //String senderName = res.getString("senderName");
 
                         /* Creates a new chat message to add to the array */
                         ChatMessage newMessage = new ChatMessage(currentUser, userId, msgBody,
@@ -298,6 +302,6 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
         };
 
         req.setShouldCache(false);
-        VolleyHTTPRequest.addRequest(req, getApplicationContext());
+        VolleyHTTPRequest.addRequest(req, context);
     }
 }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
