@@ -25,6 +25,11 @@ public class LocationMarker {
 	private int iconTexture = 0;
 	public User user;
 
+	// Icon texture loading
+	Bitmap iconBitmap = null;
+	public boolean shouldUpload = false;
+	public boolean shouldDelete = false;
+
 	private static final int ICON_TEXTURE_WIDTH = 256;
 	private static final int ICON_TEXTURE_HEIGHT = 256;
 	private static int vertexAttrib = 0;
@@ -71,11 +76,11 @@ public class LocationMarker {
 
 	// Draw the icon and load it into an OpenGL texture
 	public void generateIconTexture() {
-		Bitmap bitmap = Bitmap.createBitmap(ICON_TEXTURE_WIDTH, ICON_TEXTURE_HEIGHT, Bitmap.Config.ARGB_8888);
-		Canvas canvas = new Canvas(bitmap);
+		iconBitmap = Bitmap.createBitmap(ICON_TEXTURE_WIDTH, ICON_TEXTURE_HEIGHT, Bitmap.Config.ARGB_8888);
+		Canvas canvas = new Canvas(iconBitmap);
 
 		// Draw the icon to the canvas/bitmap
-		bitmap.eraseColor(Color.TRANSPARENT); // clear
+		iconBitmap.eraseColor(Color.TRANSPARENT); // clear
 		float w = ICON_TEXTURE_WIDTH;
 		float h = ICON_TEXTURE_HEIGHT;
 		float strokeWidth = 9.0f;
@@ -119,7 +124,11 @@ public class LocationMarker {
 		bgPaint.setStrokeWidth(strokeWidth);
 		canvas.drawCircle(w / 2, h / 2, radius, bgPaint);
 
+		// We will likely call this method from outside the GL thread, so mark to to upload later
+		shouldUpload = true;
+	}
 
+	public void uploadIconTexture() {
 		// Create and bind gl texture
 		int[] textures = new int[1];
 		GLES20.glGenTextures(1, textures, 0);
@@ -131,15 +140,26 @@ public class LocationMarker {
 		GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
 
 		// Load image data
-		GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
+		GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, iconBitmap, 0);
 
-		// Free bitmap
-		bitmap.recycle();
+		// Free bitmap and cleanup
+		iconBitmap.recycle();
+		iconBitmap = null;
+		shouldUpload = false;
+	}
+
+	public void freeTexture() {
+		int[] textures = new int[1];
+		textures[0] = iconTexture;
+		GLES20.glDeleteTextures(1, textures, 0);
+		iconTexture = 0;
 	}
 
 	// Draw this marker
 	public void draw(Shader shader, String samplerUniformName) {
-		shader.uniformTexture(samplerUniformName, iconTexture, 0);
-		GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
+		if (iconTexture != 0) {
+			shader.uniformTexture(samplerUniformName, iconTexture, 0);
+			GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
+		}
 	}
 }

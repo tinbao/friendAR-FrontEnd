@@ -20,6 +20,11 @@ import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -33,12 +38,20 @@ import com.google.android.gms.tasks.OnSuccessListener;
 
 import org.hitlabnz.sensor_fusion.orientationProvider.ImprovedOrientationSensor1Provider;
 import org.hitlabnz.sensor_fusion.orientationProvider.OrientationProvider;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import tk.friendar.friendar.DeviceLocationService;
 import tk.friendar.friendar.HomeScreen;
+import tk.friendar.friendar.URLs;
 import tk.friendar.friendar.User;
+import tk.friendar.friendar.VolleyHTTPRequest;
+import tk.friendar.friendar.testing.DummyData;
 
 /**
  * Created by lucah on 30/8/17.
@@ -72,7 +85,7 @@ public class VRActivity extends AppCompatActivity {
 	private static final int REQUEST_ALL_PERMISSIONS = 25;
 
 	// Nearby friends
-	ArrayList<User> nearbyFriends;
+	ArrayList<User> allFriends = new ArrayList<>();
 
 	// Swipe listener
 	private GestureDetectorCompat gestureObject;
@@ -110,9 +123,13 @@ public class VRActivity extends AppCompatActivity {
 			@Override
 			public void run() {
 				Log.d(TAG, "Requesting friend locations from server");
-				// TODO request locations here
+                try {
+                    updateFriendLocations();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 
-				friendLocationGet.postDelayed(this, FRIEND_LOCATION_GET_INTERVAL);  // loop
+                friendLocationGet.postDelayed(this, FRIEND_LOCATION_GET_INTERVAL);  // loop
 			}
 		};
 
@@ -138,7 +155,7 @@ public class VRActivity extends AppCompatActivity {
 			DeviceLocationService.getInstance().registerUpdateListener(vrOverlay);
 
 			// Start server post/get loop
-			friendLocationGet.postDelayed(friendLocationGetRunnable, FRIEND_LOCATION_GET_INTERVAL);
+			friendLocationGet.postDelayed(friendLocationGetRunnable, 100);
 		}
 		else {
 			Log.d(TAG, "Resuming, requesting permissions.");
@@ -244,5 +261,94 @@ public class VRActivity extends AppCompatActivity {
 	public boolean onTouchEvent(MotionEvent event) {
 		this.gestureObject.onTouchEvent(event);
 		return super.onTouchEvent(event);
+	}
+
+	// Location updates
+	// Pull all locations from the server
+	void updateFriendLocations() throws JSONException {
+		allFriends = new ArrayList<>();
+        int updatingFriendsTime = 0;
+		//allFriends = DummyData.getUpdatingFriends();
+
+        // TODO request all friend locations and fill 'allFriends' with the data
+        allFriends = getAllFriends(getFriends());
+
+		vrOverlay.onFriendLocationUpdates(allFriends);
+	}
+
+    /**
+     * Does a GET request to get all the user's friends
+     * @return The JSON Array of all the friends (JSON Objects)
+     */
+	public JSONArray getFriends(){
+		final JSONArray[] resp = {null};
+        final Context context = getApplicationContext();
+
+		/* Does a GET request to authenticate the credentials of the user */
+		JsonArrayRequest req = new JsonArrayRequest(Request.Method.GET, URLs.URL_SIGNUP,
+			new Response.Listener<JSONArray>()
+			{
+				@Override
+				public void onResponse(JSONArray response) {
+					Log.d("JSON Response",response.toString());
+                    Toast.makeText(context, "GOT Friends", Toast.LENGTH_LONG).show();
+					resp[0] = response;
+				}
+			},
+			new Response.ErrorListener(){
+				@Override
+				public void onErrorResponse(VolleyError error) {
+					String msg = error.toString();
+					Log.d("ErrorResponse", msg);
+                    Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
+				}
+			}
+		){
+			@Override
+			public Map<String, String> getHeaders() throws AuthFailureError {
+				Map<String, String> headers = new HashMap<>();
+				headers.put("authorization", VolleyHTTPRequest.makeAutho());
+				return headers;
+			}
+
+			@Override
+			public String getBodyContentType() {
+				return "application/json; charset=utf-8";
+			}
+		};
+
+		req.setShouldCache(false);
+		VolleyHTTPRequest.addRequest(req, getApplicationContext());
+
+		return resp[0];
+	}
+
+    /**
+     * Converts the JSON Array of user's friends into an arraylist of users
+     * @param friends User's friends (JSON Array)
+     * @return The Arraylist of user's friends and their locations
+     * @throws JSONException
+     */
+	public ArrayList<User> getAllFriends(JSONArray friends) throws JSONException {
+		allFriends = new ArrayList<User>();
+		if(friends == null){
+			Toast.makeText(getApplicationContext(), "You have no friends", Toast.LENGTH_SHORT);
+            return allFriends;
+		}
+
+		/* Iterate through the array of users */
+        for(int i = 0; i < friends.length(); i++){
+            JSONObject friend = friends.getJSONObject(i);
+
+            /* Create a user object from the JSON data */
+			User userFriend = new User(friend.getString("fullName"), friend.getString("username"),
+                    friend.getString("email"));
+            userFriend.setLocation(LocationHelper.fromLatLon(friend.getDouble("latitude"),
+                    friend.getDouble("longitude")));
+
+            allFriends.add(userFriend);
+		}
+
+		return allFriends;
 	}
 }

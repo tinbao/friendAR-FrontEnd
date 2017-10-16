@@ -1,5 +1,6 @@
 package tk.friendar.friendar;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
@@ -17,9 +18,25 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Date;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
+import tk.friendar.friendar.arscreen.LocationHelper;
 import tk.friendar.friendar.testing.DummyData;
 
 public class NewMeetingActivity extends AppCompatActivity {
@@ -27,6 +44,15 @@ public class NewMeetingActivity extends AppCompatActivity {
 	UserListAdapter listAdapter;
 
 	private static final String TAG = "NewMeetingActivity";
+
+	private ArrayList<User> friends = new ArrayList<>();
+
+	public void setFriends(ArrayList<User> friends) {
+		this.friends = friends;
+		listAdapter = new UserListAdapter(friends);
+		ListView listView = (ListView) findViewById(R.id.new_meeting_user_list);
+		listView.setAdapter(listAdapter);
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +65,13 @@ public class NewMeetingActivity extends AppCompatActivity {
 		ab.setDisplayHomeAsUpEnabled(true);
 
 		// Friend list
-		ArrayList<User> friends = DummyData.getFriends();
+		//ArrayList<User> friends = DummyData.getFriends();
+		try {
+			getFriends();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
 		listAdapter = new UserListAdapter(friends);
 		ListView listView = (ListView) findViewById(R.id.new_meeting_user_list);
 		listView.setAdapter(listAdapter);
@@ -48,7 +80,9 @@ public class NewMeetingActivity extends AppCompatActivity {
 		final Button submitButton = (Button)findViewById(R.id.new_meeting_submit);
 		submitButton.setEnabled(false);
 
-		((EditText)findViewById(R.id.new_meeting_name)).addTextChangedListener(new TextWatcher() {
+		final EditText meetingName = (EditText) findViewById(R.id.new_meeting_name);
+
+		meetingName.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void beforeTextChanged(CharSequence s, int i, int i1, int i2) { return; }
 			@Override
@@ -57,6 +91,18 @@ public class NewMeetingActivity extends AppCompatActivity {
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
 				submitButton.setEnabled(FormValidator.isValidMeetingName(s.toString()));
+			}
+		});
+
+		/* For complete new meeting up button */
+		submitButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				try {
+					postNewMeeting(meetingName.getText().toString());
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
 			}
 		});
 	}
@@ -114,6 +160,88 @@ public class NewMeetingActivity extends AppCompatActivity {
 				.show();
 	}
 
+	/**
+	 * Does a GET request to get all the user's friends
+	 */
+	public void getFriends() throws JSONException {
+		final Context context = getApplicationContext();
+
+		String url = URLs.URL_USERS + "/" + VolleyHTTPRequest.id;
+		/* Does a GET request to authenticate the credentials of the user */
+		StringRequest req = new StringRequest(Request.Method.GET, url,
+			new Response.Listener<String>()
+			{
+				@Override
+				public void onResponse(String response) {
+					Log.d("JSON Response", response);
+					try {
+						JSONObject obj = new JSONObject(response);
+						JSONArray resp = obj.getJSONArray("friends");
+						setFriends(getAllFriends(resp));
+					} catch (JSONException e) {
+						e.printStackTrace();
+						Toast.makeText(context, e.toString(), Toast.LENGTH_LONG).show();
+					} finally {
+						Toast.makeText(context, "GOT Friends", Toast.LENGTH_LONG).show();
+					}
+				}
+			},
+			new Response.ErrorListener(){
+				@Override
+				public void onErrorResponse(VolleyError error) {
+					String msg = error.toString();
+					Log.d("ErrorResponse", msg);
+					Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
+				}
+			}
+		){
+			@Override
+			public Map<String, String> getHeaders() throws AuthFailureError {
+				Map<String, String> headers = new HashMap<>();
+				headers.put("authorization", VolleyHTTPRequest.makeAutho());
+				return headers;
+			}
+
+			@Override
+			public String getBodyContentType() {
+				return "application/json; charset=utf-8";
+			}
+		};
+
+		req.setShouldCache(false);
+		VolleyHTTPRequest.addRequest(req, context);
+	}
+
+	/**
+	 * Converts the JSON Array of user's friends into an arraylist of users
+	 * @param friends User's friends (JSON Array)
+	 * @return The Arraylist of user's friends and their locations
+	 * @throws JSONException
+	 */
+	public ArrayList<User> getAllFriends(JSONArray friends) throws JSONException {
+		ArrayList<User> allFriends = new ArrayList<>();
+		if(friends.length() == 0){
+			Toast.makeText(getApplicationContext(), "You have no friends", Toast.LENGTH_SHORT);
+			return allFriends;
+		}
+
+		/* Iterate through the array of users */
+		for(int i = 0; i < friends.length(); i++){
+			JSONObject friend = friends.getJSONObject(i);
+			Log.d("JSON User", friend.toString());
+
+            /* Create a user object from the JSON data */
+			User userFriend = new User(friend.getString("fullName"), friend.getString("username"),
+					friend.getString("email"));
+			userFriend.setLocation(LocationHelper.fromLatLon(friend.getDouble("latitude"),
+					friend.getDouble("longitude")));
+
+			allFriends.add(userFriend);
+		}
+
+		return allFriends;
+	}
+
 
 	// Custom list adapter for the user list
 	class UserListAdapter extends BaseAdapter {
@@ -159,5 +287,63 @@ public class NewMeetingActivity extends AppCompatActivity {
 
 			return convertView;
 		}
+	}
+
+	/**
+	 * Posts a new meeting with selected users and info
+	 * @param name
+	 * @throws JSONException
+	 */
+	public void postNewMeeting(String name) throws JSONException{
+		final Context context = getApplicationContext();
+
+		final JSONObject params = new JSONObject();
+        /* Puts the information into the JSON Object */
+		params.put("meetingName", name);
+		params.put("placeID", 1);
+		String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+		params.put("time", timeStamp);
+
+		/* Does a POST request to create the new entry into the DB */
+		StringRequest req = new StringRequest(Request.Method.POST, URLs.URL_MEETING,
+				new Response.Listener<String>()
+				{
+					@Override
+					public void onResponse(String response) {
+						Log.d("JSON Response", response);
+						Toast.makeText(context, "Success", Toast.LENGTH_LONG).show();
+						/* Goes back to home screen */
+						finish();
+					}
+				},
+				new Response.ErrorListener(){
+					@Override
+					public void onErrorResponse(VolleyError error) {
+						String msg = error.toString();
+						Log.d("ErrorResponse", msg);
+						Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
+					}
+				}
+		){
+			@Override
+			public Map<String, String> getHeaders() throws AuthFailureError {
+				Map<String, String> headers = new HashMap<>();
+				headers.put("authorization", VolleyHTTPRequest.makeAutho());
+				return headers;
+			}
+
+			@Override
+			public byte[] getBody() throws AuthFailureError {
+				return params.toString().getBytes();
+			}
+
+			@Override
+			public String getBodyContentType() {
+				return "application/json; charset=utf-8";
+			}
+		};
+
+		req.setShouldCache(false);
+		VolleyHTTPRequest.addRequest(req, context);
 	}
 }
