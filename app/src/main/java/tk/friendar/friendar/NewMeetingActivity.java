@@ -63,6 +63,9 @@ public class NewMeetingActivity extends AppCompatActivity {
 		//ArrayList<User> friends = DummyData.getFriends();
 		try {
 			getFriends();
+			if(!friends.isEmpty()) {
+				System.out.println(friends.toString());
+			}
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -143,11 +146,9 @@ public class NewMeetingActivity extends AppCompatActivity {
 
 	/**
 	 * Does a GET request to get all the user's friends
-	 * @return The JSON Array of all the friends (JSON Objects)
 	 */
 	public void getFriends() throws JSONException {
 		final Context context = getApplicationContext();
-		final JSONArray[] resp = new JSONArray[1];
 
 		String url = URLs.URL_USERS + "/" + VolleyHTTPRequest.id;
 		/* Does a GET request to authenticate the credentials of the user */
@@ -156,14 +157,14 @@ public class NewMeetingActivity extends AppCompatActivity {
 			{
 				@Override
 				public void onResponse(String response) {
-					Log.d("JSON Response",response.toString());
+					Log.d("JSON Response", response);
 					try {
 						JSONObject obj = new JSONObject(response);
-						resp[0] = obj.getJSONArray("friends");
-						setFriends(getAllFriends(resp[0]));
+						JSONArray resp = obj.getJSONArray("friends");
+						setFriends(getAllFriends(resp));
 					} catch (JSONException e) {
 						e.printStackTrace();
-
+						Toast.makeText(context, e.toString(), Toast.LENGTH_LONG).show();
 					} finally {
 						Toast.makeText(context, "GOT Friends", Toast.LENGTH_LONG).show();
 					}
@@ -203,7 +204,7 @@ public class NewMeetingActivity extends AppCompatActivity {
 	 */
 	public ArrayList<User> getAllFriends(JSONArray friends) throws JSONException {
 		ArrayList<User> allFriends = new ArrayList<>();
-		if(friends == null){
+		if(friends.length() == 0){
 			Toast.makeText(getApplicationContext(), "You have no friends", Toast.LENGTH_SHORT);
 			return allFriends;
 		}
