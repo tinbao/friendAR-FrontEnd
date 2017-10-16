@@ -86,7 +86,7 @@ public class login_screen extends AppCompatActivity{
 
                     /* Sets the ID of the current user */
                     try {
-                        VolleyHTTPRequest.getInstance().setUserID(response.getInt("id"));
+                        VolleyHTTPRequest.setUserID(response.getInt("id"));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -121,8 +121,8 @@ public class login_screen extends AppCompatActivity{
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> headers = new HashMap<>();
-                VolleyHTTPRequest.getInstance().setUsername(userName.getText().toString());
-                VolleyHTTPRequest.getInstance().setPassword(userPass.getText().toString());
+                VolleyHTTPRequest.setUsername(userName.getText().toString());
+                VolleyHTTPRequest.setPassword(userPass.getText().toString());
                 headers.put("authorization", VolleyHTTPRequest.makeAutho());
                 return headers;
             }
@@ -134,7 +134,7 @@ public class login_screen extends AppCompatActivity{
         };
 
         req.setShouldCache(false);
-        VolleyHTTPRequest.getInstance().addRequest(req, getApplicationContext());
+        VolleyHTTPRequest.addRequest(req, getApplicationContext());
     }
 
 }

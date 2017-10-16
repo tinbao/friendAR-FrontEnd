@@ -81,4 +81,5 @@ public class AddFriendActivity extends AppCompatActivity {
 	void successPopup(String s) {
 		Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
 	}
+
 }

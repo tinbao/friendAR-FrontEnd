@@ -75,7 +75,6 @@ public class VolleyHTTPRequest {
         }
     }
 
-
     public static String getUsername() {
         return username;
     }
