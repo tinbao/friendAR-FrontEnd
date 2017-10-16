@@ -69,7 +69,8 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
         id = getIntent().getIntExtra(HomeScreen.EXTRA_MEETING_ID, -1);
         scheduleGetMessage();
 
-
+        String title = title = getIntent().getStringExtra(HomeScreen.EXTRA_MEETING_NAME);
+        getSupportActionBar().setTitle(title);
 
        };
 
