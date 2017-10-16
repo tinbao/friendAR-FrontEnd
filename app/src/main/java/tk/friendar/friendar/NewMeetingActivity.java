@@ -1,5 +1,6 @@
 package tk.friendar.friendar;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
@@ -17,9 +18,23 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
+import tk.friendar.friendar.arscreen.LocationHelper;
 import tk.friendar.friendar.testing.DummyData;
 
 public class NewMeetingActivity extends AppCompatActivity {
@@ -39,7 +54,14 @@ public class NewMeetingActivity extends AppCompatActivity {
 		ab.setDisplayHomeAsUpEnabled(true);
 
 		// Friend list
-		ArrayList<User> friends = DummyData.getFriends();
+		//ArrayList<User> friends = DummyData.getFriends();
+		ArrayList<User> friends = new ArrayList<>();
+		try {
+			friends = getFriends();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
 		listAdapter = new UserListAdapter(friends);
 		ListView listView = (ListView) findViewById(R.id.new_meeting_user_list);
 		listView.setAdapter(listAdapter);
@@ -112,6 +134,87 @@ public class NewMeetingActivity extends AppCompatActivity {
 		Snackbar.make(findViewById(R.id.new_meeting_layout),
 				error, Snackbar.LENGTH_LONG)
 				.show();
+	}
+
+	/**
+	 * Does a GET request to get all the user's friends
+	 * @return The JSON Array of all the friends (JSON Objects)
+	 */
+	public ArrayList<User> getFriends() throws JSONException {
+		final JSONArray[] resp = {new JSONArray()};
+		final Context context = getApplicationContext();
+
+		/* Does a GET request to authenticate the credentials of the user */
+		JsonObjectRequest req = new JsonObjectRequest(Request.Method.GET, URLs.URL_SIGNUP,
+				new Response.Listener<JSONObject>()
+				{
+					@Override
+					public void onResponse(JSONObject response) {
+
+						Log.d("JSON Response",response.toString());
+						Toast.makeText(context, "GOT Friends", Toast.LENGTH_LONG).show();
+						try {
+							resp[0] = response.getJSONArray("users: ");
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
+					}
+				},
+				new Response.ErrorListener(){
+					@Override
+					public void onErrorResponse(VolleyError error) {
+						String msg = error.toString();
+						Log.d("ErrorResponse", msg);
+						Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
+					}
+				}
+		){
+			@Override
+			public Map<String, String> getHeaders() throws AuthFailureError {
+				Map<String, String> headers = new HashMap<>();
+				headers.put("authorization", VolleyHTTPRequest.makeAutho());
+				return headers;
+			}
+
+			@Override
+			public String getBodyContentType() {
+				return "application/json; charset=utf-8";
+			}
+		};
+
+		req.setShouldCache(false);
+		VolleyHTTPRequest.addRequest(req, getApplicationContext());
+		return getAllFriends(resp[0]);
+	}
+
+	/**
+	 * Converts the JSON Array of user's friends into an arraylist of users
+	 * @param friends User's friends (JSON Array)
+	 * @return The Arraylist of user's friends and their locations
+	 * @throws JSONException
+	 */
+	public ArrayList<User> getAllFriends(JSONArray friends) throws JSONException {
+		ArrayList<User> allFriends = new ArrayList<>();
+		if(friends == null){
+			Toast.makeText(getApplicationContext(), "You have no friends", Toast.LENGTH_SHORT);
+			return allFriends;
+		}
+
+		/* Iterate through the array of users */
+		for(int i = 0; i < friends.length(); i++){
+			JSONObject friend = friends.getJSONObject(i);
+			Log.d("JSON User", friend.toString());
+
+            /* Create a user object from the JSON data */
+			User userFriend = new User(friend.getString("fullName"), friend.getString("username"),
+					friend.getString("email"));
+			userFriend.setLocation(LocationHelper.fromLatLon(friend.getDouble("latitude"),
+					friend.getDouble("longitude")));
+
+			allFriends.add(userFriend);
+		}
+
+		return allFriends;
 	}
 
 
