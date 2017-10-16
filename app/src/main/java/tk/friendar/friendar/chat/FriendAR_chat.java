@@ -1,8 +1,10 @@
 package tk.friendar.friendar.chat;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -10,17 +12,28 @@ import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.Toast;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import tk.friendar.friendar.HomeScreen;
 import tk.friendar.friendar.R;
+import tk.friendar.friendar.URLs;
+import tk.friendar.friendar.VolleyHTTPRequest;
 
 public class FriendAR_chat extends AppCompatActivity implements OnClickListener {
 
@@ -87,8 +100,8 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
                     getMessages();
 
                     dummyMessage();
-                    messageGet.postDelayed(this, Get_INTERVAL);  // loop
-
+                    /* Loops and constantly checks for messages for INTERVAL time */
+                    messageGet.postDelayed(this, Get_INTERVAL);
                 }
 
             },Get_INTERVAL);
@@ -200,6 +213,42 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
      * TODO: Does a GET request to the server to get any messages
      */
     private void getMessages() {
+        /* Does a GET request to authenticate the credentials of the user */
+        JsonObjectRequest req = new JsonObjectRequest(Request.Method.GET, URLs.URL_CHAT,
+                new Response.Listener<JSONObject>()
+                {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.d("JSON Response",response.toString());
+                    }
+                },
+                new Response.ErrorListener(){
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        String msg = error.toString();
+                        Log.d("ErrorResponse", msg);
 
+                        Context context = getApplicationContext();
+                        Toast toast = Toast.makeText(context, msg, Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+                }
+        ){
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("authorization", VolleyHTTPRequest.makeAutho());
+                return headers;
+            }
+
+            @Override
+            public String getBodyContentType() {
+                return "application/json; charset=utf-8";
+            }
+        };
+
+        req.setShouldCache(false);
+        VolleyHTTPRequest.getInstance().addRequest(req, getApplicationContext());
     }
 }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
