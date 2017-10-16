@@ -276,7 +276,6 @@ public class VRActivity extends AppCompatActivity {
 		vrOverlay.onFriendLocationUpdates(allFriends);
 	}
 
-
     /**
      * Does a GET request to get all the user's friends
      * @return The JSON Array of all the friends (JSON Objects)
