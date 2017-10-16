@@ -7,10 +7,12 @@ package tk.friendar.friendar;
 public class Meeting {
 	private String name;
 	private int id;
+	private String timeStamp;
 
-	public Meeting(String name, int id) {
+	public Meeting(String name, int id, String timeStamp) {
 		this.name = name;
 		this.id = id;
+		this.timeStamp = timeStamp;
 	}
 
 	public String getName() {
