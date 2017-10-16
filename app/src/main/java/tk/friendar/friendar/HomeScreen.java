@@ -188,7 +188,7 @@ public class HomeScreen extends AppCompatActivity {
 					Log.d("JSON Response", response);
 					try {
 						JSONObject obj = new JSONObject(response);
-						JSONArray resp = obj.getJSONArray("meetings :");
+						JSONArray resp = obj.getJSONArray("meetings: ");
 						setMeetings(getAllMeetings(resp));
 					} catch (JSONException e) {
 						e.printStackTrace();
@@ -247,12 +247,15 @@ public class HomeScreen extends AppCompatActivity {
 
 				/* Need to check infividually if the current user is included in the meetings */
 				JSONObject meetingUser = meetingUsers.getJSONObject(i);
+				String user = meetingUser.getString("user");
+				user = user.replace("\\", "");
+				JSONObject user_ = new JSONObject(user);
 
-				if(meetingUser.getInt("id") == VolleyHTTPRequest.id){
+				if(user_.getInt("id") == VolleyHTTPRequest.id){
 					String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
             		/* Create a meeting object from the JSON data */
 					Meeting meetingElem = new Meeting(meeting.getString("meetingName"),
-							meeting.getInt("placeID"), timeStamp);
+							meeting.getInt("id"), timeStamp);
 
 					allMeetings.add(meetingElem);
 				}
