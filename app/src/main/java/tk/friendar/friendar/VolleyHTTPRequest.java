@@ -1,6 +1,14 @@
 package tk.friendar.friendar;
 
+import android.content.Context;
 import android.util.Base64;
+
+import com.android.volley.RequestQueue;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONObject;
 
 /**
  * Created by tinba on 16/10/2017.
@@ -15,9 +23,14 @@ public class VolleyHTTPRequest {
     static String username;
     static String password;
 
+    private static VolleyHTTPRequest instance;
+    private static RequestQueue reqQueue;
+
     public VolleyHTTPRequest(String username, String password) {
         this.username = username;
         this.password = password;
+
+        instance = this;
     }
 
     /**
@@ -28,6 +41,38 @@ public class VolleyHTTPRequest {
         return String.format("Basic %s", Base64.encodeToString(
                 String.format("%s:%s", username, password).getBytes(), Base64.DEFAULT));
     }
+
+    /**
+     * Gets the request queue from the instance
+     * @return
+     */
+    public static RequestQueue getRequestQueue(Context context){
+        if(reqQueue == null){
+            reqQueue = Volley.newRequestQueue(context);
+        }
+
+        return reqQueue;
+    }
+
+    /**
+     * Adds a JSON Object Request to the request queue
+     * @param req
+     */
+    public static void addRequest(JsonObjectRequest req, Context context){
+        VolleyLog.d("Adding request to queue");
+        getRequestQueue(context).add(req);
+    }
+
+    /**
+     * Removes all pending requests from the queue
+     * @param obj
+     */
+    public void cancelPendingRequests(JSONObject obj) {
+        if (reqQueue != null) {
+            reqQueue.cancelAll(obj);
+        }
+    }
+
 
     public static String getUsername() {
         return username;
@@ -44,4 +89,9 @@ public class VolleyHTTPRequest {
     public static void setPassword(String password) {
         VolleyHTTPRequest.password = password;
     }
+
+    public static VolleyHTTPRequest getInstance() {
+        return instance;
+    }
+
 }
