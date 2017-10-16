@@ -1,5 +1,6 @@
 package tk.friendar.friendar;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -16,9 +17,25 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
+import tk.friendar.friendar.arscreen.LocationHelper;
 import tk.friendar.friendar.arscreen.VRActivity;
 import tk.friendar.friendar.testing.DummyData;
 
@@ -28,13 +45,28 @@ public class HomeScreen extends AppCompatActivity {
 	private static final String TAG = "HomeScreen";
 	public static final String EXTRA_MEETING_ID = "EXTRA_MEETING_ID";
 
+	private ArrayList<Meeting> meetings = new ArrayList<>();
+
+	public void setMeetings(ArrayList<Meeting> meetings) {
+		this.meetings = meetings;
+		ArrayAdapter<Meeting> listAdapter = new ArrayAdapter<Meeting>(this,
+				R.layout.home_screen_list_elem, meetings);
+		ListView listView = (ListView) findViewById(R.id.home_screen_meeting_list);
+		listView.setAdapter(listAdapter);
+	}
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home_screen);
 
 		// Meeting List
-		ArrayList<Meeting> meetings = DummyData.getMeetings();
+		//ArrayList<Meeting> meetings = DummyData.getMeetings();
+		try {
+			getMeetings();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 		ArrayAdapter<Meeting> listAdapter = new ArrayAdapter<Meeting>(this,
 				R.layout.home_screen_list_elem, meetings);
 		ListView listView = (ListView) findViewById(R.id.home_screen_meeting_list);
@@ -139,5 +171,94 @@ public class HomeScreen extends AppCompatActivity {
 		Intent new_meeting = new Intent(this,NewMeetingActivity.class);
 		startActivity(new_meeting);
 
+	}
+
+	/**
+	 * Does a GET request to get all the user's meetings/chats
+	 */
+	public void getMeetings() throws JSONException {
+		final Context context = getApplicationContext();
+
+		/* Does a GET request to authenticate the credentials of the user */
+		StringRequest req = new StringRequest(Request.Method.GET, URLs.URL_MEETING,
+			new Response.Listener<String>()
+			{
+				@Override
+				public void onResponse(String response) {
+					Log.d("JSON Response", response);
+					try {
+						JSONObject obj = new JSONObject(response);
+						JSONArray resp = obj.getJSONArray("meetings :");
+						setMeetings(getAllMeetings(resp));
+					} catch (JSONException e) {
+						e.printStackTrace();
+						Toast.makeText(context, e.toString(), Toast.LENGTH_LONG).show();
+					} finally {
+						Toast.makeText(context, "GOT Friends", Toast.LENGTH_LONG).show();
+					}
+				}
+			},
+			new Response.ErrorListener(){
+				@Override
+				public void onErrorResponse(VolleyError error) {
+					String msg = error.toString();
+					Log.d("ErrorResponse", msg);
+					Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
+				}
+			}
+		){
+			@Override
+			public Map<String, String> getHeaders() throws AuthFailureError {
+				Map<String, String> headers = new HashMap<>();
+				headers.put("authorization", VolleyHTTPRequest.makeAutho());
+				return headers;
+			}
+
+			@Override
+			public String getBodyContentType() {
+				return "application/json; charset=utf-8";
+			}
+		};
+
+		req.setShouldCache(false);
+		VolleyHTTPRequest.addRequest(req, context);
+	}
+
+	/**
+	 * Converts the JSON Array of user's meetings into an arraylist of meetings
+	 * @param meetings User's meetings (JSON Array)
+	 * @return The Arraylist of user's meetings
+	 * @throws JSONException
+	 */
+	public ArrayList<Meeting> getAllMeetings(JSONArray meetings) throws JSONException {
+		ArrayList<Meeting> allMeetings = new ArrayList<>();
+		if(meetings.length() == 0){
+			Toast.makeText(getApplicationContext(), "You have no meetings", Toast.LENGTH_SHORT);
+			return allMeetings;
+		}
+
+		/* Iterate through the array of meetings */
+		for(int i = 0; i < meetings.length(); i++){
+			JSONObject meeting = meetings.getJSONObject(i);
+			JSONArray meetingUsers = meeting.getJSONArray("meeting users");
+
+			/* Within the array of meetings is an array of users attending the meeting */
+			for(int j = 0; j < meetingUsers.length(); j++){
+
+				/* Need to check infividually if the current user is included in the meetings */
+				JSONObject meetingUser = meetingUsers.getJSONObject(i);
+
+				if(meetingUser.getInt("id") == VolleyHTTPRequest.id){
+					String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+            		/* Create a meeting object from the JSON data */
+					Meeting meetingElem = new Meeting(meeting.getString("meetingName"),
+							meeting.getInt("placeID"), timeStamp);
+
+					allMeetings.add(meetingElem);
+				}
+			}
+		}
+
+		return allMeetings;
 	}
 }
