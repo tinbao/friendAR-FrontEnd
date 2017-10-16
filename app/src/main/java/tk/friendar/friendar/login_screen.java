@@ -84,7 +84,22 @@ public class login_screen extends AppCompatActivity{
                 @Override
                 public void onResponse(JSONObject response) {
                     pd.hide();
-                    Log.d("JSON Response",response.toString());
+                    Log.d("JSON Response", response.toString());
+
+					// Get user id
+					try {
+						JSONArray users = response.getJSONArray("users: ");
+						for (int i = 0; i < users.length(); i++) {
+							JSONObject user = users.getJSONObject(i);
+							if (user.getString("username").equals(VolleyHTTPRequest.getUsername())) {
+								VolleyHTTPRequest.id = user.getInt("id");
+							}
+						}
+					} catch (JSONException e) {
+						Log.e("LoginScreen", "Couldn't get user id: " + e.toString());
+						Toast.makeText(login_screen.this, "Error while logging in", Toast.LENGTH_SHORT).show();
+						throw new RuntimeException();
+					}
 
                     /* Switch to HOME screen */
                     submitLogin(getCurrentFocus());

@@ -22,6 +22,7 @@ public class VolleyHTTPRequest {
     /* Single instance login username and password for authentication */
     static String username;
     static String password;
+	public static int id;
 
     private static VolleyHTTPRequest instance;
     private static RequestQueue reqQueue;
