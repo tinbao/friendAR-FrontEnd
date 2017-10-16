@@ -1,4 +1,4 @@
-package tk.friendar.friendar.Chat;
+package tk.friendar.friendar.chat;
 
 import java.util.Random;
 
