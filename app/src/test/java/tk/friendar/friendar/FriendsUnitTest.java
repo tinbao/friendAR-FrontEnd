@@ -47,7 +47,7 @@ public class FriendsUnitTest {
 
     @Test
     public void getallFriends_nullFriends_returnsNull(){
-        
+
     }
 
 }
