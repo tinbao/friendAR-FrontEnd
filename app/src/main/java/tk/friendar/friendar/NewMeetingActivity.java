@@ -49,6 +49,9 @@ public class NewMeetingActivity extends AppCompatActivity {
 
 	public void setFriends(ArrayList<User> friends) {
 		this.friends = friends;
+		listAdapter = new UserListAdapter(friends);
+		ListView listView = (ListView) findViewById(R.id.new_meeting_user_list);
+		listView.setAdapter(listAdapter);
 	}
 
 	@Override
@@ -65,9 +68,6 @@ public class NewMeetingActivity extends AppCompatActivity {
 		//ArrayList<User> friends = DummyData.getFriends();
 		try {
 			getFriends();
-			if(!friends.isEmpty()) {
-				System.out.println(friends.toString());
-			}
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -209,7 +209,7 @@ public class NewMeetingActivity extends AppCompatActivity {
 		};
 
 		req.setShouldCache(false);
-		VolleyHTTPRequest.addRequest(req, getApplicationContext());
+		VolleyHTTPRequest.addRequest(req, context);
 	}
 
 	/**
@@ -312,7 +312,8 @@ public class NewMeetingActivity extends AppCompatActivity {
 					public void onResponse(String response) {
 						Log.d("JSON Response", response);
 						Toast.makeText(context, "Success", Toast.LENGTH_LONG).show();
-						//TODO: Switch into chat view
+						/* Goes back to home screen */
+						finish();
 					}
 				},
 				new Response.ErrorListener(){
