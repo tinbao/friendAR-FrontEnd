@@ -13,5 +13,5 @@ public class URLs {
     //public static final String URL_SIGNUP = "http://192.168.99.100/1/users";
     //public static final String URL_LOGIN= ROOT_URL + "login";
 
-    //public static final String URL_MEETING_USERS = ROOT_URL + "meeting"
+    public static final String URL_MEETING = ROOT_URL + "meeting";
 }
