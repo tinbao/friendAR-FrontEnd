@@ -11,7 +11,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class CommonMethods {
-    private static DateFormat dateFormat = new SimpleDateFormat("d MMM yyyy");
+    private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private static DateFormat timeFormat = new SimpleDateFormat("K:mma");
 
     public static String getCurrentTime() {
