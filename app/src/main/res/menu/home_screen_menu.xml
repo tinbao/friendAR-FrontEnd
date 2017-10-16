@@ -11,4 +11,9 @@
         android:icon="@drawable/ic_camera_white_24dp"
         android:title="Open AR"
         app:showAsAction="always"/>
+    <item
+        android:id="@+id/action_maps"
+        android:icon="@drawable/ic_near_me_white_24dp"
+        android:title="Google Maps"
+        app:showAsAction="always"/>
 </menu>

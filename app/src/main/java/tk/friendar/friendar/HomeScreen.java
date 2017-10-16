@@ -102,6 +102,9 @@ public class HomeScreen extends AppCompatActivity {
 				intent = new Intent(this, VRActivity.class);
 				startActivity(intent);
 				return true;
+			case R.id.action_maps:
+				intent = new Intent(this, MapsActivity.class);
+				startActivity(intent);
 			default:
 				return super.onOptionsItemSelected(item);
 		}

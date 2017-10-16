@@ -31,6 +31,12 @@ public class Login extends AppCompatActivity {
 
     }
 
+    public void homescreenLink(View view){
+        Intent intent_homescreen = new Intent(this,HomeScreen.class);
+        startActivity(intent_homescreen);
+    }
+
+
 
 
 

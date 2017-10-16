@@ -76,6 +76,16 @@
             android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toTopOf="@+id/button2" />
 
+        <Button
+            android:id="@+id/button4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:onClick="homescreenLink"
+            android:text="Homescreen"
+            app:layout_constraintLeft_toLeftOf="parent"
+            tools:layout_editor_absoluteY="0dp" />
+
     </android.support.constraint.ConstraintLayout>
 
     <ProgressBar
