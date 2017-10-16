@@ -18,6 +18,7 @@ public class User {
 	private String email;
 	private Location location = null;
 	private Bitmap picture = null;
+	private int id = 0;
 
 	public User(String name, String username, String email) {
 		this.name = name;
@@ -47,6 +48,14 @@ public class User {
 
 	public Bitmap getPicture() {
 		return picture;
+	}
+
+	public void setID(int id) {
+		this.id = id;
+	}
+
+	public int getID() {
+		return id;
 	}
 
 	/**

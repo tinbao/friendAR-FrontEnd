@@ -37,7 +37,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import tk.friendar.friendar.arscreen.LocationHelper;
-import tk.friendar.friendar.testing.DummyData;
 
 public class NewMeetingActivity extends AppCompatActivity {
 
@@ -46,6 +45,7 @@ public class NewMeetingActivity extends AppCompatActivity {
 	private static final String TAG = "NewMeetingActivity";
 
 	private ArrayList<User> friends = new ArrayList<>();
+	private int successfulMeetinguserPosts;
 
 	public void setFriends(ArrayList<User> friends) {
 		this.friends = friends;
@@ -126,22 +126,6 @@ public class NewMeetingActivity extends AppCompatActivity {
 		DeviceLocationService.getInstance().handlePermissionResults(this, requestCode, permissions, grantResults);
 	}
 
-	public void submitRequest(View view) {
-		String name = ((EditText)findViewById(R.id.new_meeting_name)).getText().toString();
-		ArrayList<User> users = getSelectedUsers();
-
-		if (users.size() == 0) {
-			errorPopup("No friends selected");
-		}
-		else {
-			Log.d(TAG, "Created: " + name);
-			for (User user : users) {
-				Log.d(TAG, "includes: " + user.getName());
-			}
-			finish();
-		}
-	}
-
 	ArrayList<User> getSelectedUsers() {
 		ArrayList<User> users = new ArrayList<>();
 		ArrayList<Boolean> checkboxes = listAdapter.checkboxStates;
@@ -176,13 +160,13 @@ public class NewMeetingActivity extends AppCompatActivity {
 					Log.d("JSON Response", response);
 					try {
 						JSONObject obj = new JSONObject(response);
-						JSONArray resp = obj.getJSONArray("friends");
+						JSONArray resp = obj.has("friends") ? (obj.getJSONArray("friends")) : new JSONArray("[]") ;
 						setFriends(getAllFriends(resp));
 					} catch (JSONException e) {
 						e.printStackTrace();
 						Toast.makeText(context, e.toString(), Toast.LENGTH_LONG).show();
 					} finally {
-						Toast.makeText(context, "GOT Friends", Toast.LENGTH_LONG).show();
+						//Toast.makeText(context, "GOT Friends", Toast.LENGTH_LONG).show();
 					}
 				}
 			},
@@ -221,7 +205,7 @@ public class NewMeetingActivity extends AppCompatActivity {
 	public ArrayList<User> getAllFriends(JSONArray friends) throws JSONException {
 		ArrayList<User> allFriends = new ArrayList<>();
 		if(friends.length() == 0){
-			Toast.makeText(getApplicationContext(), "You have no friends", Toast.LENGTH_SHORT);
+			Toast.makeText(getApplicationContext(), "You have no friends", Toast.LENGTH_SHORT).show();
 			return allFriends;
 		}
 
@@ -235,6 +219,7 @@ public class NewMeetingActivity extends AppCompatActivity {
 					friend.getString("email"));
 			userFriend.setLocation(LocationHelper.fromLatLon(friend.getDouble("latitude"),
 					friend.getDouble("longitude")));
+			userFriend.setID(friend.getInt("id"));
 
 			allFriends.add(userFriend);
 		}
@@ -297,6 +282,11 @@ public class NewMeetingActivity extends AppCompatActivity {
 	public void postNewMeeting(String name) throws JSONException{
 		final Context context = getApplicationContext();
 
+		if (getSelectedUsers().size() == 0) {
+			errorPopup("No friends selected");
+			return;
+		}
+
 		final JSONObject params = new JSONObject();
         /* Puts the information into the JSON Object */
 		params.put("meetingName", name);
@@ -311,9 +301,17 @@ public class NewMeetingActivity extends AppCompatActivity {
 					@Override
 					public void onResponse(String response) {
 						Log.d("JSON Response", response);
-						Toast.makeText(context, "Success", Toast.LENGTH_LONG).show();
-						/* Goes back to home screen */
-						finish();
+						int meetingID;
+						try {
+							JSONObject json = new JSONObject(response);
+							meetingID = json.getInt("id");
+							addFriendsToMeeting(meetingID);
+						} catch (JSONException e) {
+							e.printStackTrace();
+							genericError();
+							return;
+						}
+
 					}
 				},
 				new Response.ErrorListener(){
@@ -345,5 +343,75 @@ public class NewMeetingActivity extends AppCompatActivity {
 
 		req.setShouldCache(false);
 		VolleyHTTPRequest.addRequest(req, context);
+	}
+
+	public void addFriendsToMeeting(int meetingID) throws JSONException {
+		final Context context = getApplicationContext();
+		successfulMeetinguserPosts = 0;
+		final ArrayList<User> users = new ArrayList<User>(friends);
+		User me = new User("", "", ""); // only need user id
+		me.setID(VolleyHTTPRequest.id);
+		users.add(me);
+
+		for (final User user : users) {
+			final JSONObject params = new JSONObject();
+			/* Puts the information into the JSON Object */
+			params.put("meetingID", meetingID);
+			params.put("userID", user.getID());
+
+			/* Does a POST request to create the new entry into the DB */
+			StringRequest req = new StringRequest(Request.Method.POST, URLs.URL_MEETINGUSERS,
+					new Response.Listener<String>() {
+						@Override
+						public void onResponse(String response) {
+							Log.d("JSON Response", "Response " + successfulMeetinguserPosts + ": " + response);
+							try {
+								new JSONObject(response);
+								successfulMeetinguserPosts++;  // assume valid jasson => success
+							} catch (JSONException e) {
+								e.printStackTrace();
+							}
+
+							if (successfulMeetinguserPosts == users.size()) {
+								// All friends added to meeting! Return to home screen
+								Toast.makeText(context, "Meeting created!", Toast.LENGTH_LONG).show();
+								finish();
+							}
+						}
+					},
+					new Response.ErrorListener() {
+						@Override
+						public void onErrorResponse(VolleyError error) {
+							String msg = error.toString();
+							Log.d("ErrorResponse", msg);
+							genericError();
+						}
+					}
+			) {
+				@Override
+				public Map<String, String> getHeaders() throws AuthFailureError {
+					Map<String, String> headers = new HashMap<>();
+					headers.put("authorization", VolleyHTTPRequest.makeAutho());
+					return headers;
+				}
+
+				@Override
+				public byte[] getBody() throws AuthFailureError {
+					return params.toString().getBytes();
+				}
+
+				@Override
+				public String getBodyContentType() {
+					return "application/json; charset=utf-8";
+				}
+			};
+
+			req.setShouldCache(false);
+			VolleyHTTPRequest.addRequest(req, context);
+		}
+	}
+
+	private void genericError() {
+		Toast.makeText(this, "Error making meeting", Toast.LENGTH_SHORT).show();
 	}
 }
