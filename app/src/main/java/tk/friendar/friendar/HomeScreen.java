@@ -246,7 +246,7 @@ public class HomeScreen extends AppCompatActivity {
 			for(int j = 0; j < meetingUsers.length(); j++){
 
 				/* Need to check infividually if the current user is included in the meetings */
-				JSONObject meetingUser = meetingUsers.getJSONObject(i);
+				JSONObject meetingUser = meetingUsers.getJSONObject(j);
 				String user = meetingUser.getString("user");
 				user = user.replace("\\", "");
 				JSONObject user_ = new JSONObject(user);
