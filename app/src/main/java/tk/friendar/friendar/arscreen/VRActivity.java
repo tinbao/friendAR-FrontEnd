@@ -25,6 +25,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -92,6 +93,9 @@ public class VRActivity extends AppCompatActivity {
 
 	private static final String TAG = "VRActivity";
 
+    public void setFriends(ArrayList<User> allFriends) {
+        this.allFriends = allFriends;
+    }
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -271,7 +275,7 @@ public class VRActivity extends AppCompatActivity {
 		//allFriends = DummyData.getUpdatingFriends();
 
         // TODO request all friend locations and fill 'allFriends' with the data
-        allFriends = getAllFriends(getFriends());
+        getFriends();
 
 		vrOverlay.onFriendLocationUpdates(allFriends);
 	}
@@ -280,19 +284,27 @@ public class VRActivity extends AppCompatActivity {
      * Does a GET request to get all the user's friends
      * @return The JSON Array of all the friends (JSON Objects)
      */
-	public JSONArray getFriends(){
-		final JSONArray[] resp = {null};
+	public void getFriends(){
         final Context context = getApplicationContext();
 
+        String url = URLs.URL_USERS + "/" + VolleyHTTPRequest.id;
 		/* Does a GET request to authenticate the credentials of the user */
-		JsonArrayRequest req = new JsonArrayRequest(Request.Method.GET, URLs.URL_SIGNUP,
-			new Response.Listener<JSONArray>()
+		StringRequest req = new StringRequest(Request.Method.GET, url,
+			new Response.Listener<String>()
 			{
-				@Override
-				public void onResponse(JSONArray response) {
-					Log.d("JSON Response",response.toString());
-                    Toast.makeText(context, "GOT Friends", Toast.LENGTH_LONG).show();
-					resp[0] = response;
+
+                @Override
+				public void onResponse(String response) {
+                    try {
+                        JSONObject obj = new JSONObject(response);
+                        JSONArray resp = obj.getJSONArray("friends");
+                        setFriends(getAllFriends(resp));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    } finally {
+                        Log.d("JSON Response", response);
+                        Toast.makeText(context, "GOT Friends", Toast.LENGTH_LONG).show();
+                    }
 				}
 			},
 			new Response.ErrorListener(){
@@ -318,9 +330,7 @@ public class VRActivity extends AppCompatActivity {
 		};
 
 		req.setShouldCache(false);
-		VolleyHTTPRequest.addRequest(req, getApplicationContext());
-
-		return resp[0];
+		VolleyHTTPRequest.addRequest(req, context);
 	}
 
     /**
@@ -330,8 +340,8 @@ public class VRActivity extends AppCompatActivity {
      * @throws JSONException
      */
 	public ArrayList<User> getAllFriends(JSONArray friends) throws JSONException {
-		allFriends = new ArrayList<User>();
-		if(friends == null){
+        ArrayList<User> allFriends = new ArrayList<>();
+		if(friends.length() == 0){
 			Toast.makeText(getApplicationContext(), "You have no friends", Toast.LENGTH_SHORT);
             return allFriends;
 		}
