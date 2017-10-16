@@ -106,10 +106,10 @@ public class AddFriendActivity extends AppCompatActivity {
 								JSONObject user = users.getJSONObject(i);
 								int id = user.getInt("id");
 								if (user.getString("username").equals(username)) {
-									// User found, send request
+									// User found, check if new then friend them
 									Log.d(TAG, "Found user: " + user.toString());
 
-									sendFriendRequest(username, id);
+									checkNewFriends(username, id);
 									return;
 								}
 							}
@@ -172,6 +172,68 @@ public class AddFriendActivity extends AppCompatActivity {
 
 	void successPopup(String s) {
 		Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
+	}
+
+	void checkNewFriends(final String username, final int friendID) {
+		String url = URLs.URL_USERS + "/" + VolleyHTTPRequest.id;
+		StringRequest req = new StringRequest(Request.Method.GET, url,
+				new Response.Listener<String>() {
+					@Override
+					public void onResponse(String response) {
+						Log.d(TAG, "RESPONSE: " + response.toString());
+
+						try {
+							JSONObject thisUser = new JSONObject(response);
+							if (thisUser.has("friends")) {
+								JSONArray friends = thisUser.getJSONArray("friends");
+								for (int i = 0; i < friends.length(); i++) {
+									JSONObject friend = friends.getJSONObject(i);
+									int id = friend.getInt("id");
+									if (id == friendID) {
+										// Already friended user!
+										errorPopup("Already friended this user.");
+										pd.hide();
+										return;
+									}
+								}
+							}
+							// new user!
+							sendFriendRequest(username, friendID);
+						} catch (JSONException e) {
+							e.printStackTrace();
+							genericServerError();
+							pd.hide();
+						}
+					}
+				},
+
+				new Response.ErrorListener() {
+					@Override
+					public void onErrorResponse(VolleyError error) {
+						NetworkResponse response = error.networkResponse;
+						Log.d(TAG, "ERROR: " + error.toString());
+						genericServerError();
+						pd.hide();
+					}
+				}) {
+
+			@Override
+			public Map<String, String> getHeaders() throws AuthFailureError {
+				Map<String, String> headers = new HashMap<>();
+				headers.put("authorization", VolleyHTTPRequest.makeAutho());
+				return headers;
+			}
+
+			/** Defines the body type of the data being posted */
+			@Override
+			public String getBodyContentType() {
+				return "application/json; charset=utf-8";
+			}
+		};
+
+		/* Requests are posted and executed in a queue */
+		req.setShouldCache(false);
+		Volley.newRequestQueue(this).add(req);
 	}
 
 	void sendFriendRequest(final String username, int friendID) {
