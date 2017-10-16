@@ -17,9 +17,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -100,6 +98,13 @@ public class login_screen extends AppCompatActivity{
 						Toast.makeText(login_screen.this, "Error while logging in", Toast.LENGTH_SHORT).show();
 						throw new RuntimeException();
 					}
+
+                    /* Sets the ID of the current user */
+                    try {
+                        VolleyHTTPRequest.getInstance().setUserID(response.getInt("id"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
 
                     /* Switch to HOME screen */
                     submitLogin(getCurrentFocus());
