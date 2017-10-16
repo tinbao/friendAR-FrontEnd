@@ -19,6 +19,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -131,10 +132,10 @@ public class DeviceLocationService {
 			@Override
 			public void onLocationResult(LocationResult locationResult) {
 				lastLocation = locationResult.getLastLocation();
+				Log.d(TAG, "Location Update: " + lastLocation.toString());
+
 				notifyListeners(lastLocation);
 				putLocationToServer(lastLocation, activity);
-
-				Log.d(TAG, "Location Update: " + lastLocation.toString());
 			}
 		};
 
@@ -220,35 +221,40 @@ public class DeviceLocationService {
 		try {
             /* Temporary username, user can change it afterwards */
 			params.put("latitude", location.getLatitude());
-			params.put("logitude", location.getLongitude());
+			params.put("longitude", location.getLongitude());
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 
-		JsonObjectRequest req = new JsonObjectRequest(Request.Method.PUT, URLs.URL_SIGNUP, params,
-			new Response.Listener<JSONObject>() {
-				@Override
-				public void onResponse(JSONObject response) {
-					Log.d("Response", response.toString());
-					Toast.makeText(activity, "Location Sent", Toast.LENGTH_LONG).show();
-				}
-			},
+		String url = URLs.URL_USERS + "/" + VolleyHTTPRequest.id;
+		StringRequest req = new StringRequest(Request.Method.PUT, url,
+				new Response.Listener<String>() {
+					@Override
+					public void onResponse(String response) {
+						Log.d(TAG, "RESPONSE: " + response.toString());
+					}
+				},
 
-			new Response.ErrorListener() {
-				@Override
-				public void onErrorResponse(VolleyError error) {
-					NetworkResponse response = error.networkResponse;
-					String msg = error.toString();
-					Log.d("ErrorResponse", msg);
-					Toast.makeText(activity, msg, Toast.LENGTH_LONG).show();
-				}
-			}) {
+				new Response.ErrorListener() {
+					@Override
+					public void onErrorResponse(VolleyError error) {
+						NetworkResponse response = error.networkResponse;
+						String msg = error.toString();
+						Log.d(TAG, "ERROR: " + msg);
+						Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show();
+					}
+				}) {
 
 			@Override
 			public Map<String, String> getHeaders() throws AuthFailureError {
 				Map<String, String> headers = new HashMap<>();
 				headers.put("authorization", VolleyHTTPRequest.makeAutho());
 				return headers;
+			}
+
+			@Override
+			public byte[] getBody() throws AuthFailureError {
+				return params.toString().getBytes();
 			}
 
 			/** Defines the body type of the data being posted */
