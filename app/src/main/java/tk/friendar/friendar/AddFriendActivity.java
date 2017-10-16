@@ -173,7 +173,7 @@ public class AddFriendActivity extends AppCompatActivity {
 	void successPopup(String s) {
 		Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
 	}
-
+	
 	void checkNewFriends(final String username, final int friendID) {
 		String url = URLs.URL_USERS + "/" + VolleyHTTPRequest.id;
 		StringRequest req = new StringRequest(Request.Method.GET, url,

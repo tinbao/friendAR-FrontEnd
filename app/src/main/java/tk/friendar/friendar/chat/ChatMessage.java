@@ -1,33 +1,56 @@
 package tk.friendar.friendar.chat;
 
+import java.util.Random;
+
 /**
  * Created by Simon on 10/3/2017.
  */
 
-import java.util.Random;
-
 public class ChatMessage {
 
+    /** The body content of the message */
     public String body;
+    /** The sender's name needs to be displayed under the message */
     public static String senderName;
     public String Date, Time;
-    public String msgid;
+    /** Each message has a unique identification number */
+    public String msgId;
+    /** The sender and receiver are identified using their unique IDs */
     public Integer sender, receiver;
     public boolean isMine;// Did I send the message.
 
-    public ChatMessage(Integer Sender, Integer Receiver, String messageString,
-                       String ID, boolean isMINE, String senderName) {
-        body = messageString;
-        isMine = isMINE;
-        sender = Sender;
-        msgid = ID;
-        receiver = Receiver;
+    /**
+     * Constructor for a new ChatMessage
+     * @param sender the message's sender's ID
+     * @param receiver the recipient's ID (fixed to the current login)
+     * @param body content of the message
+     * @param isMine flag to check if the message is from the user
+     * @param senderName the sender's username
+     */
+    public ChatMessage(Integer sender, Integer receiver, String body,
+                       boolean isMine, String senderName) {
+        this.body = body;
+        this.isMine = isMine;
+        this.sender = sender;
+//        this.msgId = msgId;
+        this.receiver = receiver;
         this.senderName = senderName;
     }
 
-    public void setMsgID() {
+    /**
+     * Checks if the message sent is mine
+     * @param msgSenderID the message's sender's ID
+     */
+    public void checkMyMessage(Integer msgSenderID){
+        if(msgSenderID == receiver){
+            isMine = true;
+        } else {
+            isMine = false;
+        }
+    }
 
-        msgid += "-" + String.format("%02d", new Random().nextInt(100));
+    public void setMsgID() {
+        msgId += "-" + String.format("%02d", new Random().nextInt(100));
         ;
     }
 }
