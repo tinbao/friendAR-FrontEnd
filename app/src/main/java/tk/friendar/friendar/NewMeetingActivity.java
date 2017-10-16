@@ -24,7 +24,7 @@ import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,6 +43,12 @@ public class NewMeetingActivity extends AppCompatActivity {
 
 	private static final String TAG = "NewMeetingActivity";
 
+	private ArrayList<User> friends = new ArrayList<>();
+
+	public void setFriends(ArrayList<User> friends) {
+		this.friends = friends;
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -55,9 +61,8 @@ public class NewMeetingActivity extends AppCompatActivity {
 
 		// Friend list
 		//ArrayList<User> friends = DummyData.getFriends();
-		ArrayList<User> friends = new ArrayList<>();
 		try {
-			friends = getFriends();
+			getFriends();
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -140,34 +145,38 @@ public class NewMeetingActivity extends AppCompatActivity {
 	 * Does a GET request to get all the user's friends
 	 * @return The JSON Array of all the friends (JSON Objects)
 	 */
-	public ArrayList<User> getFriends() throws JSONException {
-		final JSONArray[] resp = {new JSONArray()};
+	public void getFriends() throws JSONException {
 		final Context context = getApplicationContext();
+		final JSONArray[] resp = new JSONArray[1];
 
+		String url = URLs.URL_USERS + "/" + VolleyHTTPRequest.id;
 		/* Does a GET request to authenticate the credentials of the user */
-		JsonObjectRequest req = new JsonObjectRequest(Request.Method.GET, URLs.URL_SIGNUP,
-				new Response.Listener<JSONObject>()
-				{
-					@Override
-					public void onResponse(JSONObject response) {
+		StringRequest req = new StringRequest(Request.Method.GET, url,
+			new Response.Listener<String>()
+			{
+				@Override
+				public void onResponse(String response) {
+					Log.d("JSON Response",response.toString());
+					try {
+						JSONObject obj = new JSONObject(response);
+						resp[0] = obj.getJSONArray("friends");
+						setFriends(getAllFriends(resp[0]));
+					} catch (JSONException e) {
+						e.printStackTrace();
 
-						Log.d("JSON Response",response.toString());
+					} finally {
 						Toast.makeText(context, "GOT Friends", Toast.LENGTH_LONG).show();
-						try {
-							resp[0] = response.getJSONArray("users: ");
-						} catch (JSONException e) {
-							e.printStackTrace();
-						}
-					}
-				},
-				new Response.ErrorListener(){
-					@Override
-					public void onErrorResponse(VolleyError error) {
-						String msg = error.toString();
-						Log.d("ErrorResponse", msg);
-						Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
 					}
 				}
+			},
+			new Response.ErrorListener(){
+				@Override
+				public void onErrorResponse(VolleyError error) {
+					String msg = error.toString();
+					Log.d("ErrorResponse", msg);
+					Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
+				}
+			}
 		){
 			@Override
 			public Map<String, String> getHeaders() throws AuthFailureError {
@@ -184,7 +193,6 @@ public class NewMeetingActivity extends AppCompatActivity {
 
 		req.setShouldCache(false);
 		VolleyHTTPRequest.addRequest(req, getApplicationContext());
-		return getAllFriends(resp[0]);
 	}
 
 	/**

@@ -87,7 +87,7 @@ public class DeviceLocationService {
 			requestedPermissions = false;
 
 			// Start updates
-			requestLocationUpdates(activity);
+			//requestLocationUpdates(activity);
 		}
 		else {
 			if (requestedPermissions) {
@@ -135,7 +135,7 @@ public class DeviceLocationService {
 				Log.d(TAG, "Location Update: " + lastLocation.toString());
 
 				notifyListeners(lastLocation);
-				putLocationToServer(lastLocation, activity);
+				//putLocationToServer(lastLocation, activity);
 			}
 		};
 
@@ -266,6 +266,6 @@ public class DeviceLocationService {
 
 		/* Requests are posted and executed in a queue */
 		req.setShouldCache(false);
-		Volley.newRequestQueue(activity).add(req);
+		VolleyHTTPRequest.addRequest(req, activity.getApplicationContext());
 	}
 }
