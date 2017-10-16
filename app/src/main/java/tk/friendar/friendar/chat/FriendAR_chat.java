@@ -1,6 +1,5 @@
 package tk.friendar.friendar.chat;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +10,10 @@ import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Timer;
@@ -22,9 +25,9 @@ import tk.friendar.friendar.R;
 public class FriendAR_chat extends AppCompatActivity implements OnClickListener {
 
     private EditText msg_edittext;
-    private String user1;
-    private String user2;
-     Random random;
+    private Integer user1;
+    private Integer user2;
+    Random random;
     public static ArrayList<ChatMessage> chatlist;
     public static ChatAdapter chatAdapter;
     ListView msgListView;
@@ -37,8 +40,8 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
 
     private class dummyMessage extends TimerTask {
         public void run() {
-            final ChatMessage chatMessage = new ChatMessage("Simon", "Mario",
-                    "Eyy Simon, howsita goina?", "" + random.nextInt(1000), false);
+            final ChatMessage chatMessage = new ChatMessage(1, 2,
+                    "Eyy Simon, howsita goina?", "" + random.nextInt(1000), false, "Mario");
 
             chatMessage.Date = CommonMethods.getCurrentDate();
             chatMessage.Time = CommonMethods.getCurrentTime();
@@ -48,17 +51,17 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
         }
     }
 
-    /* set up chat Adapter and chat list*/
+    /**
+     * Set up chat Adapter and chat list for the first time
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.chat_layout);
 
-
-
-        user1 = "Simon";
-        user2 = "Mario";
+        user1 = 1;
+        user2 = 2;
 
         msg_edittext = (EditText) findViewById(R.id.messageEditText);
         msgListView = (ListView) findViewById(R.id.msgListView);
@@ -68,11 +71,7 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
         sendButton.setOnClickListener(this);
         id = getIntent().getIntExtra(HomeScreen.EXTRA_MEETING_ID, -1);
         scheduleGetMessage();
-
-
-
        };
-
 
         //messageGet.postDelayed(messageGetRunnable, Get_INTERVAL);
         // Server requests
@@ -81,44 +80,36 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
             messageGet.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-
                     // TODO get string message and details from server
                     // get messages based on meeting id in variable id
                     // put code to get json objects here
-                    //Simon will loop through them and display them
-                    
+                    // Simon will loop through them and display them
+                    getMessages();
 
                     dummyMessage();
-
                     messageGet.postDelayed(this, Get_INTERVAL);  // loop
 
                 }
+
             },Get_INTERVAL);
         }
 
-
-
-
-
-/*
-    protected void onResume(){
-        super.onResume();
-        messageGet.postDelayed(messageGetRunnable,Get_INTERVAL);
-
-    }
-*/
-/*
-    @Override
-    protected void onPause() {
-        super.onPause();
-        messageGet.removeCallbacks(messageGetRunnable);
-    }
-*/
+//    protected void onResume(){
+//        super.onResume();
+//        messageGet.postDelayed(messageGetRunnable,Get_INTERVAL);
+//
+//    }
+//
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        messageGet.removeCallbacks(messageGetRunnable);
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        //getMenuInflater().inflate(R.menu.menu_friend_ar_chat, menu);
+        getMenuInflater().inflate(R.menu.menu_friend_ar_chat, menu);
         return true;
     }
 
@@ -131,9 +122,9 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-//        if (id == R.id.action_settings) {
-//            return true;
-//        }
+        if (id == R.id.action_settings) {
+            return true;
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -141,7 +132,7 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
     public void dummyMessage(){
         msgListView.setAdapter(chatAdapter);
         final ChatMessage chatMessage = new ChatMessage(user2, user1,
-                "Eyy Simon, howsita goina?", "" + this.id, false);
+                "Eyy Simon, howsita goina?", "" + this.id, false, "Mario");
 
         chatMessage.Date = CommonMethods.getCurrentDate();
         chatMessage.Time = CommonMethods.getCurrentTime();
@@ -154,24 +145,23 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
     }
 
 
-    /*Create current message and add to list and view from User input in EditText element*/
-
+    /**
+     * Create current message and add to list and view from User input in EditText element
+     * @param v is the current view of the device
+     */
     public void sendMessage(View v) {
         random = new Random();
-
-
 
         // ----Set autoscroll of listview when a new message arrives----//
         msgListView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         msgListView.setStackFromBottom(true);
-
 
         msgListView.setAdapter(chatAdapter);
 
         String message = msg_edittext.getEditableText().toString();
         if (!message.equalsIgnoreCase("")) {
             final ChatMessage chatMessage = new ChatMessage(user1, user2,
-                    message, ""+this.id, true);
+                    message, ""+this.id, true, ChatMessage.senderName);
             chatMessage.setMsgID();
             chatMessage.Date = CommonMethods.getCurrentDate();
             chatMessage.Time = CommonMethods.getCurrentTime();
@@ -179,22 +169,23 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
             msg_edittext.setText("");
             chatAdapter.add(chatMessage);
             chatAdapter.notifyDataSetChanged();
+
             //TODO Add Server Code to send message to server with meeting Id
-            //message to be sent is contained in object chatMessage
-            //JSON object parameters
-            /*
-            params.put("sender", user1);
-            params.put("receiver", userz2);
-            params.put("msgid", this.id);
-            params.put("isMine", true);
-            params.put("body", message);
-            params.put("date", chatMessage.Date);
-            params.put("time", chatMessage.Time);
-           */
+            /* Message to be sent is contained in object chatMessage */
+            final JSONObject params = new JSONObject();
+            try {
+                // TODO: FORMAT TO CORRECT SCHEMA
+                params.put("sender", user1);
+                params.put("receiver", user2);
+                params.put("msgid", this.id);
+                params.put("isMine", true);
+                params.put("body", message);
+                params.put("date", chatMessage.Date);
+                params.put("time", chatMessage.Time);
+            } catch(JSONException e){
+                e.printStackTrace();
+            }
         }
-
-
-
     }
 
     @Override
@@ -202,7 +193,13 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
         switch (v.getId()) {
             case R.id.sendMessageButton:
                 sendMessage(v);
-
         }
+    }
+
+    /**
+     * TODO: Does a GET request to the server to get any messages
+     */
+    private void getMessages() {
+
     }
 }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
