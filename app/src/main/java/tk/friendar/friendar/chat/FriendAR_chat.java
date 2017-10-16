@@ -51,6 +51,8 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
     Timer timer = new Timer();
     public int id;
 
+    private Integer currentUser = VolleyHTTPRequest.getInstance().getUserID();
+
     private class dummyMessage extends TimerTask {
         public void run() {
             final ChatMessage chatMessage = new ChatMessage(1, 2,
@@ -183,7 +185,7 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
             chatAdapter.add(chatMessage);
             chatAdapter.notifyDataSetChanged();
 
-            //TODO Add Server Code to send message to server with meeting Id
+            // TODO Add Server Code to send message to server with meeting Id
             /* Message to be sent is contained in object chatMessage */
             final JSONObject params = new JSONObject();
             try {
@@ -213,6 +215,8 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
      * TODO: Does a GET request to the server to get any messages
      */
     private void getMessages() {
+        final Context context = getApplicationContext();
+
         /* Does a GET request to authenticate the credentials of the user */
         JsonObjectRequest req = new JsonObjectRequest(Request.Method.GET, URLs.URL_CHAT,
                 new Response.Listener<JSONObject>()
@@ -220,6 +224,25 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
                     @Override
                     public void onResponse(JSONObject response) {
                         Log.d("JSON Response",response.toString());
+
+                        try {
+                            /* Parses the JSON Object and gets all the needed info */
+                            Integer messageId = response.getInt("messageID");
+                            Integer meetingId = response.getInt("meetingID");
+                            Integer userId = response.getInt("userID");
+                            // Double timeSent = response.getDouble("TimeSent");
+                            String msgBody = response.getString("msgBody");
+                            String senderName = response.getString("senderName");
+
+                            /* Creates a new chat message to add to the array */
+                            ChatMessage newMessage = new ChatMessage(currentUser, userId, msgBody,
+                                    messageId.toString(), false, senderName);
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show();
+                        }
+
                     }
                 },
                 new Response.ErrorListener(){
@@ -228,9 +251,7 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
                         String msg = error.toString();
                         Log.d("ErrorResponse", msg);
 
-                        Context context = getApplicationContext();
-                        Toast toast = Toast.makeText(context, msg, Toast.LENGTH_SHORT);
-                        toast.show();
+                        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
                     }
                 }
         ){

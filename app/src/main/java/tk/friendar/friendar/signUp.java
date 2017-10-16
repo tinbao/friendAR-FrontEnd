@@ -25,7 +25,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -187,8 +186,15 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
                 public void onResponse(JSONObject response) {
                     pd.hide();
                     Log.d("Response", response.toString());
+
                     VolleyHTTPRequest.setUsername(userName);
                     VolleyHTTPRequest.setPassword(password);
+                    try {
+                        VolleyHTTPRequest.setUserID(response.getInt("id"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
                     /* Switch to HOME screen */
                     submitLogin(getCurrentFocus());
                 }
@@ -226,7 +232,6 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
 
         /* DEBUG: Tells android to wait 30 seconds and try 5 times */
         //req.setRetryPolicy(new DefaultRetryPolicy(30000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-        //req.setRetryPolicy(new DefaultRetryPolicy(0, 1, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
         /* Requests are posted and executed in a queue */
         req.setShouldCache(false);
