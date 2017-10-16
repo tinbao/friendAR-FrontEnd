@@ -35,8 +35,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import tk.friendar.friendar.Chat.Chats;
-import tk.friendar.friendar.Chat.FriendAR_chat;
+import tk.friendar.friendar.chat.Chats;
+import tk.friendar.friendar.chat.FriendAR_chat;
 import tk.friendar.friendar.arscreen.VRActivity;
 import tk.friendar.friendar.testing.DummyData;
 
