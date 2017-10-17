@@ -218,11 +218,11 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 	// Calculate model matrix from position relative to camera
 	private void calculateModelMatrix(float bearing, float distance) {
 		// distance and scale to draw
-		// modelDistance is linear for small distances, but asymptotes at 1km
-		// scale counter acts distance (inverse square law), but not fully
-		// combination gives appearance of distance without limiting visibility
-		float modelDistance = 0.7f * distance / (1.0f + distance / 999.0f);
-		float scale = (float)Math.pow(modelDistance, 0.5f);
+		// can use to reduce the effect of shrinking at distance
+		//float modelDistance = 0.7f * distance / (1.0f + distance / 999.0f);
+		//float scale = (float)Math.pow(modelDistance, 0.5f);
+		float modelDistance = 0.7f * distance;
+		float scale = 1.0f;
 
 		double rBearing = Math.toRadians(bearing);
 		float counterAngle = -bearing;// + (float)Math.toRadians(180);  // counter rotation to face viewer
@@ -231,7 +231,7 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 
 		// Transformations (use reverse order for transformations: translate -> rotate -> scale)
 		Matrix.setIdentityM(modelMatrix, 0);
-		Matrix.translateM(modelMatrix, 0, distanceEast, 0, -distanceNorth);
+		Matrix.translateM(modelMatrix, 0, distanceEast, 2.5f, -distanceNorth);
 		Matrix.rotateM(modelMatrix, 0, counterAngle, 0.0f, 1.0f, 0.0f); // face toward viewer
 		Matrix.scaleM(modelMatrix, 0, scale, scale, scale);
 	}
