@@ -35,6 +35,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -255,7 +256,8 @@ public class DeviceLocationService {
 
 			@Override
 			public byte[] getBody() throws AuthFailureError {
-				return params.toString().getBytes();
+				//return params.toString().getBytes();
+				return params.toString().getBytes(StandardCharsets.UTF_8);
 			}
 
 			/** Defines the body type of the data being posted */
