@@ -111,14 +111,14 @@ public class NewMeetingActivity extends AppCompatActivity {
 	protected void onResume() {
 		super.onResume();
 
-		DeviceLocationService.getInstance().startLocationUpdates(this);
+		//DeviceLocationService.getInstance().startLocationUpdates(this);
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
 
-		DeviceLocationService.getInstance().stopLocationUpdates(this);
+		//DeviceLocationService.getInstance().stopLocationUpdates(this);
 	}
 
 	@Override

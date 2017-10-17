@@ -100,14 +100,14 @@ public class HomeScreen extends AppCompatActivity {
 			e.printStackTrace();
 		}
 
-		DeviceLocationService.getInstance().startLocationUpdates(this);
+		//DeviceLocationService.getInstance().startLocationUpdates(this);
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
 
-		DeviceLocationService.getInstance().stopLocationUpdates(this);
+		//DeviceLocationService.getInstance().stopLocationUpdates(this);
 	}
 
 	@Override
