@@ -61,8 +61,8 @@ public class DeviceLocationService {
 	private LocationCallback locationCallback = null;
 	private boolean locationUpdatesStarted = false;
 
-	private static final long DEVICE_LOCATION_UPDATE_INTERVAl = 5000;
-	private static final long DEVICE_LOCATION_UPDATE_FASTEST_INTERVAl = 2500;
+	private static final long DEVICE_LOCATION_UPDATE_INTERVAl = 3000;
+	private static final long DEVICE_LOCATION_UPDATE_FASTEST_INTERVAl = 1000;
 
 	// Location cache
 	private Location lastLocation = null;
