@@ -60,7 +60,7 @@ public class VRActivity extends AppCompatActivity {
 	private final float[] rotationMatrix = new float[16];
 
 	// Server requests
-	private static final long FRIEND_LOCATION_GET_INTERVAL = 10000;
+	private static final long FRIEND_LOCATION_GET_INTERVAL = 5000;
 	Handler friendLocationGet;
 	Runnable friendLocationGetRunnable;
 
