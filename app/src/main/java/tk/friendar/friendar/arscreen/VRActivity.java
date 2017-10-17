@@ -261,6 +261,10 @@ public class VRActivity extends AppCompatActivity {
 						// parse response
 						try {
 							JSONObject json = new JSONObject(response);
+							if (!json.has("friends")) {
+								Log.d(TAG, "'friends' not found (user has no friends)");
+								return;
+							}
 							JSONArray friends = json.getJSONArray("friends");
 
 							if (friends.length() == 0) {
