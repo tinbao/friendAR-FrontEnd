@@ -190,7 +190,7 @@ public class HomeScreen extends AppCompatActivity {
 					Log.d("JSON Response", response);
 					try {
 						JSONObject obj = new JSONObject(response);
-						JSONArray resp = obj.has("meetings: ") ? obj.getJSONArray("meetings: ") : new JSONArray("");
+						JSONArray resp = obj.has("meetings: ") ? obj.getJSONArray("meetings: ") : new JSONArray("[]");
 						setMeetings(getAllMeetings(resp));
 					} catch (JSONException e) {
 						e.printStackTrace();
