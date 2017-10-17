@@ -40,6 +40,8 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 	private Location deviceLocation;
 	private ArrayList<LocationMarker> nearbyFriends;
 	private static final int DISPLAY_FRIEND_IN_RADIUS = 1000;  // only show friends this close
+	// Location smoothers
+	LiveLocationSmoother deviceLocationSmoother = new LiveLocationSmoother(1.0);
 
 	// Shaders
 	private Shader markerShader = new Shader();
@@ -135,8 +137,10 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 			}
 
 			// Get orientation from user
-			float distance = deviceLocation.distanceTo(marker.user.getLocation());
-			float bearing = deviceLocation.bearingTo(marker.user.getLocation());
+			Location deviceLocationSmooth = deviceLocationSmoother.getSmoothedLocation();
+			float distance = deviceLocationSmooth.distanceTo(marker.user.getLocation());
+			float bearing = deviceLocationSmooth.bearingTo(marker.user.getLocation());
+
 
 			calculateViewMatrix();
 			calculateModelMatrix(bearing, distance);
@@ -172,6 +176,7 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 	@Override
 	public void onLocationUpdate(Location location) {
 		deviceLocation = location;
+		deviceLocationSmoother.newLocation(location);
 	}
 
 
