@@ -62,11 +62,6 @@ public class HomeScreen extends AppCompatActivity {
 
 		// Meeting List
 		//ArrayList<Meeting> meetings = DummyData.getMeetings();
-		try {
-			getMeetings();
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
 		ArrayAdapter<Meeting> listAdapter = new ArrayAdapter<Meeting>(this,
 				R.layout.home_screen_list_elem, meetings);
 		ListView listView = (ListView) findViewById(R.id.home_screen_meeting_list);
@@ -99,14 +94,20 @@ public class HomeScreen extends AppCompatActivity {
 	protected void onResume() {
 		super.onResume();
 
-		DeviceLocationService.getInstance().startLocationUpdates(this);
+		try {
+			getMeetings();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
+		//DeviceLocationService.getInstance().startLocationUpdates(this);
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
 
-		DeviceLocationService.getInstance().stopLocationUpdates(this);
+		//DeviceLocationService.getInstance().stopLocationUpdates(this);
 	}
 
 	@Override
@@ -188,13 +189,13 @@ public class HomeScreen extends AppCompatActivity {
 					Log.d("JSON Response", response);
 					try {
 						JSONObject obj = new JSONObject(response);
-						JSONArray resp = obj.getJSONArray("meetings: ");
+						JSONArray resp = obj.has("meetings: ") ? obj.getJSONArray("meetings: ") : new JSONArray("");
 						setMeetings(getAllMeetings(resp));
 					} catch (JSONException e) {
 						e.printStackTrace();
 						Toast.makeText(context, e.toString(), Toast.LENGTH_LONG).show();
 					} finally {
-						Toast.makeText(context, "GOT Friends", Toast.LENGTH_LONG).show();
+						//Toast.makeText(context, "GOT Friends", Toast.LENGTH_LONG).show();
 					}
 				}
 			},
@@ -246,7 +247,7 @@ public class HomeScreen extends AppCompatActivity {
 			for(int j = 0; j < meetingUsers.length(); j++){
 
 				/* Need to check infividually if the current user is included in the meetings */
-				JSONObject meetingUser = meetingUsers.getJSONObject(i);
+				JSONObject meetingUser = meetingUsers.getJSONObject(j);
 				String user = meetingUser.getString("user");
 				user = user.replace("\\", "");
 				JSONObject user_ = new JSONObject(user);
