@@ -101,11 +101,7 @@ public class login_screen extends AppCompatActivity{
 					}
 
                     /* Sets the ID of the current user */
-                    try {
-                        VolleyHTTPRequest.setUserID(response.getInt("id"));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                    VolleyHTTPRequest.setUserID(VolleyHTTPRequest.id);
 
                     /* Switch to HOME screen */
                     submitLogin(getCurrentFocus());
