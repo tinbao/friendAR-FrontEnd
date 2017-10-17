@@ -25,6 +25,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -285,14 +286,19 @@ public class VRActivity extends AppCompatActivity {
         final Context context = getApplicationContext();
 
 		/* Does a GET request to authenticate the credentials of the user */
-		JsonArrayRequest req = new JsonArrayRequest(Request.Method.GET, URLs.URL_SIGNUP,
-			new Response.Listener<JSONArray>()
+		JsonObjectRequest req = new JsonObjectRequest(Request.Method.GET, URLs.URL_SIGNUP,
+			new Response.Listener<JSONObject>()
 			{
 				@Override
-				public void onResponse(JSONArray response) {
+				public void onResponse(JSONObject response) {
 					Log.d("JSON Response",response.toString());
                     Toast.makeText(context, "GOT Friends", Toast.LENGTH_LONG).show();
-					resp[0] = response;
+
+					try {
+						resp[0] = response.getJSONArray("users: ");
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
 				}
 			},
 			new Response.ErrorListener(){
