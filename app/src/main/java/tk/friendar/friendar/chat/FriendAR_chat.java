@@ -1,6 +1,7 @@
 package tk.friendar.friendar.chat;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -33,6 +34,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import tk.friendar.friendar.HomeScreen;
+import tk.friendar.friendar.MapsActivity;
 import tk.friendar.friendar.R;
 import tk.friendar.friendar.URLs;
 import tk.friendar.friendar.VolleyHTTPRequest;
@@ -146,6 +148,11 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
         if (id == R.id.action_settings) {
             return true;
         }
+        else if (id == R.id.action_open_map) {
+			Intent intent = new Intent(this, MapsActivity.class);
+			intent.putExtra("id", this.id);
+			startActivity(intent);
+		}
 
         return super.onOptionsItemSelected(item);
     }
