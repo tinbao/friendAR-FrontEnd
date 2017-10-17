@@ -25,6 +25,13 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,9 +45,12 @@ import java.util.Map;
 
 import tk.friendar.friendar.arscreen.LocationHelper;
 
-public class NewMeetingActivity extends AppCompatActivity {
+public class NewMeetingActivity extends AppCompatActivity implements OnMapReadyCallback {
 
 	UserListAdapter listAdapter;
+
+	GoogleMap map;
+	Marker placeMaker = null;
 
 	private static final String TAG = "NewMeetingActivity";
 
@@ -105,6 +115,10 @@ public class NewMeetingActivity extends AppCompatActivity {
 				}
 			}
 		});
+
+		// Map
+		MapFragment mapFragment = (MapFragment)getFragmentManager().findFragmentById(R.id.new_meeting_map);
+		mapFragment.getMapAsync(this);
 	}
 
 	@Override
@@ -124,6 +138,28 @@ public class NewMeetingActivity extends AppCompatActivity {
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 		DeviceLocationService.getInstance().handlePermissionResults(this, requestCode, permissions, grantResults);
+	}
+
+	@Override
+	public void onMapReady(GoogleMap googleMap) {
+		map = googleMap;
+
+		LatLng initPos = new LatLng(-37.7985, 144.9597);
+		placeMaker = map.addMarker(new MarkerOptions().
+				position(initPos).
+				title("Destination").
+				draggable(true));
+		map.moveCamera(CameraUpdateFactory.newLatLngZoom(initPos, 16.0f));
+
+		// Need to do this to get lat-lon updates on drag
+		map.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+			@Override
+			public void onMarkerDragStart(Marker marker) {}
+			@Override
+			public void onMarkerDrag(Marker marker) {}
+			@Override
+			public void onMarkerDragEnd(Marker marker) {}
+		});
 	}
 
 	ArrayList<User> getSelectedUsers() {
@@ -286,6 +322,12 @@ public class NewMeetingActivity extends AppCompatActivity {
 			errorPopup("No friends selected");
 			return;
 		}
+		if (placeMaker == null) {
+			errorPopup("Wait for map to load and select location");
+			return;
+		}
+
+		// first post place
 
 		final JSONObject params = new JSONObject();
         /* Puts the information into the JSON Object */
