@@ -86,7 +86,7 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 
 		// Locations
 		nearbyFriends = new ArrayList<>();
-		deviceLocation = LocationHelper.fromLatLon(90.0f, 0.0f);  // initial placeholder
+		deviceLocation = LocationHelper.fromLatLon(-37.79, 144.96);  // initial placeholder
 	}
 
 	@Override
