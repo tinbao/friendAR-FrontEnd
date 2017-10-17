@@ -189,13 +189,13 @@ public class HomeScreen extends AppCompatActivity {
 					Log.d("JSON Response", response);
 					try {
 						JSONObject obj = new JSONObject(response);
-						JSONArray resp = obj.getJSONArray("meetings: ");
+						JSONArray resp = obj.has("meetings: ") ? obj.getJSONArray("meetings: ") : new JSONArray("");
 						setMeetings(getAllMeetings(resp));
 					} catch (JSONException e) {
 						e.printStackTrace();
 						Toast.makeText(context, e.toString(), Toast.LENGTH_LONG).show();
 					} finally {
-						Toast.makeText(context, "GOT Friends", Toast.LENGTH_LONG).show();
+						//Toast.makeText(context, "GOT Friends", Toast.LENGTH_LONG).show();
 					}
 				}
 			},
