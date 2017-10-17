@@ -15,15 +15,18 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -54,8 +57,6 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
     Timer timer = new Timer();
     /* Current instance meeting id */
     public int id;
-
-    private Integer currentUser = VolleyHTTPRequest.getUserID();
 
     private class dummyMessage extends TimerTask {
         public void run() {
@@ -92,6 +93,11 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
         sendButton.setOnClickListener(this);
         id = getIntent().getIntExtra(HomeScreen.EXTRA_MEETING_ID, -1);
         scheduleGetMessage();
+
+        /**
+         * Will get any past messages associated with this chat
+         */
+        getMessages();
        }
 
 //    messageGet.postDelayed(messageGetRunnable, Get_INTERVAL);
@@ -201,11 +207,13 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
             final JSONObject params = new JSONObject();
             try {
                 params.put("content", message);
-                params.put("userID", currentUser);
+                params.put("userID", VolleyHTTPRequest.id);
                 params.put("meetingID", id);
             } catch(JSONException e){
                 e.printStackTrace();
             }
+
+            System.out.println(params.toString());
 
             /* Does a POST request to send the message to the correct meeting group */
             StringRequest req = new StringRequest(Request.Method.POST, URLs.URL_CHAT,
@@ -222,6 +230,22 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
                     public void onErrorResponse(VolleyError error) {
                         String msg = error.toString();
                         Log.d("ErrorResponse", msg);
+                        NetworkResponse response = error.networkResponse;
+                        if (response != null && response.data != null) {
+                            try {
+                                String res = new String(response.data,
+                                        HttpHeaderParser.parseCharset(response.headers, "utf-8"));
+                            /* Tries to make a JSON Object and see if it will incur an error */
+                                JSONObject obj = new JSONObject(res);
+
+                            } catch (UnsupportedEncodingException e1) {
+                            /* Couldn't properly decode data to string */
+                                e1.printStackTrace();
+                            } catch (JSONException e2) {
+                            /* returned data is not JSONObject */
+                                e2.printStackTrace();
+                            }
+                        }
                         Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -275,13 +299,13 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
                         //String senderName = res.getString("senderName");
 
                         /* Creates a new chat message to add to the array */
-                        ChatMessage newMessage = new ChatMessage(currentUser, userId, msgBody,
-                                 false, "");
+                        ChatMessage newMessage = new ChatMessage(VolleyHTTPRequest.getUserID(),
+                                userId, msgBody, false, "");
 
                     } catch (JSONException e) {
                         e.printStackTrace();
                         Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
-                    }
+                }
                 }
             },
             new Response.ErrorListener(){

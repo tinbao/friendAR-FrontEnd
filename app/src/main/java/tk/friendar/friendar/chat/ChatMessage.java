@@ -42,7 +42,7 @@ public class ChatMessage {
      * @param msgSenderID the message's sender's ID
      */
     public void checkMyMessage(Integer msgSenderID){
-        if(msgSenderID == receiver){
+        if(msgSenderID == sender){
             isMine = true;
         } else {
             isMine = false;
