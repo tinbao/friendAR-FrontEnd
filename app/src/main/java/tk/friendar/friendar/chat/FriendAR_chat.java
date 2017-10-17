@@ -56,7 +56,6 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
     public int id;
 
     private Integer currentUser = VolleyHTTPRequest.getUserID();
-    final Context context = getApplicationContext();
 
     private class dummyMessage extends TimerTask {
         public void run() {
@@ -215,7 +214,7 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
                     @Override
                     public void onResponse(String response) {
                         Log.d("JSON Response",response);
-                        Toast.makeText(context, "Message Sent", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Message Sent", Toast.LENGTH_SHORT).show();
                     }
                 },
                 new Response.ErrorListener(){
@@ -223,7 +222,7 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
                     public void onErrorResponse(VolleyError error) {
                         String msg = error.toString();
                         Log.d("ErrorResponse", msg);
-                        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
                     }
                 }
             ){
@@ -246,7 +245,7 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
             };
 
             req.setShouldCache(false);
-            VolleyHTTPRequest.addRequest(req, context);
+            VolleyHTTPRequest.addRequest(req, getApplicationContext());
 
         }
     }
@@ -281,7 +280,7 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
 
                     } catch (JSONException e) {
                         e.printStackTrace();
-                        Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
                     }
                 }
             },
@@ -291,7 +290,7 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
                     String msg = error.toString();
                     Log.d("ErrorResponse", msg);
 
-                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
                 }
             }
         ){
@@ -310,6 +309,6 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
         };
 
         req.setShouldCache(false);
-        VolleyHTTPRequest.addRequest(req, context);
+        VolleyHTTPRequest.addRequest(req, getApplicationContext());
     }
 }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
