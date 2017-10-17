@@ -62,11 +62,6 @@ public class HomeScreen extends AppCompatActivity {
 
 		// Meeting List
 		//ArrayList<Meeting> meetings = DummyData.getMeetings();
-		try {
-			getMeetings();
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
 		ArrayAdapter<Meeting> listAdapter = new ArrayAdapter<Meeting>(this,
 				R.layout.home_screen_list_elem, meetings);
 		ListView listView = (ListView) findViewById(R.id.home_screen_meeting_list);
@@ -98,6 +93,12 @@ public class HomeScreen extends AppCompatActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+
+		try {
+			getMeetings();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 
 		DeviceLocationService.getInstance().startLocationUpdates(this);
 	}
@@ -246,7 +247,7 @@ public class HomeScreen extends AppCompatActivity {
 			for(int j = 0; j < meetingUsers.length(); j++){
 
 				/* Need to check infividually if the current user is included in the meetings */
-				JSONObject meetingUser = meetingUsers.getJSONObject(i);
+				JSONObject meetingUser = meetingUsers.getJSONObject(j);
 				String user = meetingUser.getString("user");
 				user = user.replace("\\", "");
 				JSONObject user_ = new JSONObject(user);
