@@ -1,6 +1,5 @@
 package tk.friendar.friendar.chat;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -23,12 +22,14 @@ import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,6 +55,9 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
     Runnable messageGetRunnable;
     private static final int GET_INTERVAL = 10000;
 
+    /** List of all messages from the single meeting group */
+    private ArrayList<ChatMessage> meetingChat;
+
     /** Current instance meeting id */
     public int id;
 
@@ -65,8 +69,7 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
             final ChatMessage chatMessage = new ChatMessage(1, 2,
                     "Eyy Simon, howsita goina?", false, "Mario");
 
-            chatMessage.Date = CommonMethods.getCurrentDate();
-            chatMessage.Time = CommonMethods.getCurrentTime();
+            chatMessage.timeStamp = CommonMethods.getCurrentStamp();
 
             chatAdapter.add(chatMessage);
             chatAdapter.notifyDataSetChanged();
@@ -85,6 +88,7 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
         user1 = 1;
         user2 = 2;
 
+        meetingChat = new ArrayList<>();
         msg_edittext = (EditText) findViewById(R.id.messageEditText);
         msgListView = (ListView) findViewById(R.id.msgListView);
 
@@ -96,11 +100,21 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
         id = getIntent().getIntExtra(HomeScreen.EXTRA_MEETING_ID, -1);
         scheduleGetMessage();
 
-        /**
-         * Will get any past messages associated with this chat
-         */
         getMessages();
-       }
+
+        /* Loop over all elements in the array of messages */
+        for(int i = 0; i < meetingChat.size(); i++){
+            /* Mark those which are send from this user */
+            checkMyMessage(meetingChat.get(i));
+        }
+        System.out.println(meetingChat.toString());
+
+        /* Sort the array list by time stamp (string) */
+        Collections.sort(meetingChat);
+        System.out.println(meetingChat.toString());
+
+        //TODO: 2ND HALF: possibly within resume rather than here
+    }
 
 //    messageGet.postDelayed(messageGetRunnable, Get_INTERVAL);
         // Server requests
@@ -113,7 +127,7 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
                     // get messages based on meeting id in variable id
                     // put code to get json objects here
                     // Simon will loop through them and display them
-                    getMessages();
+
 
                     //dummyMessage();
                     /* Loops and constantly checks for messages for INTERVAL time */
@@ -123,23 +137,36 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
             },GET_INTERVAL);
         }
 
-//    protected void onResume(){
-//        super.onResume();
-//        messageGet.postDelayed(messageGetRunnable,Get_INTERVAL);
-//
-//    }
-//
-//    @Override
-//    protected void onPause() {
-//        super.onPause();
-//        messageGet.removeCallbacks(messageGetRunnable);
-//    }
+
+    protected void onResume(){
+        super.onResume();
+        messageGet.postDelayed(messageGetRunnable,GET_INTERVAL);
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        messageGet.removeCallbacks(messageGetRunnable);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_friend_ar_chat, menu);
         return true;
+    }
+
+    /**
+     * Checks if the message sent is mine
+     * @param msg the message
+     */
+    public void checkMyMessage(ChatMessage msg){
+        if(msg.sender == VolleyHTTPRequest.id){
+            msg.isMine = true;
+        } else {
+            msg.isMine = false;
+        }
     }
 
 
@@ -163,8 +190,7 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
         final ChatMessage chatMessage = new ChatMessage(user2, user1,
                 "Eyy Simon, howsita goina?", false, "Mario");
 
-        chatMessage.Date = CommonMethods.getCurrentDate();
-        chatMessage.Time = CommonMethods.getCurrentTime();
+        chatMessage.timeStamp = CommonMethods.getCurrentStamp();
 
         chatAdapter.add(chatMessage);
         chatAdapter.notifyDataSetChanged();
@@ -197,8 +223,7 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
             final ChatMessage chatMessage = new ChatMessage(user1, user2,
                     message, true, ChatMessage.senderName);
             chatMessage.setMsgID();
-            chatMessage.Date = CommonMethods.getCurrentDate();
-            chatMessage.Time = CommonMethods.getCurrentTime();
+            chatMessage.timeStamp = CommonMethods.getCurrentStamp();
 
             msg_edittext.setText("");
             chatAdapter.add(chatMessage);
@@ -293,28 +318,37 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
 
                     try {
                         JSONObject res = new JSONObject(response);
+                        JSONArray messages = res.getJSONArray("messages: ");
 
-                        /* Parses the JSON Object and gets all the needed info */
-                        Integer meetingId = res.getInt("meetingID");
-                        Integer userId = res.getInt("userID");
-                        String timeSent = res.getString("timeSent");
-                        String msgBody = res.getString("content");
-                        //String senderName = res.getString("senderName");
+                        for(int i = 0; i < messages.length(); i++){
+                            JSONObject message = messages.getJSONObject(i);
+                            Log.d("JSON OBJ", message.toString());
+                            /* Parses the JSON Object and gets all the needed info */
+                            String Smeeting = message.getString("meeting");
+                            JSONObject meeting = new JSONObject(Smeeting);
+                            Integer meetingId = meeting.getInt("id");
 
-                        /* Creates a new chat message to add to the array */
-                        ChatMessage newMessage = new ChatMessage(VolleyHTTPRequest.getUserID(),
-                                userId, msgBody, false, "");
+                            String Suser = message.getString("user");
+                            JSONObject user = new JSONObject(Suser);
+                            Integer userId = user.getInt("id");
 
-                        chatAdapter.add(newMessage);
-                        chatAdapter.notifyDataSetChanged();
+                            String timeSent = message.getString("time sent");
+                            String msgBody = message.getString("content");
+                            //String senderName = message.getString("senderName");
+
+                            /* Creates a new chat message to add to the array */
+                            ChatMessage newMessage = new ChatMessage(VolleyHTTPRequest.id,
+                                    userId, msgBody, false, "");
+                            /* This array will be processed later */
+                            meetingChat.add(newMessage);
+                        }
+
+                        Log.d("ADDED", meetingChat.toString());
 
                     } catch (JSONException e) {
                         e.printStackTrace();
 
-                    }finally{
-                        Toast.makeText(getApplicationContext(), response, Toast.LENGTH_SHORT).show();
                     }
-
                 }
             },
             new Response.ErrorListener(){

@@ -1,18 +1,20 @@
 package tk.friendar.friendar.chat;
 
+import android.support.annotation.NonNull;
+
 import java.util.Random;
 
 /**
  * Created by Simon on 10/3/2017.
  */
 
-public class ChatMessage {
+public class ChatMessage implements Comparable<ChatMessage> {
 
     /** The body content of the message */
     public String body;
     /** The sender's name needs to be displayed under the message */
     public static String senderName;
-    public String Date, Time;
+    public String timeStamp;
     /** Each message has a unique identification number */
     public String msgId;
     /** The sender and receiver are identified using their unique IDs */
@@ -37,20 +39,13 @@ public class ChatMessage {
         this.senderName = senderName;
     }
 
-    /**
-     * Checks if the message sent is mine
-     * @param msgSenderID the message's sender's ID
-     */
-    public void checkMyMessage(Integer msgSenderID){
-        if(msgSenderID == sender){
-            isMine = true;
-        } else {
-            isMine = false;
-        }
-    }
-
     public void setMsgID() {
         msgId += "-" + String.format("%02d", new Random().nextInt(100));
         ;
+    }
+
+    @Override
+    public int compareTo(@NonNull ChatMessage message) {
+        return timeStamp.compareTo(message.timeStamp);
     }
 }
