@@ -138,8 +138,9 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 
 			// Get orientation from user
 			Location deviceLocationSmooth = deviceLocationSmoother.getSmoothedLocation();
-			float distance = deviceLocationSmooth.distanceTo(marker.user.getLocation());
-			float bearing = deviceLocationSmooth.bearingTo(marker.user.getLocation());
+			Location markerLocationSmooth = marker.locationSmoother.getSmoothedLocation();
+			float distance = deviceLocationSmooth.distanceTo(markerLocationSmooth);
+			float bearing = deviceLocationSmooth.bearingTo(markerLocationSmooth);
 
 
 			calculateViewMatrix();
@@ -183,10 +184,12 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 	// Friend connect/disconnect events
 	public void onFriendLocationUpdates(ArrayList<User> allFriends) {
 		for (User friend : allFriends) {
+			LocationMarker relatedMarker = null;
 			boolean alreadyDisplaying = false;
 			for (LocationMarker marker : nearbyFriends) {
 				if (marker.user.equals(friend)) {
 					alreadyDisplaying = true;
+					relatedMarker = marker;
 					break;
 				}
 			}
@@ -195,6 +198,10 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 			if (alreadyDisplaying && !inRange) {
 				onFriendOutOfRange(friend);
 				Log.d(TAG, "'" + friend.getName() + "' out of range");
+			}
+			else if (alreadyDisplaying && inRange) {
+				// update location
+				relatedMarker.locationSmoother.newLocation(friend.getLocation());
 			}
 			else if (!alreadyDisplaying && inRange) {
 				onFriendInRange(friend);
@@ -207,6 +214,7 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 	private void onFriendInRange(User friend) {
 		LocationMarker marker = new LocationMarker(friend);
 		marker.generateIconTexture();
+		marker.locationSmoother.newLocation(friend.getLocation());
 		nearbyFriends.add(marker);
 	}
 
