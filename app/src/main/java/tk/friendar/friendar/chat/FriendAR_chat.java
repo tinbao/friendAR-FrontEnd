@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Timer;
 import java.util.TimerTask;
 
 import tk.friendar.friendar.HomeScreen;
@@ -54,9 +53,12 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
     Handler messageGet;
     Runnable messageGetRunnable;
     private static final int GET_INTERVAL = 10000;
-    Timer timer = new Timer();
-    /* Current instance meeting id */
+
+    /** Current instance meeting id */
     public int id;
+
+    /** The last message received */
+    private ChatMessage lastMessage;
 
     private class dummyMessage extends TimerTask {
         public void run() {
@@ -275,13 +277,14 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
     }
 
     /**
-     * Does a GET request to the server to get any messages
+     * Does a GET request to the server to get all messages from the meeting ID
      * and also displays them as well.
      */
     private void getMessages() {
 
+        String url = URLs.URL_CHAT + "/" + id;
         /* Does a GET request to receive the messages of the meeting group */
-        StringRequest req = new StringRequest(Request.Method.GET, URLs.URL_CHAT,
+        StringRequest req = new StringRequest(Request.Method.GET, url,
             new Response.Listener<String>()
             {
                 @Override
@@ -302,10 +305,16 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
                         ChatMessage newMessage = new ChatMessage(VolleyHTTPRequest.getUserID(),
                                 userId, msgBody, false, "");
 
+                        chatAdapter.add(newMessage);
+                        chatAdapter.notifyDataSetChanged();
+
                     } catch (JSONException e) {
                         e.printStackTrace();
-                        Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
-                }
+
+                    }finally{
+                        Toast.makeText(getApplicationContext(), response, Toast.LENGTH_SHORT).show();
+                    }
+
                 }
             },
             new Response.ErrorListener(){
