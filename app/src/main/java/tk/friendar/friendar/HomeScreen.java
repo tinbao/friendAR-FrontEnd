@@ -62,11 +62,6 @@ public class HomeScreen extends AppCompatActivity {
 
 		// Meeting List
 		//ArrayList<Meeting> meetings = DummyData.getMeetings();
-		try {
-			getMeetings();
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
 		ArrayAdapter<Meeting> listAdapter = new ArrayAdapter<Meeting>(this,
 				R.layout.home_screen_list_elem, meetings);
 		ListView listView = (ListView) findViewById(R.id.home_screen_meeting_list);
@@ -98,6 +93,12 @@ public class HomeScreen extends AppCompatActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+
+		try {
+			getMeetings();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 
 		DeviceLocationService.getInstance().startLocationUpdates(this);
 	}

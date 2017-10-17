@@ -60,8 +60,8 @@ public class DeviceLocationService {
 	private LocationCallback locationCallback = null;
 	private boolean locationUpdatesStarted = false;
 
-	private static final long DEVICE_LOCATION_UPDATE_INTERVAl = 5000;
-	private static final long DEVICE_LOCATION_UPDATE_FASTEST_INTERVAl = 1000;
+	private static final long DEVICE_LOCATION_UPDATE_INTERVAl = 12000;
+	private static final long DEVICE_LOCATION_UPDATE_FASTEST_INTERVAl = 5000;
 
 	// Location cache
 	private Location lastLocation = null;
@@ -87,7 +87,7 @@ public class DeviceLocationService {
 			requestedPermissions = false;
 
 			// Start updates
-			//requestLocationUpdates(activity);
+			requestLocationUpdates(activity);
 		}
 		else {
 			if (requestedPermissions) {
@@ -135,7 +135,7 @@ public class DeviceLocationService {
 				Log.d(TAG, "Location Update: " + lastLocation.toString());
 
 				notifyListeners(lastLocation);
-				//putLocationToServer(lastLocation, activity);
+				putLocationToServer(lastLocation, activity);
 			}
 		};
 
