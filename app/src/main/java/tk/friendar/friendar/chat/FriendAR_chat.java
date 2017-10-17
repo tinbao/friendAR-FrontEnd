@@ -108,7 +108,7 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
                     // Simon will loop through them and display them
                     getMessages();
 
-                    dummyMessage();
+                    //dummyMessage();
                     /* Loops and constantly checks for messages for INTERVAL time */
                     messageGet.postDelayed(this, GET_INTERVAL);
                 }
@@ -227,6 +227,13 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
                     }
                 }
             ){
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> headers = new HashMap<>();
+                    headers.put("authorization", VolleyHTTPRequest.makeAutho());
+                    return headers;
+                }
+
                 @Override
                 public byte[] getBody() throws AuthFailureError {
                     return params.toString().getBytes();
