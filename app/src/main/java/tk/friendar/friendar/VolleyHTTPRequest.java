@@ -119,6 +119,7 @@ public class VolleyHTTPRequest {
 
     public static void setUserID(Integer userID) {
         VolleyHTTPRequest.userID = userID;
+		id = userID;
     }
 
     public static VolleyHTTPRequest getInstance() {
