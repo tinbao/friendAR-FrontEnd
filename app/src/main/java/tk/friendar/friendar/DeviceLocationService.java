@@ -227,11 +227,13 @@ public class DeviceLocationService {
 		}
 
 		String url = URLs.URL_USERS + "/" + VolleyHTTPRequest.id;
+		Log.d(TAG, "PUT location url: " + url);
+		Log.d(TAG, "PUT location body: " + params.toString());
 		StringRequest req = new StringRequest(Request.Method.PUT, url,
 				new Response.Listener<String>() {
 					@Override
 					public void onResponse(String response) {
-						Log.d(TAG, "RESPONSE: " + response.toString());
+						Log.d(TAG, "PUT location RESPONSE: " + response);
 					}
 				},
 
@@ -241,7 +243,6 @@ public class DeviceLocationService {
 						NetworkResponse response = error.networkResponse;
 						String msg = error.toString();
 						Log.d(TAG, "ERROR: " + msg);
-						Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show();
 					}
 				}) {
 
