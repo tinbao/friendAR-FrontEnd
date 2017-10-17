@@ -17,7 +17,6 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -101,6 +100,20 @@ public class login_screen extends AppCompatActivity{
 						throw new RuntimeException();
 					}
 
+                    /* Sets the ID of the current user */
+                    try {
+                        VolleyHTTPRequest.setUserID(response.getInt("id"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    /* Sets the ID of the current user */
+                    try {
+                        VolleyHTTPRequest.setUserID(response.getInt("id"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
                     /* Switch to HOME screen */
                     submitLogin(getCurrentFocus());
                 }
@@ -131,8 +144,8 @@ public class login_screen extends AppCompatActivity{
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> headers = new HashMap<>();
-                VolleyHTTPRequest.getInstance().setUsername(userName.getText().toString());
-                VolleyHTTPRequest.getInstance().setPassword(userPass.getText().toString());
+                VolleyHTTPRequest.setUsername(userName.getText().toString());
+                VolleyHTTPRequest.setPassword(userPass.getText().toString());
                 headers.put("authorization", VolleyHTTPRequest.makeAutho());
                 return headers;
             }
@@ -144,7 +157,7 @@ public class login_screen extends AppCompatActivity{
         };
 
         req.setShouldCache(false);
-        VolleyHTTPRequest.getInstance().addRequest(req, getApplicationContext());
+        VolleyHTTPRequest.addRequest(req, getApplicationContext());
     }
 
 }
