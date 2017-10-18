@@ -45,6 +45,7 @@ public class HomeScreen extends AppCompatActivity {
 
 	private static final String TAG = "HomeScreen";
 	public static final String EXTRA_MEETING_ID = "EXTRA_MEETING_ID";
+	public static final String EXTRA_MEETING_NAME = "EXTRA_MEETING_NAME";
 
 	private ArrayList<Meeting> meetings = new ArrayList<>();
 
@@ -165,6 +166,7 @@ public class HomeScreen extends AppCompatActivity {
 
 			Intent intent = new Intent(HomeScreen.this, FriendAR_chat.class);
 			intent.putExtra(EXTRA_MEETING_ID, m.getId());
+			intent.putExtra(EXTRA_MEETING_NAME, m.getName());
 			startActivity(intent);
 		}
 	};
@@ -190,7 +192,7 @@ public class HomeScreen extends AppCompatActivity {
 					Log.d("JSON Response", response);
 					try {
 						JSONObject obj = new JSONObject(response);
-						JSONArray resp = obj.has("meetings: ") ? obj.getJSONArray("meetings: ") : new JSONArray("");
+						JSONArray resp = obj.has("meetings: ") ? obj.getJSONArray("meetings: ") : new JSONArray("[]");
 						setMeetings(getAllMeetings(resp));
 					} catch (JSONException e) {
 						e.printStackTrace();

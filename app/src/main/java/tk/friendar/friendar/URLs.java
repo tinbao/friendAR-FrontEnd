@@ -13,4 +13,5 @@ public class URLs {
 	  public static final String URL_FRIENDSHIPS = ROOT_URL + "friendships";
 	public static final String URL_MEETINGUSERS = ROOT_URL + "meetingusers";
     public static final String URL_CHAT = ROOT_URL + "messages";
+	public static final String URL_PLACES = ROOT_URL + "places";
 }
