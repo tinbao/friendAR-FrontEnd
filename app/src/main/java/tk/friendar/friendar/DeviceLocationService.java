@@ -35,6 +35,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,8 +61,8 @@ public class DeviceLocationService {
 	private LocationCallback locationCallback = null;
 	private boolean locationUpdatesStarted = false;
 
-	private static final long DEVICE_LOCATION_UPDATE_INTERVAl = 12000;
-	private static final long DEVICE_LOCATION_UPDATE_FASTEST_INTERVAl = 5000;
+	private static final long DEVICE_LOCATION_UPDATE_INTERVAl = 3000;
+	private static final long DEVICE_LOCATION_UPDATE_FASTEST_INTERVAl = 1000;
 
 	// Location cache
 	private Location lastLocation = null;
@@ -227,11 +228,13 @@ public class DeviceLocationService {
 		}
 
 		String url = URLs.URL_USERS + "/" + VolleyHTTPRequest.id;
+		Log.d(TAG, "PUT location url: " + url);
+		Log.d(TAG, "PUT location body: " + params.toString());
 		StringRequest req = new StringRequest(Request.Method.PUT, url,
 				new Response.Listener<String>() {
 					@Override
 					public void onResponse(String response) {
-						Log.d(TAG, "RESPONSE: " + response.toString());
+						Log.d(TAG, "PUT location RESPONSE: " + response);
 					}
 				},
 
@@ -241,7 +244,6 @@ public class DeviceLocationService {
 						NetworkResponse response = error.networkResponse;
 						String msg = error.toString();
 						Log.d(TAG, "ERROR: " + msg);
-						Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show();
 					}
 				}) {
 
@@ -254,7 +256,8 @@ public class DeviceLocationService {
 
 			@Override
 			public byte[] getBody() throws AuthFailureError {
-				return params.toString().getBytes();
+				//return params.toString().getBytes();
+				return params.toString().getBytes(StandardCharsets.UTF_8);
 			}
 
 			/** Defines the body type of the data being posted */

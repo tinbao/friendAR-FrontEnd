@@ -40,6 +40,8 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 	private Location deviceLocation;
 	private ArrayList<LocationMarker> nearbyFriends;
 	private static final int DISPLAY_FRIEND_IN_RADIUS = 1000;  // only show friends this close
+	// Location smoothers
+	LiveLocationSmoother deviceLocationSmoother = new LiveLocationSmoother(1.0);
 
 	// Shaders
 	private Shader markerShader = new Shader();
@@ -86,7 +88,7 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 
 		// Locations
 		nearbyFriends = new ArrayList<>();
-		deviceLocation = LocationHelper.fromLatLon(90.0f, 0.0f);  // initial placeholder
+		deviceLocation = LocationHelper.fromLatLon(-37.79, 144.96);  // initial placeholder
 	}
 
 	@Override
@@ -135,8 +137,11 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 			}
 
 			// Get orientation from user
-			float distance = deviceLocation.distanceTo(marker.user.getLocation());
-			float bearing = deviceLocation.bearingTo(marker.user.getLocation());
+			Location deviceLocationSmooth = deviceLocationSmoother.getSmoothedLocation();
+			Location markerLocationSmooth = marker.locationSmoother.getSmoothedLocation();
+			float distance = deviceLocationSmooth.distanceTo(markerLocationSmooth);
+			float bearing = deviceLocationSmooth.bearingTo(markerLocationSmooth);
+
 
 			calculateViewMatrix();
 			calculateModelMatrix(bearing, distance);
@@ -172,16 +177,19 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 	@Override
 	public void onLocationUpdate(Location location) {
 		deviceLocation = location;
+		deviceLocationSmoother.newLocation(location);
 	}
 
 
 	// Friend connect/disconnect events
 	public void onFriendLocationUpdates(ArrayList<User> allFriends) {
 		for (User friend : allFriends) {
+			LocationMarker relatedMarker = null;
 			boolean alreadyDisplaying = false;
 			for (LocationMarker marker : nearbyFriends) {
 				if (marker.user.equals(friend)) {
 					alreadyDisplaying = true;
+					relatedMarker = marker;
 					break;
 				}
 			}
@@ -190,6 +198,10 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 			if (alreadyDisplaying && !inRange) {
 				onFriendOutOfRange(friend);
 				Log.d(TAG, "'" + friend.getName() + "' out of range");
+			}
+			else if (alreadyDisplaying && inRange) {
+				// update location
+				relatedMarker.locationSmoother.newLocation(friend.getLocation());
 			}
 			else if (!alreadyDisplaying && inRange) {
 				onFriendInRange(friend);
@@ -202,6 +214,7 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 	private void onFriendInRange(User friend) {
 		LocationMarker marker = new LocationMarker(friend);
 		marker.generateIconTexture();
+		marker.locationSmoother.newLocation(friend.getLocation());
 		nearbyFriends.add(marker);
 	}
 
@@ -218,11 +231,11 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 	// Calculate model matrix from position relative to camera
 	private void calculateModelMatrix(float bearing, float distance) {
 		// distance and scale to draw
-		// modelDistance is linear for small distances, but asymptotes at 1km
-		// scale counter acts distance (inverse square law), but not fully
-		// combination gives appearance of distance without limiting visibility
-		float modelDistance = 0.7f * distance / (1.0f + distance / 999.0f);
-		float scale = (float)Math.pow(modelDistance, 0.5f);
+		// can use to reduce the effect of shrinking at distance
+		//float modelDistance = 0.7f * distance / (1.0f + distance / 999.0f);
+		//float scale = (float)Math.pow(modelDistance, 0.5f);
+		float modelDistance = 0.7f * distance;
+		float scale = 1.0f;
 
 		double rBearing = Math.toRadians(bearing);
 		float counterAngle = -bearing;// + (float)Math.toRadians(180);  // counter rotation to face viewer
@@ -231,7 +244,7 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 
 		// Transformations (use reverse order for transformations: translate -> rotate -> scale)
 		Matrix.setIdentityM(modelMatrix, 0);
-		Matrix.translateM(modelMatrix, 0, distanceEast, 0, -distanceNorth);
+		Matrix.translateM(modelMatrix, 0, distanceEast, 2.5f, -distanceNorth);
 		Matrix.rotateM(modelMatrix, 0, counterAngle, 0.0f, 1.0f, 0.0f); // face toward viewer
 		Matrix.scaleM(modelMatrix, 0, scale, scale, scale);
 	}
