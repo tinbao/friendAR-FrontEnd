@@ -25,6 +25,13 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,9 +45,12 @@ import java.util.Map;
 
 import tk.friendar.friendar.arscreen.LocationHelper;
 
-public class NewMeetingActivity extends AppCompatActivity {
+public class NewMeetingActivity extends AppCompatActivity implements OnMapReadyCallback {
 
 	UserListAdapter listAdapter;
+
+	GoogleMap map;
+	Marker placeMaker = null;
 
 	private static final String TAG = "NewMeetingActivity";
 
@@ -105,6 +115,10 @@ public class NewMeetingActivity extends AppCompatActivity {
 				}
 			}
 		});
+
+		// Map
+		MapFragment mapFragment = (MapFragment)getFragmentManager().findFragmentById(R.id.new_meeting_map);
+		mapFragment.getMapAsync(this);
 	}
 
 	@Override
@@ -124,6 +138,28 @@ public class NewMeetingActivity extends AppCompatActivity {
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 		DeviceLocationService.getInstance().handlePermissionResults(this, requestCode, permissions, grantResults);
+	}
+
+	@Override
+	public void onMapReady(GoogleMap googleMap) {
+		map = googleMap;
+
+		LatLng initPos = new LatLng(-37.7985, 144.9597);
+		placeMaker = map.addMarker(new MarkerOptions().
+				position(initPos).
+				title("Destination").
+				draggable(true));
+		map.moveCamera(CameraUpdateFactory.newLatLngZoom(initPos, 16.0f));
+
+		// Need to do this to get lat-lon updates on drag
+		map.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+			@Override
+			public void onMarkerDragStart(Marker marker) {}
+			@Override
+			public void onMarkerDrag(Marker marker) {}
+			@Override
+			public void onMarkerDragEnd(Marker marker) {}
+		});
 	}
 
 	ArrayList<User> getSelectedUsers() {
@@ -279,18 +315,80 @@ public class NewMeetingActivity extends AppCompatActivity {
 	 * @param name
 	 * @throws JSONException
 	 */
-	public void postNewMeeting(String name) throws JSONException{
+	public void postNewMeeting(final String name) throws JSONException {
 		final Context context = getApplicationContext();
 
 		if (getSelectedUsers().size() == 0) {
 			errorPopup("No friends selected");
 			return;
 		}
+		if (placeMaker == null) {
+			errorPopup("Wait for map to load and select location");
+			return;
+		}
 
+		// first post place
+		double latitude = placeMaker.getPosition().latitude;
+		double longitude = placeMaker.getPosition().longitude;
+
+		final JSONObject params = new JSONObject();
+		params.put("placeName", "placeholder");
+		params.put("latitude", latitude);
+		params.put("longitude", longitude);
+
+		StringRequest req = new StringRequest(Request.Method.POST, URLs.URL_PLACES,
+				new Response.Listener<String>() {
+					@Override
+					public void onResponse(String response) {
+						Log.d(TAG, "POST place response:" + response);
+
+						try {
+							JSONObject json = new JSONObject(response);
+							int placeID = json.getInt("id");
+							postMeeting(name, placeID);
+						} catch (JSONException e) {
+							e.printStackTrace();
+							genericError();
+							return;
+						}
+					}
+				},
+				new Response.ErrorListener(){
+					@Override
+					public void onErrorResponse(VolleyError error) {
+						Log.d(TAG, "ERROR: " + error.toString());
+						genericError();
+					}
+				}
+		){
+			@Override
+			public Map<String, String> getHeaders() throws AuthFailureError {
+				Map<String, String> headers = new HashMap<>();
+				headers.put("authorization", VolleyHTTPRequest.makeAutho());
+				return headers;
+			}
+
+			@Override
+			public byte[] getBody() throws AuthFailureError {
+				return params.toString().getBytes();
+			}
+
+			@Override
+			public String getBodyContentType() {
+				return "application/json; charset=utf-8";
+			}
+		};
+
+		req.setShouldCache(false);
+		VolleyHTTPRequest.addRequest(req, getApplicationContext());
+
+	}
+
+	public void postMeeting(String name, int placeID) throws JSONException {
 		final JSONObject params = new JSONObject();
         /* Puts the information into the JSON Object */
 		params.put("meetingName", name);
-		params.put("placeID", 1);
+		params.put("placeID", placeID);
 		String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 		params.put("time", timeStamp);
 
@@ -319,7 +417,7 @@ public class NewMeetingActivity extends AppCompatActivity {
 					public void onErrorResponse(VolleyError error) {
 						String msg = error.toString();
 						Log.d("ErrorResponse", msg);
-						Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
+						Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
 					}
 				}
 		){
@@ -342,7 +440,7 @@ public class NewMeetingActivity extends AppCompatActivity {
 		};
 
 		req.setShouldCache(false);
-		VolleyHTTPRequest.addRequest(req, context);
+		VolleyHTTPRequest.addRequest(req, getApplicationContext());
 	}
 
 	public void addFriendsToMeeting(int meetingID) throws JSONException {
