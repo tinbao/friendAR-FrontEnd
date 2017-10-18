@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.IdRes;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -64,7 +65,7 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
 
     /** Current instance meeting id */
     public int id;
-
+    public String meetingName;
     /** The last message received */
     private ChatMessage lastMessage;
 
@@ -102,18 +103,11 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
         ImageButton sendButton = (ImageButton) findViewById(R.id.sendMessageButton);
         sendButton.setOnClickListener(this);
         id = getIntent().getIntExtra(HomeScreen.EXTRA_MEETING_ID, -1);
+        meetingName = getIntent().getStringExtra(HomeScreen.EXTRA_MEETING_NAME);
+        setTitle(meetingName);
         scheduleGetMessage();
-
-        //TODO: 2ND HALF: possibly within resume rather than here
     }
 
-        String title = title = getIntent().getStringExtra(HomeScreen.EXTRA_MEETING_NAME);
-        getSupportActionBar().setTitle(title);
-
-       };
-
-
-        //messageGet.postDelayed(messageGetRunnable, Get_INTERVAL);
         // Server requests
         public void scheduleGetMessage(){
             messageGet = new Handler();
