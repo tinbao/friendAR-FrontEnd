@@ -13,7 +13,7 @@ public class ChatMessage implements Comparable<ChatMessage> {
     /** The body content of the message */
     public String body;
     /** The sender's name needs to be displayed under the message */
-    public static String senderName;
+    public String senderName;
     public String timeStamp;
     /** Each message has a unique identification number */
     public String msgId;

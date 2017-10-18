@@ -53,7 +53,8 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
     ListView msgListView;
     Handler messageGet;
     Runnable messageGetRunnable;
-    private static final int GET_INTERVAL = 10000;
+    ChatMessage last_message = null;
+    private static final int GET_INTERVAL = 200;
 
     /** List of all messages from the single meeting group */
     private ArrayList<ChatMessage> meetingChat;
@@ -100,19 +101,6 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
         id = getIntent().getIntExtra(HomeScreen.EXTRA_MEETING_ID, -1);
         scheduleGetMessage();
 
-        getMessages();
-
-        /* Loop over all elements in the array of messages */
-        for(int i = 0; i < meetingChat.size(); i++){
-            /* Mark those which are send from this user */
-            checkMyMessage(meetingChat.get(i));
-        }
-        System.out.println(meetingChat.toString());
-
-        /* Sort the array list by time stamp (string) */
-        Collections.sort(meetingChat);
-        System.out.println(meetingChat.toString());
-
         //TODO: 2ND HALF: possibly within resume rather than here
     }
 
@@ -128,7 +116,7 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
                     // put code to get json objects here
                     // Simon will loop through them and display them
 
-
+                    getMessages();
                     //dummyMessage();
                     /* Loops and constantly checks for messages for INTERVAL time */
                     messageGet.postDelayed(this, GET_INTERVAL);
@@ -184,7 +172,29 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
 
         return super.onOptionsItemSelected(item);
     }
+    public void displayMessages(ArrayList<ChatMessage> chats){
+        for (int i = 0; i< chats.size(); i++){
+            msgListView.setAdapter(chatAdapter);
+            chatAdapter.add(chats.get(i));
+            chatAdapter.notifyDataSetChanged();
+            last_message = chats.get(i);
+            msgListView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+            msgListView.setStackFromBottom(true);
 
+
+        }
+    }
+    public ChatMessage getLastMessage(ArrayList<ChatMessage> chats){
+        return chats.get(chats.size()-1);
+    }
+    public void displayMessage(ArrayList<ChatMessage> chats){
+        msgListView.setAdapter(chatAdapter);
+        chatAdapter.add(chats.get(chats.size()-1));
+        chatAdapter.notifyDataSetChanged();
+        last_message = chats.get(chats.size()-1);
+        msgListView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+        msgListView.setStackFromBottom(true);
+    }
     public void dummyMessage(){
         msgListView.setAdapter(chatAdapter);
         final ChatMessage chatMessage = new ChatMessage(user2, user1,
@@ -221,7 +231,7 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
         String message = msg_edittext.getEditableText().toString();
         if (!message.equalsIgnoreCase("")) {
             final ChatMessage chatMessage = new ChatMessage(user1, user2,
-                    message, true, ChatMessage.senderName);
+                    message, true, VolleyHTTPRequest.getUsername());
             chatMessage.setMsgID();
             chatMessage.timeStamp = CommonMethods.getCurrentStamp();
 
@@ -234,7 +244,7 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
             final JSONObject params = new JSONObject();
             try {
                 params.put("content", message);
-                params.put("userID", VolleyHTTPRequest.id);
+                params.put("userID", VolleyHTTPRequest.getUserID());
                 params.put("meetingID", id);
             } catch(JSONException e){
                 e.printStackTrace();
@@ -301,6 +311,26 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
         }
     }
 
+    public void loopElem(){
+           /* Loop over all elements in the array of messages */
+        for(int i = 0; i < meetingChat.size(); i++){
+            /* Mark those which are send from this user */
+            checkMyMessage(meetingChat.get(i));
+        }
+        System.out.println(meetingChat.toString());
+
+        /* Sort the array list by time stamp (string) */
+        Collections.sort(meetingChat);
+        System.out.println(meetingChat.toString());
+
+        if (last_message == null){
+            displayMessages(meetingChat);
+        } else if(last_message.compareTo(getLastMessage(meetingChat)) != 0 && !getLastMessage(meetingChat).isMine){
+            displayMessage(meetingChat);
+        }
+        //displayMessages(meetingChat);
+    }
+
     /**
      * Does a GET request to the server to get all messages from the meeting ID
      * and also displays them as well.
@@ -331,17 +361,21 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
                             String Suser = message.getString("user");
                             JSONObject user = new JSONObject(Suser);
                             Integer userId = user.getInt("id");
+                            String userName = user.getString("fullName");
 
                             String timeSent = message.getString("time sent");
                             String msgBody = message.getString("content");
-                            //String senderName = message.getString("senderName");
 
                             /* Creates a new chat message to add to the array */
-                            ChatMessage newMessage = new ChatMessage(VolleyHTTPRequest.id,
-                                    userId, msgBody, false, "");
+                            ChatMessage newMessage = new ChatMessage(
+                                    userId, VolleyHTTPRequest.id, msgBody, false, userName);
+                            newMessage.timeStamp = timeSent;
                             /* This array will be processed later */
                             meetingChat.add(newMessage);
+
+
                         }
+                        loopElem();
 
                         Log.d("ADDED", meetingChat.toString());
 
@@ -360,7 +394,7 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
                     Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
                 }
             }
-        ){
+        ) {
 
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
