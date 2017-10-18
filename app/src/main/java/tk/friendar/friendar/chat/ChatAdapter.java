@@ -53,13 +53,21 @@ public class ChatAdapter extends BaseAdapter {
         if (convertView == null)
             vi = inflater.inflate(R.layout.chatbubble,null);
 
-		LinearLayout chatbubble = (LinearLayout) vi.findViewById(R.id.chatbubble_root);
+        /*
+        TextView msg = (TextView) vi.findViewById(R.id.message_text);
+        msg.setText("   "+message.body);
+        msg.append( "\nFROM : "+message.senderName);
+        LinearLayout layout = (LinearLayout) vi
+                .findViewById(R.id.bubble_layout);
+        LinearLayout parent_layout = (LinearLayout) vi
+                .findViewById(R.id.bubble_layout_parent);*/
 
+		    LinearLayout chatbubble = (LinearLayout) vi.findViewById(R.id.chatbubble_root);
         TextView msg = (TextView) chatbubble.findViewById(R.id.chatbubble_message_text);
         msg.setText(message.body);
+		    TextView sender = (TextView) chatbubble.findViewById(R.id.chatbubble_sender);
+		    sender.setText(message.senderName);
 
-		TextView sender = (TextView) chatbubble.findViewById(R.id.chatbubble_sender);
-		sender.setText(message.sender);
 
         // if message is mine then align to right
         if (message.isMine) {

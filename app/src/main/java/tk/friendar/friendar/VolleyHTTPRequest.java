@@ -26,7 +26,7 @@ public class VolleyHTTPRequest {
     static String password;
 	public static int id;
 
-    static Integer userID;
+    public static Integer userID;
 
     private static VolleyHTTPRequest instance;
     private static RequestQueue reqQueue;

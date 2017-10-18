@@ -5,7 +5,7 @@ package tk.friendar.friendar;
  */
 public class URLs {
 
-    private static final String ROOT_URL = "http://api.friendar.tk/1/";
+    private static final String ROOT_URL = "http://115.146.85.46/1/";
 
     public static final String URL_SIGNUP = ROOT_URL + "users";
     public static final String URL_USERS = ROOT_URL + "users";
