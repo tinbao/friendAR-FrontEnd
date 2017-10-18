@@ -35,6 +35,8 @@ public class LocationMarker {
 	private static int vertexAttrib = 0;
 	private static int uvAttrib = 0;
 
+	LiveLocationSmoother locationSmoother = new LiveLocationSmoother(1.5);
+
 	// vertex and texture coordinate data for quad
 	private static final float[] quadData = {
 			// vertices         // tex coords (flipped on y-axis)

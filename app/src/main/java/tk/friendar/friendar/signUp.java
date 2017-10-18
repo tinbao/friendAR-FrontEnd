@@ -191,7 +191,7 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
                     VolleyHTTPRequest.setUsername(userName);
                     VolleyHTTPRequest.setPassword(password);
                     try {
-                        VolleyHTTPRequest.setUserID(response.getInt("id"));
+                        VolleyHTTPRequest.setUserID(response.getInt("userID"));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

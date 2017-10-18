@@ -4,9 +4,7 @@ package tk.friendar.friendar.arscreen;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -24,18 +22,8 @@ import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResponse;
-import com.google.android.gms.location.SettingsClient;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.android.volley.toolbox.StringRequest;
 
 import org.hitlabnz.sensor_fusion.orientationProvider.ImprovedOrientationSensor1Provider;
 import org.hitlabnz.sensor_fusion.orientationProvider.OrientationProvider;
@@ -48,11 +36,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import tk.friendar.friendar.DeviceLocationService;
-import tk.friendar.friendar.HomeScreen;
 import tk.friendar.friendar.URLs;
 import tk.friendar.friendar.User;
 import tk.friendar.friendar.VolleyHTTPRequest;
-import tk.friendar.friendar.testing.DummyData;
 
 /**
  * Created by lucah on 30/8/17.
@@ -74,7 +60,7 @@ public class VRActivity extends AppCompatActivity {
 	private final float[] rotationMatrix = new float[16];
 
 	// Server requests
-	private static final long FRIEND_LOCATION_GET_INTERVAL = 10000;
+	private static final long FRIEND_LOCATION_GET_INTERVAL = 4000;
 	Handler friendLocationGet;
 	Runnable friendLocationGetRunnable;
 
@@ -124,11 +110,7 @@ public class VRActivity extends AppCompatActivity {
 			@Override
 			public void run() {
 				Log.d(TAG, "Requesting friend locations from server");
-                try {
-                    updateFriendLocations();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+				updateFriendLocations();
 
                 friendLocationGet.postDelayed(this, FRIEND_LOCATION_GET_INTERVAL);  // loop
 			}
@@ -150,16 +132,14 @@ public class VRActivity extends AppCompatActivity {
 
 		// Check permissions before starting camera and location
 		if (haveAllPermissions()) {
-			Log.d(TAG, "Resuming, have all permissions.");
 			startCamera();
 			DeviceLocationService.getInstance().startLocationUpdates(this);
 			DeviceLocationService.getInstance().registerUpdateListener(vrOverlay);
 
 			// Start server post/get loop
-			friendLocationGet.postDelayed(friendLocationGetRunnable, 100);
+			friendLocationGet.postDelayed(friendLocationGetRunnable, 1000);
 		}
 		else {
-			Log.d(TAG, "Resuming, requesting permissions.");
 			ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST_ALL_PERMISSIONS);
 		}
 
@@ -180,7 +160,7 @@ public class VRActivity extends AppCompatActivity {
 		// Stop server post/get loops
 		friendLocationGet.removeCallbacks(friendLocationGetRunnable);
 
-		// Stop rotation sensore
+		// Stop rotation sensor
 		orientationProvider.stop();
 	}
 
@@ -266,49 +246,61 @@ public class VRActivity extends AppCompatActivity {
 
 	// Location updates
 	// Pull all locations from the server
-	void updateFriendLocations() throws JSONException {
+	void updateFriendLocations() {
 		allFriends = new ArrayList<>();
-        int updatingFriendsTime = 0;
 		//allFriends = DummyData.getUpdatingFriends();
 
-        // TODO request all friend locations and fill 'allFriends' with the data
-        allFriends = getAllFriends(getFriends());
+		String url = URLs.URL_USERS + "/" + VolleyHTTPRequest.id;
+		Log.d(TAG, "GET users url=" + url);
+		StringRequest req = new StringRequest(Request.Method.GET, url,
+				new Response.Listener<String>() {
+					@Override
+					public void onResponse(String response) {
+						Log.d(TAG, "GET users: " + response);
 
-		vrOverlay.onFriendLocationUpdates(allFriends);
-	}
+						// parse response
+						try {
+							JSONObject json = new JSONObject(response);
+							if (!json.has("friends")) {
+								Log.d(TAG, "'friends' not found (user has no friends)");
+								return;
+							}
+							JSONArray friends = json.getJSONArray("friends");
 
-    /**
-     * Does a GET request to get all the user's friends
-     * @return The JSON Array of all the friends (JSON Objects)
-     */
-	public JSONArray getFriends(){
-		final JSONArray[] resp = {null};
-        final Context context = getApplicationContext();
+							if (friends.length() == 0) {
+								Log.w(TAG, "No friends returned from GET users");
+							}
 
-		/* Does a GET request to authenticate the credentials of the user */
-		JsonObjectRequest req = new JsonObjectRequest(Request.Method.GET, URLs.URL_SIGNUP,
-			new Response.Listener<JSONObject>()
-			{
-				@Override
-				public void onResponse(JSONObject response) {
-					Log.d("JSON Response",response.toString());
-                    Toast.makeText(context, "GOT Friends", Toast.LENGTH_LONG).show();
+							// Iterate through friends
+							for (int i = 0; i < friends.length(); i++){
+								JSONObject friend = friends.getJSONObject(i);
 
-					try {
-						resp[0] = response.getJSONArray("users: ");
-					} catch (JSONException e) {
-						e.printStackTrace();
+								User userFriend = new User(friend.getString("fullName"), friend.getString("username"),
+										friend.getString("email"));
+								userFriend.setLocation(LocationHelper.fromLatLon(friend.getDouble("latitude"),
+										friend.getDouble("longitude")));
+
+								allFriends.add(userFriend);
+								Log.d(TAG, "Parsed user: " + userFriend.getName() + " " + userFriend.getLocation().toString());
+							}
+						} catch (JSONException e) {
+							Log.e(TAG, "ERROR parsing returned users: ");
+							e.printStackTrace();
+							return;
+						}
+
+						// got friends
+						Log.d(TAG, "GET users successful. " + allFriends.size() + " friends returned.");
+						vrOverlay.onFriendLocationUpdates(allFriends);
+					}
+				},
+				new Response.ErrorListener(){
+					@Override
+					public void onErrorResponse(VolleyError error) {
+						String msg = error.toString();
+						Log.e(TAG, "ERROR from GET users: " + msg);
 					}
 				}
-			},
-			new Response.ErrorListener(){
-				@Override
-				public void onErrorResponse(VolleyError error) {
-					String msg = error.toString();
-					Log.d("ErrorResponse", msg);
-                    Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
-				}
-			}
 		){
 			@Override
 			public Map<String, String> getHeaders() throws AuthFailureError {
@@ -325,36 +317,5 @@ public class VRActivity extends AppCompatActivity {
 
 		req.setShouldCache(false);
 		VolleyHTTPRequest.addRequest(req, getApplicationContext());
-
-		return resp[0];
-	}
-
-    /**
-     * Converts the JSON Array of user's friends into an arraylist of users
-     * @param friends User's friends (JSON Array)
-     * @return The Arraylist of user's friends and their locations
-     * @throws JSONException
-     */
-	public ArrayList<User> getAllFriends(JSONArray friends) throws JSONException {
-		allFriends = new ArrayList<User>();
-		if(friends == null){
-			Toast.makeText(getApplicationContext(), "You have no friends", Toast.LENGTH_SHORT);
-            return allFriends;
-		}
-
-		/* Iterate through the array of users */
-        for(int i = 0; i < friends.length(); i++){
-            JSONObject friend = friends.getJSONObject(i);
-
-            /* Create a user object from the JSON data */
-			User userFriend = new User(friend.getString("fullName"), friend.getString("username"),
-                    friend.getString("email"));
-            userFriend.setLocation(LocationHelper.fromLatLon(friend.getDouble("latitude"),
-                    friend.getDouble("longitude")));
-
-            allFriends.add(userFriend);
-		}
-
-		return allFriends;
 	}
 }
