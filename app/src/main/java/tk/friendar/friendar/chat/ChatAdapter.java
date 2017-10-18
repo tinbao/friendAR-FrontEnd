@@ -53,25 +53,24 @@ public class ChatAdapter extends BaseAdapter {
         if (convertView == null)
             vi = inflater.inflate(R.layout.chatbubble,null);
 
-        TextView msg = (TextView) vi.findViewById(R.id.message_text);
-        msg.setText("   "+message.body);
-        msg.append( "\nFROM : "+message.sender);
-        LinearLayout layout = (LinearLayout) vi
-                .findViewById(R.id.bubble_layout);
-        LinearLayout parent_layout = (LinearLayout) vi
-                .findViewById(R.id.bubble_layout_parent);
+		LinearLayout chatbubble = (LinearLayout) vi.findViewById(R.id.chatbubble_root);
+
+        TextView msg = (TextView) chatbubble.findViewById(R.id.chatbubble_message_text);
+        msg.setText(message.body);
+
+		TextView sender = (TextView) chatbubble.findViewById(R.id.chatbubble_sender);
+		sender.setText(message.sender);
 
         // if message is mine then align to right
         if (message.isMine) {
-            layout.setBackgroundResource(R.drawable.bubble2);
-            parent_layout.setGravity(Gravity.RIGHT);
+			msg.setBackgroundResource(R.drawable.round_box_red);
+			chatbubble.setGravity(Gravity.RIGHT);
         }
         // If not mine then align to left
         else {
-            layout.setBackgroundResource(R.drawable.bubble1);
-            parent_layout.setGravity(Gravity.LEFT);
+			msg.setBackgroundResource(R.drawable.round_box_gray);
+			chatbubble.setGravity(Gravity.LEFT);
         }
-        msg.setTextColor(Color.BLACK);
         return vi;
     }
 

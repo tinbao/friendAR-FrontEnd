@@ -96,7 +96,13 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
         scheduleGetMessage();
        }
 
-//    messageGet.postDelayed(messageGetRunnable, Get_INTERVAL);
+        String title = title = getIntent().getStringExtra(HomeScreen.EXTRA_MEETING_NAME);
+        getSupportActionBar().setTitle(title);
+
+       };
+
+
+        //messageGet.postDelayed(messageGetRunnable, Get_INTERVAL);
         // Server requests
         public void scheduleGetMessage(){
             messageGet = new Handler();
