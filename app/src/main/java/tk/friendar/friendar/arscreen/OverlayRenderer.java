@@ -19,6 +19,7 @@ import java.util.Iterator;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import tk.friendar.friendar.DeviceLocationService;
 import tk.friendar.friendar.User;
 import tk.friendar.friendar.testing.DummyData;
 
@@ -27,7 +28,7 @@ import tk.friendar.friendar.testing.DummyData;
  * OpenGL view and renderer used for the VR screen.
  */
 
-public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Renderer {
+public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Renderer, DeviceLocationService.UpdateListener {
 	// Transformations
 	private float[] modelMatrix = new float[16];
 	private float[] viewMatrix = new float[16];
@@ -38,6 +39,7 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 	// Locations
 	private Location deviceLocation;
 	private ArrayList<LocationMarker> nearbyFriends;
+	private static final int DISPLAY_FRIEND_IN_RADIUS = 1000;  // only show friends this close
 
 	// Shaders
 	private Shader markerShader = new Shader();
@@ -77,6 +79,8 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 		setEGLConfigChooser(8, 8, 8, 8, 16, 0);  // 8bits for r,g,b,a and 16 for depth
 		getHolder().setFormat(PixelFormat.TRANSLUCENT);
 
+		setPreserveEGLContextOnPause(true);
+
 		// Finalize renderer
 		setRenderer(this);
 
@@ -101,11 +105,7 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 		// Load shape
 		LocationMarker.loadQuadData(markerShader, "vPosition", "vTexCoord");
 
-		// TODO get actualy friends from activity
-		ArrayList<User> friends = DummyData.getFriends();
-		for (User friend : friends) {
-			onFriendInRange(friend);
-		}
+		ArrayList<User> friends = new ArrayList<>();
 	}
 
 	@Override
@@ -129,6 +129,12 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 		// Draw all markers
 		// Calculate the model matrix and then the MVP
 		for (LocationMarker marker : nearbyFriends) {
+			// Upload texture if needed
+			if (marker.shouldUpload) {
+				marker.uploadIconTexture();
+			}
+
+			// Get orientation from user
 			float distance = deviceLocation.distanceTo(marker.user.getLocation());
 			float bearing = deviceLocation.bearingTo(marker.user.getLocation());
 
@@ -138,6 +144,16 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 			markerShader.uniformMat4("uMVPMatrix", mvpMatrix);
 
 			marker.draw(markerShader, "iconTex");
+		}
+
+		// Delete markers
+		Iterator<LocationMarker> iter = nearbyFriends.iterator();
+		while (iter.hasNext()) {
+			LocationMarker marker = iter.next();
+			if (marker.shouldDelete) {
+				marker.freeTexture();
+				iter.remove();
+			}
 		}
 	}
 
@@ -153,24 +169,47 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 
 
 	// Device location update
-	public void onDeviceLocationUpdate(Location location) {
+	@Override
+	public void onLocationUpdate(Location location) {
 		deviceLocation = location;
 	}
 
 
 	// Friend connect/disconnect events
-	public void onFriendInRange(User friend) {
+	public void onFriendLocationUpdates(ArrayList<User> allFriends) {
+		for (User friend : allFriends) {
+			boolean alreadyDisplaying = false;
+			for (LocationMarker marker : nearbyFriends) {
+				if (marker.user.equals(friend)) {
+					alreadyDisplaying = true;
+					break;
+				}
+			}
+			boolean inRange = (friend.getLocation().distanceTo(deviceLocation) < DISPLAY_FRIEND_IN_RADIUS);
+
+			if (alreadyDisplaying && !inRange) {
+				onFriendOutOfRange(friend);
+				Log.d(TAG, "'" + friend.getName() + "' out of range");
+			}
+			else if (!alreadyDisplaying && inRange) {
+				onFriendInRange(friend);
+				Log.d(TAG, "'" + friend.getName() + "' in range");
+			}
+		}
+		Log.d(TAG, "Now have " + nearbyFriends.size() + " markers");
+	}
+
+	private void onFriendInRange(User friend) {
 		LocationMarker marker = new LocationMarker(friend);
 		marker.generateIconTexture();
 		nearbyFriends.add(marker);
 	}
 
-	public void onFriendOutOfRange(User friend) {
-		Iterator<LocationMarker> iter = nearbyFriends.iterator();
-		while (iter.hasNext()) {
-			LocationMarker marker = iter.next();
-			if (marker.user == friend) {
-				iter.remove();
+	private void onFriendOutOfRange(User friend) {
+		for (LocationMarker marker : nearbyFriends) {
+			if (marker.user.equals(friend)) {
+				marker.shouldDelete = true;
+				return;
 			}
 		}
 	}

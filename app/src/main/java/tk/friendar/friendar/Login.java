@@ -19,15 +19,6 @@ public class Login extends AppCompatActivity {
         setContentView(R.layout.login);
 
     }
-    public void chatTest(View view){
-        Intent intent_chat = new Intent(Login.this,FriendAR_chat.class);
-        startActivity(intent_chat);
-    }
-
-    public void homescreenLink(View view){
-        Intent intent_chat = new Intent(Login.this,HomeScreen.class);
-        startActivity(intent_chat);
-    }
 
     public void signUp(View view){
 

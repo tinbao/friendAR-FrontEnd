@@ -17,7 +17,6 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -84,7 +83,37 @@ public class login_screen extends AppCompatActivity{
                 @Override
                 public void onResponse(JSONObject response) {
                     pd.hide();
-                    Log.d("JSON Response",response.toString());
+                    Log.d("JSON Response", response.toString());
+
+					// Get user id
+					try {
+						JSONArray users = response.getJSONArray("users: ");
+						for (int i = 0; i < users.length(); i++) {
+							JSONObject user = users.getJSONObject(i);
+							if (user.getString("username").equals(VolleyHTTPRequest.getUsername())) {
+								VolleyHTTPRequest.id = user.getInt("id");
+							}
+						}
+					} catch (JSONException e) {
+						Log.e("LoginScreen", "Couldn't get user id: " + e.toString());
+						Toast.makeText(login_screen.this, "Error while logging in", Toast.LENGTH_SHORT).show();
+						throw new RuntimeException();
+					}
+
+                    /* Sets the ID of the current user */
+                    try {
+                        VolleyHTTPRequest.setUserID(response.getInt("id"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    /* Sets the ID of the current user */
+                    try {
+                        VolleyHTTPRequest.setUserID(response.getInt("id"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
                     /* Switch to HOME screen */
                     submitLogin(getCurrentFocus());
                 }
@@ -110,13 +139,14 @@ public class login_screen extends AppCompatActivity{
                 }
             }
         ){
+
+
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> headers = new HashMap<>();
-                headers.put("authorization",
-                        String.format("Basic %s", Base64.encodeToString(
-                                String.format("%s:%s", userName.getText().toString(),
-                                        userPass.getText().toString()).getBytes(), Base64.DEFAULT)));
+                VolleyHTTPRequest.setUsername(userName.getText().toString());
+                VolleyHTTPRequest.setPassword(userPass.getText().toString());
+                headers.put("authorization", VolleyHTTPRequest.makeAutho());
                 return headers;
             }
 
@@ -127,6 +157,7 @@ public class login_screen extends AppCompatActivity{
         };
 
         req.setShouldCache(false);
-        Volley.newRequestQueue(login_screen.this).add(req);
+        VolleyHTTPRequest.addRequest(req, getApplicationContext());
     }
+
 }

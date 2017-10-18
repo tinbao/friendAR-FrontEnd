@@ -1,9 +1,11 @@
 package tk.friendar.friendar.chat;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,34 +13,56 @@ import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.Toast;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Random;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import tk.friendar.friendar.HomeScreen;
+import tk.friendar.friendar.MapsActivity;
 import tk.friendar.friendar.R;
+import tk.friendar.friendar.URLs;
+import tk.friendar.friendar.VolleyHTTPRequest;
 
+/**
+ * FriendAR's chat system to receive and send messages to the users in the meeting group
+ */
 public class FriendAR_chat extends AppCompatActivity implements OnClickListener {
 
     private EditText msg_edittext;
-    private String user1;
-    private String user2;
-     Random random;
+    private Integer user1;
+    private Integer user2;
     public static ArrayList<ChatMessage> chatlist;
     public static ChatAdapter chatAdapter;
     ListView msgListView;
     Handler messageGet;
     Runnable messageGetRunnable;
-    private int Get_INTERVAL = 10000;
-    public double chatId;
+    private static final int GET_INTERVAL = 10000;
     Timer timer = new Timer();
+    /* Current instance meeting id */
     public int id;
+
+    private Integer currentUser = VolleyHTTPRequest.getUserID();
 
     private class dummyMessage extends TimerTask {
         public void run() {
-            final ChatMessage chatMessage = new ChatMessage("Simon", "Mario",
-                    "Eyy Simon, howsita goina?", "" + random.nextInt(1000), false);
+            final ChatMessage chatMessage = new ChatMessage(1, 2,
+                    "Eyy Simon, howsita goina?", false, "Mario");
 
             chatMessage.Date = CommonMethods.getCurrentDate();
             chatMessage.Time = CommonMethods.getCurrentTime();
@@ -48,26 +72,29 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
         }
     }
 
-    /* set up chat Adapter and chat list*/
+    /**
+     * Set up chat Adapter and chat list for the first time
+     * @param savedInstanceState current state
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.chat_layout);
 
-
-
-        user1 = "Simon";
-        user2 = "Mario";
+        user1 = 1;
+        user2 = 2;
 
         msg_edittext = (EditText) findViewById(R.id.messageEditText);
         msgListView = (ListView) findViewById(R.id.msgListView);
+
         chatlist = new ArrayList<>();
         chatAdapter = new ChatAdapter(this, chatlist);
+
         ImageButton sendButton = (ImageButton) findViewById(R.id.sendMessageButton);
         sendButton.setOnClickListener(this);
         id = getIntent().getIntExtra(HomeScreen.EXTRA_MEETING_ID, -1);
         scheduleGetMessage();
+       }
 
         String title = title = getIntent().getStringExtra(HomeScreen.EXTRA_MEETING_NAME);
         getSupportActionBar().setTitle(title);
@@ -82,44 +109,36 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
             messageGet.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-
                     // TODO get string message and details from server
                     // get messages based on meeting id in variable id
                     // put code to get json objects here
-                    //Simon will loop through them and display them
-                    
+                    // Simon will loop through them and display them
+                    getMessages();
 
-                    dummyMessage();
-
-                    messageGet.postDelayed(this, Get_INTERVAL);  // loop
-
+                    //dummyMessage();
+                    /* Loops and constantly checks for messages for INTERVAL time */
+                    messageGet.postDelayed(this, GET_INTERVAL);
                 }
-            },Get_INTERVAL);
+
+            },GET_INTERVAL);
         }
 
-
-
-
-
-/*
-    protected void onResume(){
-        super.onResume();
-        messageGet.postDelayed(messageGetRunnable,Get_INTERVAL);
-
-    }
-*/
-/*
-    @Override
-    protected void onPause() {
-        super.onPause();
-        messageGet.removeCallbacks(messageGetRunnable);
-    }
-*/
+//    protected void onResume(){
+//        super.onResume();
+//        messageGet.postDelayed(messageGetRunnable,Get_INTERVAL);
+//
+//    }
+//
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        messageGet.removeCallbacks(messageGetRunnable);
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        //getMenuInflater().inflate(R.menu.menu_friend_ar_chat, menu);
+        getMenuInflater().inflate(R.menu.menu_friend_ar_chat, menu);
         return true;
     }
 
@@ -132,9 +151,14 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-//        if (id == R.id.action_settings) {
-//            return true;
-//        }
+        if (id == R.id.action_settings) {
+            return true;
+        }
+        else if (id == R.id.action_open_map) {
+			Intent intent = new Intent(this, MapsActivity.class);
+			intent.putExtra("id", this.id);
+			startActivity(intent);
+		}
 
         return super.onOptionsItemSelected(item);
     }
@@ -142,7 +166,7 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
     public void dummyMessage(){
         msgListView.setAdapter(chatAdapter);
         final ChatMessage chatMessage = new ChatMessage(user2, user1,
-                "Eyy Simon, howsita goina?", "" + this.id, false);
+                "Eyy Simon, howsita goina?", false, "Mario");
 
         chatMessage.Date = CommonMethods.getCurrentDate();
         chatMessage.Time = CommonMethods.getCurrentTime();
@@ -154,25 +178,29 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
         msgListView.setStackFromBottom(true);
     }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.sendMessageButton:
+                sendMessage(v);
+        }
+    }
 
-    /*Create current message and add to list and view from User input in EditText element*/
-
+    /**
+     * Create current message and add to list and view from User input in EditText element
+     * @param v is the current view of the device
+     */
     public void sendMessage(View v) {
-        random = new Random();
-
-
-
         // ----Set autoscroll of listview when a new message arrives----//
         msgListView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         msgListView.setStackFromBottom(true);
-
 
         msgListView.setAdapter(chatAdapter);
 
         String message = msg_edittext.getEditableText().toString();
         if (!message.equalsIgnoreCase("")) {
             final ChatMessage chatMessage = new ChatMessage(user1, user2,
-                    message, ""+this.id, true);
+                    message, true, ChatMessage.senderName);
             chatMessage.setMsgID();
             chatMessage.Date = CommonMethods.getCurrentDate();
             chatMessage.Time = CommonMethods.getCurrentTime();
@@ -180,30 +208,120 @@ public class FriendAR_chat extends AppCompatActivity implements OnClickListener 
             msg_edittext.setText("");
             chatAdapter.add(chatMessage);
             chatAdapter.notifyDataSetChanged();
-            //TODO Add Server Code to send message to server with meeting Id
-            //message to be sent is contained in object chatMessage
-            //JSON object parameters
-            /*
-            params.put("sender", user1);
-            params.put("receiver", user2);
-            params.put("msgid", this.id);
-            params.put("isMine", true);
-            params.put("body", message);
-            params.put("date", chatMessage.Date);
-            params.put("time", chatMessage.Time);
-           */
+
+            /* Server Code to send message to server with meeting Id
+             * Message to be sent is contained in object chatMessage */
+            final JSONObject params = new JSONObject();
+            try {
+                params.put("content", message);
+                params.put("userID", currentUser);
+                params.put("meetingID", id);
+            } catch(JSONException e){
+                e.printStackTrace();
+            }
+
+            /* Does a POST request to send the message to the correct meeting group */
+            StringRequest req = new StringRequest(Request.Method.POST, URLs.URL_CHAT,
+                new Response.Listener<String>()
+                {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("JSON Response",response);
+                        Toast.makeText(getApplicationContext(), "Message Sent", Toast.LENGTH_SHORT).show();
+                    }
+                },
+                new Response.ErrorListener(){
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        String msg = error.toString();
+                        Log.d("ErrorResponse", msg);
+                        Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+                    }
+                }
+            ){
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> headers = new HashMap<>();
+                    headers.put("authorization", VolleyHTTPRequest.makeAutho());
+                    return headers;
+                }
+
+                @Override
+                public byte[] getBody() throws AuthFailureError {
+                    return params.toString().getBytes();
+                }
+
+                @Override
+                public String getBodyContentType() {
+                    return "application/json; charset=utf-8";
+                }
+            };
+
+            req.setShouldCache(false);
+            VolleyHTTPRequest.addRequest(req, getApplicationContext());
+
         }
-
-
-
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.sendMessageButton:
-                sendMessage(v);
+    /**
+     * Does a GET request to the server to get any messages
+     * and also displays them as well.
+     */
+    private void getMessages() {
 
-        }
+        /* Does a GET request to receive the messages of the meeting group */
+        StringRequest req = new StringRequest(Request.Method.GET, URLs.URL_CHAT,
+            new Response.Listener<String>()
+            {
+                @Override
+                public void onResponse(String response) {
+                    Log.d("JSON Response",response);
+
+                    try {
+                        JSONObject res = new JSONObject(response);
+
+                        /* Parses the JSON Object and gets all the needed info */
+                        Integer meetingId = res.getInt("meetingID");
+                        Integer userId = res.getInt("userID");
+                        String timeSent = res.getString("timeSent");
+                        String msgBody = res.getString("content");
+                        //String senderName = res.getString("senderName");
+
+                        /* Creates a new chat message to add to the array */
+                        ChatMessage newMessage = new ChatMessage(currentUser, userId, msgBody,
+                                 false, "");
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            },
+            new Response.ErrorListener(){
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    String msg = error.toString();
+                    Log.d("ErrorResponse", msg);
+
+                    Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+                }
+            }
+        ){
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("authorization", VolleyHTTPRequest.makeAutho());
+                return headers;
+            }
+
+            @Override
+            public String getBodyContentType() {
+                return "application/json; charset=utf-8";
+            }
+        };
+
+        req.setShouldCache(false);
+        VolleyHTTPRequest.addRequest(req, getApplicationContext());
     }
 }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             

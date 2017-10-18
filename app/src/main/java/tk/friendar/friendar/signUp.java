@@ -17,6 +17,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import android.support.v4.app.DialogFragment;
+import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkResponse;
@@ -25,7 +26,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -164,6 +164,8 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
         /* Display signing up dialog once all info is correctly formatted */
         pd.setMessage("Signing Up . . .");
         pd.show();
+        pd.setCancelable(false);
+        pd.setCanceledOnTouchOutside(false);
 
         final JSONObject params = new JSONObject();
         /* Puts the information into the JSON Object */
@@ -185,6 +187,15 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
                 public void onResponse(JSONObject response) {
                     pd.hide();
                     Log.d("Response", response.toString());
+
+                    VolleyHTTPRequest.setUsername(userName);
+                    VolleyHTTPRequest.setPassword(password);
+                    try {
+                        VolleyHTTPRequest.setUserID(response.getInt("id"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
                     /* Switch to HOME screen */
                     submitLogin(getCurrentFocus());
                 }
@@ -221,10 +232,11 @@ public class signUp extends AppCompatActivity implements DatePickerDialog.OnDate
             };
 
         /* DEBUG: Tells android to wait 30 seconds and try 5 times */
-        req.setRetryPolicy(new DefaultRetryPolicy(30000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        //req.setRetryPolicy(new DefaultRetryPolicy(30000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
         /* Requests are posted and executed in a queue */
         req.setShouldCache(false);
-        Volley.newRequestQueue(signUp.this).add(req);
+        VolleyHTTPRequest.getInstance().addRequest(req, getApplicationContext());
 
     }
 }
