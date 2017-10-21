@@ -41,6 +41,9 @@ Friendar 1.0 is developed in native Android, we take no responsibility for execu
 
 #### TEST INSTRUCTIONS (In Android Studio)
 
+Tests are located are located in app/src/test/java/tk/friendar/friendar
+To run the tests:
+
 1. Clone our repository: https://github.com/COMP30022/Nitrogen-FrontEnd.git
 
 2. Open in Android Studio and load the cloned repository
