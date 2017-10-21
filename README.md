@@ -35,7 +35,7 @@ Front End build of the FRIENDAR mobile application developed in native android a
 
 #### WARNING
 
-Friendar 1.0 is developed in native Android, we take no responsibility in execution failure in other environments including iOS, Windows and/or Linux.
+Friendar 1.0 is developed in native Android, we take no responsibility for execution failure in other environments including iOS, Windows and/or Linux.
 
 
 
@@ -48,11 +48,14 @@ Friendar 1.0 is developed in native Android, we take no responsibility in execut
 
 #### TEST INSTRUCTIONS ALTERNATIVE (In Android Studio)
 
+Tests are located in app/src/test/java/tk/friendar/friendar  
+To run the tests:
+
 1. Clone our repository: https://github.com/COMP30022/Nitrogen-FrontEnd.git
 
 2. Open in Android Studio and load the cloned repository
 
-3. Press `Alt-Shift-F10` to open the run window
+3. Press <kbd>Alt</kbd>-<kbd>Shift</kbd>-<kbd>F10</kbd> to open the run window
 
    ![run-as](C:\Users\tinba\Documents\GitHub\Nitrogen-FrontEnd\readme-resources\run-as.png)
 
@@ -60,7 +63,7 @@ Friendar 1.0 is developed in native Android, we take no responsibility in execut
 
 #### BUILD INSTRUCTIONS (In Android Studio)
 
-1. On successful testing, press `Alt-Shift-F10` again to bring up the run window
+1. On successful testing, press <kbd>Alt</kbd>-<kbd>Shift</kbd>-<kbd>F10</kbd> again to bring up the run window
 
 2. Select "app"
 

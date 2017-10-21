@@ -4,9 +4,7 @@ package tk.friendar.friendar.arscreen;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -20,31 +18,32 @@ import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResponse;
-import com.google.android.gms.location.SettingsClient;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 
 import org.hitlabnz.sensor_fusion.orientationProvider.ImprovedOrientationSensor1Provider;
 import org.hitlabnz.sensor_fusion.orientationProvider.OrientationProvider;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
-import tk.friendar.friendar.HomeScreen;
+import tk.friendar.friendar.DeviceLocationService;
+import tk.friendar.friendar.URLs;
 import tk.friendar.friendar.User;
+import tk.friendar.friendar.VolleyHTTPRequest;
 
 /**
  * Created by lucah on 30/8/17.
  * Activity used for the VR screen.
  * For renderering of this screen, see OverlayRenderer.
- *
- * FIXME Sync position sensor to magnetic north properly
  */
 
 public class VRActivity extends AppCompatActivity {
@@ -60,19 +59,9 @@ public class VRActivity extends AppCompatActivity {
 	private OrientationProvider orientationProvider;
 	private final float[] rotationMatrix = new float[16];
 
-	// Location service
-	FusedLocationProviderClient locationProviderClient;
-	LocationCallback locationCallback = null;
-	boolean locationUpdatesStarted = false;
-	private static final long DEVICE_LOCATION_UPDATE_INTERVAl = 5000;
-	private static final long DEVICE_LOCATION_UPDATE_FASTEST_INTERVAl = 1000;
-
 	// Server requests
-	private static final long DEVICE_LOCATION_POST_INTERVAL = 6000;
-	private static final long FRIEND_LOCATION_GET_INTERVAL = 10000;
-	Handler deviceLocationPost;
+	private static final long FRIEND_LOCATION_GET_INTERVAL = 4000;
 	Handler friendLocationGet;
-	Runnable deviceLocationPostRunnable;
 	Runnable friendLocationGetRunnable;
 
 	// Permissions
@@ -83,7 +72,7 @@ public class VRActivity extends AppCompatActivity {
 	private static final int REQUEST_ALL_PERMISSIONS = 25;
 
 	// Nearby friends
-	ArrayList<User> nearbyFriends;
+	ArrayList<User> allFriends = new ArrayList<>();
 
 	// Swipe listener
 	private GestureDetectorCompat gestureObject;
@@ -115,29 +104,15 @@ public class VRActivity extends AppCompatActivity {
 		orientationProvider = new ImprovedOrientationSensor1Provider(sensorManager);
 		vrOverlay.setOrientationProvider(orientationProvider);
 
-		// Location
-		locationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-
 		// Server requests
-		deviceLocationPost = new Handler();
-		deviceLocationPostRunnable = new Runnable() {
-			@Override
-			public void run() {
-				Log.d(TAG, "Sending device location to server");
-				// TODO send location to server here
-
-				deviceLocationPost.postDelayed(this, DEVICE_LOCATION_POST_INTERVAL);  // loop
-			}
-		};
-
 		friendLocationGet = new Handler();
 		friendLocationGetRunnable = new Runnable() {
 			@Override
 			public void run() {
 				Log.d(TAG, "Requesting friend locations from server");
-				// TODO request locations here
+				updateFriendLocations();
 
-				friendLocationGet.postDelayed(this, FRIEND_LOCATION_GET_INTERVAL);  // loop
+                friendLocationGet.postDelayed(this, FRIEND_LOCATION_GET_INTERVAL);  // loop
 			}
 		};
 
@@ -157,16 +132,14 @@ public class VRActivity extends AppCompatActivity {
 
 		// Check permissions before starting camera and location
 		if (haveAllPermissions()) {
-			Log.d(TAG, "Resuming, have all permissions.");
 			startCamera();
-			startDeviceLocationUpdates();
+			DeviceLocationService.getInstance().startLocationUpdates(this);
+			DeviceLocationService.getInstance().registerUpdateListener(vrOverlay);
 
 			// Start server post/get loop
-			deviceLocationPost.postDelayed(deviceLocationPostRunnable, DEVICE_LOCATION_POST_INTERVAL);
-			friendLocationGet.postDelayed(friendLocationGetRunnable, FRIEND_LOCATION_GET_INTERVAL);
+			friendLocationGet.postDelayed(friendLocationGetRunnable, 1000);
 		}
 		else {
-			Log.d(TAG, "Resuming, requesting permissions.");
 			ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST_ALL_PERMISSIONS);
 		}
 
@@ -181,13 +154,13 @@ public class VRActivity extends AppCompatActivity {
 
 		// Stop camera and location services
 		if (cameraStarted) stopCamera();
-		if (locationUpdatesStarted) stopDeviceLocationUpdates();
+		DeviceLocationService.getInstance().unregisterUpdateListener(vrOverlay);
+		DeviceLocationService.getInstance().stopLocationUpdates(this);
 
 		// Stop server post/get loops
-		deviceLocationPost.removeCallbacks(deviceLocationPostRunnable);
 		friendLocationGet.removeCallbacks(friendLocationGetRunnable);
 
-		// Stop rotation sensore
+		// Stop rotation sensor
 		orientationProvider.stop();
 	}
 
@@ -251,56 +224,6 @@ public class VRActivity extends AppCompatActivity {
 	}
 
 
-	// Device location updates
-	@SuppressWarnings({"MissingPermission"})
-	private void startDeviceLocationUpdates() {
-		// Build request
-		final LocationRequest request = new LocationRequest();
-		request.setInterval(DEVICE_LOCATION_UPDATE_INTERVAl);
-		request.setFastestInterval(DEVICE_LOCATION_UPDATE_FASTEST_INTERVAl);
-		request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
-		// Location callback
-		locationCallback = new LocationCallback() {
-			@Override
-			public void onLocationResult(LocationResult locationResult) {
-				Location loc = locationResult.getLastLocation();
-				vrOverlay.onDeviceLocationUpdate(loc);
-				Log.d(TAG, "New Loc: " + loc.toString());
-			}
-		};
-
-		// Put request into settings
-		LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
-		builder.addLocationRequest(request);
-
-		SettingsClient settingsClient = LocationServices.getSettingsClient(this);
-		settingsClient.checkLocationSettings(builder.build())
-				.addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
-					@Override
-					public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-						Log.d(TAG, "Successfully set location settings.");
-
-						// Start updates
-						locationProviderClient.requestLocationUpdates(request, locationCallback, null);
-						locationUpdatesStarted = true;
-					}
-				})
-				.addOnFailureListener(this, new OnFailureListener() {
-					@Override
-					public void onFailure(@NonNull Exception e) {
-						Log.e(TAG, "Could not set location settings: " + e.getMessage());
-					}
-				});
-	}
-
-	private void stopDeviceLocationUpdates() {
-		if (locationCallback != null) {
-			locationProviderClient.removeLocationUpdates(locationCallback);
-			locationUpdatesStarted = false;
-		}
-	}
-
 	// Gestures
 	class LearnGesture extends GestureDetector.SimpleOnGestureListener {
 		@Override
@@ -319,5 +242,80 @@ public class VRActivity extends AppCompatActivity {
 	public boolean onTouchEvent(MotionEvent event) {
 		this.gestureObject.onTouchEvent(event);
 		return super.onTouchEvent(event);
+	}
+
+	// Location updates
+	// Pull all locations from the server
+	void updateFriendLocations() {
+		allFriends = new ArrayList<>();
+		//allFriends = DummyData.getUpdatingFriends();
+
+		String url = URLs.URL_USERS + "/" + VolleyHTTPRequest.id;
+		Log.d(TAG, "GET users url=" + url);
+		StringRequest req = new StringRequest(Request.Method.GET, url,
+				new Response.Listener<String>() {
+					@Override
+					public void onResponse(String response) {
+						Log.d(TAG, "GET users: " + response);
+
+						// parse response
+						try {
+							JSONObject json = new JSONObject(response);
+							if (!json.has("friends")) {
+								Log.d(TAG, "'friends' not found (user has no friends)");
+								return;
+							}
+							JSONArray friends = json.getJSONArray("friends");
+
+							if (friends.length() == 0) {
+								Log.w(TAG, "No friends returned from GET users");
+							}
+
+							// Iterate through friends
+							for (int i = 0; i < friends.length(); i++){
+								JSONObject friend = friends.getJSONObject(i);
+
+								User userFriend = new User(friend.getString("fullName"), friend.getString("username"),
+										friend.getString("email"));
+								userFriend.setLocation(LocationHelper.fromLatLon(friend.getDouble("latitude"),
+										friend.getDouble("longitude")));
+
+								allFriends.add(userFriend);
+								Log.d(TAG, "Parsed user: " + userFriend.getName() + " " + userFriend.getLocation().toString());
+							}
+						} catch (JSONException e) {
+							Log.e(TAG, "ERROR parsing returned users: ");
+							e.printStackTrace();
+							return;
+						}
+
+						// got friends
+						Log.d(TAG, "GET users successful. " + allFriends.size() + " friends returned.");
+						vrOverlay.onFriendLocationUpdates(allFriends);
+					}
+				},
+				new Response.ErrorListener(){
+					@Override
+					public void onErrorResponse(VolleyError error) {
+						String msg = error.toString();
+						Log.e(TAG, "ERROR from GET users: " + msg);
+					}
+				}
+		){
+			@Override
+			public Map<String, String> getHeaders() throws AuthFailureError {
+				Map<String, String> headers = new HashMap<>();
+				headers.put("authorization", VolleyHTTPRequest.makeAutho());
+				return headers;
+			}
+
+			@Override
+			public String getBodyContentType() {
+				return "application/json; charset=utf-8";
+			}
+		};
+
+		req.setShouldCache(false);
+		VolleyHTTPRequest.addRequest(req, getApplicationContext());
 	}
 }

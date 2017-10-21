@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:id="@+id/chatbubble_root"
+              android:orientation="vertical"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:paddingLeft="8dp"
+              android:paddingRight="8dp"
+              android:paddingBottom="4dp"
+              android:paddingTop="4dp" >
+
+    <TextView
+        android:id="@+id/chatbubble_message_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/round_box_gray"
+        android:maxEms="12"
+        android:padding="6dp"
+        android:textSize="16sp"
+        android:textColor="#000000"
+        tools:text="Hey man, what's up?"/>
+
+    <TextView
+        android:id="@+id/chatbubble_sender"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:textColor="#888888"
+        tools:text="Simon"/>
+
+</LinearLayout>

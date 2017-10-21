@@ -9,12 +9,16 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class User {
 	private String name;
 	private String username;
 	private String email;
 	private Location location = null;
 	private Bitmap picture = null;
+	private int id = 0;
 
 	public User(String name, String username, String email) {
 		this.name = name;
@@ -44,6 +48,30 @@ public class User {
 
 	public Bitmap getPicture() {
 		return picture;
+	}
+
+	public void setID(int id) {
+		this.id = id;
+	}
+
+	public int getID() {
+		return id;
+	}
+
+	/**
+	 * Creates a new JSON User to send to server
+	 * @return JSON user
+	 * @throws JSONException
+	 */
+	public JSONObject createJSONUser() throws JSONException {
+		final JSONObject newObj = new JSONObject();
+		newObj.put("username", username);
+		newObj.put("email", email);
+		newObj.put("latitude", location.getLatitude());
+		newObj.put("longitude", location.getLongitude());
+		newObj.put("fullName", name);
+
+		return newObj;
 	}
 
 	public void setPicture(Bitmap picture) {
@@ -88,5 +116,15 @@ public class User {
 			default:
 				return 0;
 		}
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == null || o.getClass() != this.getClass()) return false;
+		if (o == this) return true;
+
+		User user = (User)o;
+		// Consider storing user ID and using for equality testing
+		return (user.username.equals(this.username) || user.email.equals(this.email));
 	}
 }

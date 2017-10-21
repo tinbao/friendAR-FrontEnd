@@ -19,6 +19,7 @@ import java.util.Iterator;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import tk.friendar.friendar.DeviceLocationService;
 import tk.friendar.friendar.User;
 import tk.friendar.friendar.testing.DummyData;
 
@@ -27,7 +28,7 @@ import tk.friendar.friendar.testing.DummyData;
  * OpenGL view and renderer used for the VR screen.
  */
 
-public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Renderer {
+public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Renderer, DeviceLocationService.UpdateListener {
 	// Transformations
 	private float[] modelMatrix = new float[16];
 	private float[] viewMatrix = new float[16];
@@ -38,6 +39,9 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 	// Locations
 	private Location deviceLocation;
 	private ArrayList<LocationMarker> nearbyFriends;
+	private static final int DISPLAY_FRIEND_IN_RADIUS = 1000;  // only show friends this close
+	// Location smoothers
+	LiveLocationSmoother deviceLocationSmoother = new LiveLocationSmoother(1.0);
 
 	// Shaders
 	private Shader markerShader = new Shader();
@@ -77,12 +81,14 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 		setEGLConfigChooser(8, 8, 8, 8, 16, 0);  // 8bits for r,g,b,a and 16 for depth
 		getHolder().setFormat(PixelFormat.TRANSLUCENT);
 
+		setPreserveEGLContextOnPause(true);
+
 		// Finalize renderer
 		setRenderer(this);
 
 		// Locations
 		nearbyFriends = new ArrayList<>();
-		deviceLocation = LocationHelper.fromLatLon(90.0f, 0.0f);  // initial placeholder
+		deviceLocation = LocationHelper.fromLatLon(-37.79, 144.96);  // initial placeholder
 	}
 
 	@Override
@@ -101,11 +107,7 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 		// Load shape
 		LocationMarker.loadQuadData(markerShader, "vPosition", "vTexCoord");
 
-		// TODO get actualy friends from activity
-		ArrayList<User> friends = DummyData.getFriends();
-		for (User friend : friends) {
-			onFriendInRange(friend);
-		}
+		ArrayList<User> friends = new ArrayList<>();
 	}
 
 	@Override
@@ -129,8 +131,17 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 		// Draw all markers
 		// Calculate the model matrix and then the MVP
 		for (LocationMarker marker : nearbyFriends) {
-			float distance = deviceLocation.distanceTo(marker.user.getLocation());
-			float bearing = deviceLocation.bearingTo(marker.user.getLocation());
+			// Upload texture if needed
+			if (marker.shouldUpload) {
+				marker.uploadIconTexture();
+			}
+
+			// Get orientation from user
+			Location deviceLocationSmooth = deviceLocationSmoother.getSmoothedLocation();
+			Location markerLocationSmooth = marker.locationSmoother.getSmoothedLocation();
+			float distance = deviceLocationSmooth.distanceTo(markerLocationSmooth);
+			float bearing = deviceLocationSmooth.bearingTo(markerLocationSmooth);
+
 
 			calculateViewMatrix();
 			calculateModelMatrix(bearing, distance);
@@ -138,6 +149,16 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 			markerShader.uniformMat4("uMVPMatrix", mvpMatrix);
 
 			marker.draw(markerShader, "iconTex");
+		}
+
+		// Delete markers
+		Iterator<LocationMarker> iter = nearbyFriends.iterator();
+		while (iter.hasNext()) {
+			LocationMarker marker = iter.next();
+			if (marker.shouldDelete) {
+				marker.freeTexture();
+				iter.remove();
+			}
 		}
 	}
 
@@ -153,24 +174,55 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 
 
 	// Device location update
-	public void onDeviceLocationUpdate(Location location) {
+	@Override
+	public void onLocationUpdate(Location location) {
 		deviceLocation = location;
+		deviceLocationSmoother.newLocation(location);
 	}
 
 
 	// Friend connect/disconnect events
-	public void onFriendInRange(User friend) {
+	public void onFriendLocationUpdates(ArrayList<User> allFriends) {
+		for (User friend : allFriends) {
+			LocationMarker relatedMarker = null;
+			boolean alreadyDisplaying = false;
+			for (LocationMarker marker : nearbyFriends) {
+				if (marker.user.equals(friend)) {
+					alreadyDisplaying = true;
+					relatedMarker = marker;
+					break;
+				}
+			}
+			boolean inRange = (friend.getLocation().distanceTo(deviceLocation) < DISPLAY_FRIEND_IN_RADIUS);
+
+			if (alreadyDisplaying && !inRange) {
+				onFriendOutOfRange(friend);
+				Log.d(TAG, "'" + friend.getName() + "' out of range");
+			}
+			else if (alreadyDisplaying && inRange) {
+				// update location
+				relatedMarker.locationSmoother.newLocation(friend.getLocation());
+			}
+			else if (!alreadyDisplaying && inRange) {
+				onFriendInRange(friend);
+				Log.d(TAG, "'" + friend.getName() + "' in range");
+			}
+		}
+		Log.d(TAG, "Now have " + nearbyFriends.size() + " markers");
+	}
+
+	private void onFriendInRange(User friend) {
 		LocationMarker marker = new LocationMarker(friend);
 		marker.generateIconTexture();
+		marker.locationSmoother.newLocation(friend.getLocation());
 		nearbyFriends.add(marker);
 	}
 
-	public void onFriendOutOfRange(User friend) {
-		Iterator<LocationMarker> iter = nearbyFriends.iterator();
-		while (iter.hasNext()) {
-			LocationMarker marker = iter.next();
-			if (marker.user == friend) {
-				iter.remove();
+	private void onFriendOutOfRange(User friend) {
+		for (LocationMarker marker : nearbyFriends) {
+			if (marker.user.equals(friend)) {
+				marker.shouldDelete = true;
+				return;
 			}
 		}
 	}
@@ -179,11 +231,11 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 	// Calculate model matrix from position relative to camera
 	private void calculateModelMatrix(float bearing, float distance) {
 		// distance and scale to draw
-		// modelDistance is linear for small distances, but asymptotes at 1km
-		// scale counter acts distance (inverse square law), but not fully
-		// combination gives appearance of distance without limiting visibility
-		float modelDistance = 0.7f * distance / (1.0f + distance / 999.0f);
-		float scale = (float)Math.pow(modelDistance, 0.5f);
+		// can use to reduce the effect of shrinking at distance
+		//float modelDistance = 0.7f * distance / (1.0f + distance / 999.0f);
+		//float scale = (float)Math.pow(modelDistance, 0.5f);
+		float modelDistance = 0.7f * distance;
+		float scale = 1.0f;
 
 		double rBearing = Math.toRadians(bearing);
 		float counterAngle = -bearing;// + (float)Math.toRadians(180);  // counter rotation to face viewer
@@ -192,7 +244,7 @@ public class OverlayRenderer extends GLSurfaceView implements GLSurfaceView.Rend
 
 		// Transformations (use reverse order for transformations: translate -> rotate -> scale)
 		Matrix.setIdentityM(modelMatrix, 0);
-		Matrix.translateM(modelMatrix, 0, distanceEast, 0, -distanceNorth);
+		Matrix.translateM(modelMatrix, 0, distanceEast, 2.5f, -distanceNorth);
 		Matrix.rotateM(modelMatrix, 0, counterAngle, 0.0f, 1.0f, 0.0f); // face toward viewer
 		Matrix.scaleM(modelMatrix, 0, scale, scale, scale);
 	}
