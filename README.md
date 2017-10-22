@@ -17,7 +17,7 @@ Front End build of the FRIENDAR mobile application developed in native android a
 
 ##### Prerequisite Installs
 
-* Android Studio 2.3.3 (Android Studio will install all below, otherwise please install these)
+* Android Studio 2.3.3 (Android Studio will install all below, otherwise please install these), alternatively these can be installed through [gradle](https://gradle.org/).
 
   * JUnit 4.12
   * Volley 1.0.19
@@ -39,7 +39,17 @@ Friendar 1.0 is developed in native Android, we take no responsibility for execu
 
 
 
-#### TEST INSTRUCTIONS (In Android Studio)
+#### TEST INSTRUCTIONS using [Gradle](https://gradle.org/).
+
+1. Clone our repository: https://github.com/COMP30022/Nitrogen-FrontEnd.git
+2. In a command line bash navigate to location of said folder
+3. Enter `./gradlew test`
+4. Watch the console for the results of the tests
+
+#### TEST INSTRUCTIONS ALTERNATIVE (In Android Studio)
+
+Tests are located in app/src/test/java/tk/friendar/friendar  
+To run the tests:
 
 1. Clone our repository: https://github.com/COMP30022/Nitrogen-FrontEnd.git
 
